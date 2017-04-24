@@ -1,0 +1,200 @@
+% $Id$
+%
+% vim: set fenc=utf-8 ft=latex
+% !Mode:: "TeX:UTF-8"
+% !TEX encoding = UTF-8 Unicode 
+% -*- mode: latex -*-
+% -*- coding: UTF-8 -*-
+% kate: encoding utf-8;
+%
+% IMPORTANT Note: This file is UTF-8 encoded! 
+%                 You should see some umlauts here: ÄÖÜßaöü
+%
+
+
+\IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
+\documentclass{beamer}
+
+
+%*****************************************************************************
+%** font setup ***************************************************************
+%
+% We use the LUH Rotis "automatically", if we are compiled with lualatex.
+%   NOTE: The font has to be available in your TEXFONTS path!
+%
+% Otherwise we should use Arial, but fall back to Helevetica as it is easier
+%
+
+
+  \usepackage{iftex}
+  \ifluatex
+    \usepackage[no-math]{fontspec}
+    \setmainfont{RotisSansSerifStd}[
+      Extension       = .otf,
+      UprightFont     = *-Light,
+      BoldFont        = *-Bold,
+      ItalicFont      = *-LightIt,
+    ]
+		\setmonofont{VeraMono}[
+			Extension       = .ttf,
+			BoldFont        = *-Bold,
+			ItalicFont      = *-Italic,
+			BoldItalicFont  = *-Bold-Italic,
+			Scale           = MatchLowercase,
+		]
+  \else
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{helvet}
+%		\usepackage{uarial}	% use a "real" arial clone (available via getnonfreefonts)
+    \usepackage[scaled=0.85]{beramono}
+  \fi
+
+
+%*****************************************************************************
+%** beamer setup *************************************************************
+
+	% nice blocs
+	\usecolortheme{rose}
+	% our theme
+	\usetheme{sra}
+	% the same, but with top-level bullets in gray instead of SRA red
+%	\usetheme[graytoplevelitems]{sra}
+
+	\setbeamertemplate{navigation symbols}{}
+	\beamersetuncovermixins{\opaqueness<1>{25}}{\opaqueness<2->{15}}
+
+
+\begin{document}
+\title{Beamer Theme SRA}
+\author[dl]{Daniel Lohmann}
+\date{\today} 
+
+\begin{frame}[title]
+	\titlepage
+\end{frame}
+
+\begin{frame}\frametitle{Table of contents}\tableofcontents
+\end{frame} 
+
+
+\section{Section no.1} 
+
+\begin{frame}
+	\frametitle{Title} 
+	Each frame should have a title.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Title with Subtitle}
+	\framesubtitle{Subtitle} 
+	And can optionally have a subtitle, which replaces the LUH Logo.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Also a very (way to) long title hides the LUH logo!}
+	Space is precious, you know...
+\end{frame}
+
+\subsection{Subsection no.1.1  }
+
+\begin{frame}{~}
+	Without title somethink is missing. 
+\end{frame}
+
+\begin{frame}[plain]{} 
+	However, together with the [plain] option this gives a lot of space! 
+\end{frame}
+
+\subsection{Subsection no.1.2}
+
+\section{Section no. 2} 
+
+\subsection{Lists I}
+
+\begin{frame}{unnumbered lists}
+
+	Blubs and bla, didelda, ah, ah, ah. 
+	\begin{itemize}
+		\item Introduction to  \LaTeX  
+		\item Course 2 
+		\begin{itemize}
+			\item Bla
+			\item Blub
+			\begin{itemize}
+				\item Bla
+				\item Blub
+			\end{itemize}
+		\end{itemize}
+		\item Termpapers and presentations with \LaTeX 
+	\item Beamer class
+	\end{itemize} 
+\end{frame}
+
+\begin{frame}{lists with pause}
+	\begin{itemize}
+		\item Introduction to  \LaTeX \pause 
+		\item Course 2 \pause 
+		\item Termpapers and presentations with \LaTeX \pause 
+		\item Beamer class
+	\end{itemize} 
+\end{frame}
+
+\subsection{Lists II}
+
+\begin{frame}\frametitle{numbered lists}
+	\begin{enumerate}
+		\item Introduction to  \LaTeX  
+		\item Course 2 
+		\item Termpapers and presentations with \LaTeX 
+		\item Beamer class
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}\frametitle{numbered lists with pause}
+	\begin{enumerate}
+		\item Introduction to  \LaTeX \pause 
+		\item Course 2 \pause 
+		\item Termpapers and presentations with \LaTeX \pause 
+		\item Beamer class
+	\end{enumerate}
+\end{frame}
+
+
+\section{Section no. 3}
+
+\subsection{blocs}
+
+\begin{frame}{blocs}
+	\begin{block}{title of the bloc}
+		bloc text
+	\end{block}
+
+	\begin{exampleblock}{title of the bloc}
+		example bloc text
+		\begin{itemize}
+			\item Blah
+			\begin{itemize}
+				\item laber
+				\item fasel
+			\end{itemize}
+			\item Blubs
+		\end{itemize}
+	\end{exampleblock}
+
+
+	\begin{alertblock}{title of the bloc}
+		alert bloc text
+		\begin{enumerate}
+			\item Blah
+			\begin{enumerate}
+				\item laber
+				\item fasel
+			\end{enumerate}
+			\item Blubs
+		\end{enumerate}
+	\end{alertblock}
+\end{frame}
+
+
+\end{document}

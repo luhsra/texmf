@@ -301,12 +301,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % frametitle setup
 %
-% This is probably the most hacky part of i4beamer We completely overwrite the
+% This is probably the most hacky part of beamersra We completely overwrite the
 % code beamer uses to render the frame title, especially to get the vertical
 % spacing and alignment right, so it fits with the "background".
 %
-% The i4-Layout does not really offer space for subtitles. We support them
-% anyway by printing them right-aligned.
+% The SRA layout does not really offer space for subtitles. We support them
+% anyway by printing them right-aligned. If no subtitle is given, we typeset
+% the LUH logo. However, as this constrains the space available for the title
+% we typeset the LUH logo only if the the remaining space permits it.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\newsavebox{\beamerthemesra@box}
@@ -318,10 +320,11 @@
 		% no subtitle was given, we render the luh-logo
 		\ifx\insertframesubtitle\@empty
 			% we render it at the current font's height and depth (+ some offset for better looks)
-			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
+%			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
+			\savebox\@tempboxa{\includegraphics[height=16pt]{luh-logo-rgb}}
 			% but only if it fits without a line break!
 			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
-				\hfill\raisebox{-0.8\fontchardp\font`g}{\usebox{\@tempboxa}}%
+				\hfill\raisebox{-0.95\fontchardp\font`g}{\usebox{\@tempboxa}}%
 		  \fi
     \else {%
       \usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}
