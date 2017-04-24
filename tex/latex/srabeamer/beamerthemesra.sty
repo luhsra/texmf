@@ -1,0 +1,335 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Id$
+%
+% a beamer style for SRA 
+%
+% Copyright 2017 by Daniel Lohmann (lohmann@sra.uni-hannover.de)
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ProvidesPackage{beamerthemesra}[2017/03/20]
+\RequirePackage{pgfopts}	% we process options with pgfkeys
+\RequirePackage{iftex}
+
+\def\sra@message#1{\message{beamerthemesra: #1}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% package options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	\newif\ifsraGrayTopLevelItems
+
+  \pgfset{
+    /sra/.cd,
+		graytoplevelitems/.is if=sraGrayTopLevelItems,
+	}
+
+  \ProcessPgfPackageOptions{/sra}
+
+\mode<presentation>
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% color setup
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
+  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
+  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
+  \providecolor{darkred}{rgb}{0.8,0,0}
+
+
+	\providecolor{luhgreen}{RGB}{177,201,32}		% CMKY 30,0,94,0, Pantone 382
+	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
+  \providecolor{srared}{RGB}{208,38,38}
+	\providecolor{luhgray}{RGB}{128,128,128}
+	\providecolor{luhlightgray}{RGB}{220,220,221}
+
+  % the "example green" beamer defines in the default colortheme
+  \colorlet{beamergreen}{luhgreen!80!black}
+	\setbeamercolor{example text}{fg=beamergreen}
+
+  \setbeamercolor{structure}{fg=luhblue,bg={}}
+  \setbeamercolor{section in toc}{fg=luhblue}
+  \setbeamercolor{subsection in toc}{fg=luhblue}
+  \setbeamercolor{alerted text}{fg=srared}
+  \setbeamercolor*{palette primary}{fg=black,bg=white}
+  \setbeamercolor*{palette secondary}{fg=luhblue,bg=white}
+  \setbeamercolor*{palette tertiary}{fg=srared,bg=white}
+  \setbeamercolor*{palette quaternary}{fg=darkred,bg=gray!5!white}
+  \setbeamercolor{titlelike}{parent=structure}
+  \setbeamercolor{itemize item}{fg=srared}
+  \setbeamercolor{itemize subitem}{fg=luhgray}
+  \setbeamercolor{itemize subsubitem}{fg=luhgray}
+  \setbeamercolor{sidebar left}{bg={}}
+  \setbeamercolor{footline}{fg=luhgray}
+  \setbeamercolor{page number in head/foot}{fg=footline.fg}
+
+	\ifsraGrayTopLevelItems
+  	\setbeamercolor{itemize item}{fg=luhgray}
+	\fi
+
+	% support for URL on title page (not a standard beamer element)
+	\let\inserturl\@empty
+	\newcommand\titleurl[1]{\def\inserturl{#1}}%
+	\setbeamercolor*{url}{fg=black,bg={}}
+	\setbeamerfont*{url}{family=\ttfamily,size=\footnotesize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% background image setup
+%
+% This is the real trick :-) All graphical elements of the sra-layout are just
+% in the background image. To support the "plain"-option for frames, we actually
+% need two different background images (and a third one for the "title"
+% slide)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifbeamer@titleframe
+\def\beamer@frametemplate@title{%
+    \def\beamer@entrycode{\vspace*{-\headheight}}%%
+    \def\beamer@exitcode{\vspace*{-\footheight}\thispagestyle{empty}}%
+  }
+
+\define@key{beamerframe}{title}[true]{%
+  \beamer@titleframetrue%
+  \beamer@plainframetrue%
+  \def\beamer@frametemplate{\beamer@frametemplate@title}%
+  \beamertemplatenavigationsymbolsempty%
+}
+
+\usebackgroundtemplate{%
+    \ifbeamer@titleframe%
+      \includegraphics[width=\paperwidth]{beamerthemesra_bgtitle}%
+      \global\beamer@titleframefalse% Toggle the key again
+      \beamertemplatenavigationsymbolshorizontal%
+    \else\ifbeamer@plainframe%
+      \includegraphics[width=\paperwidth]{beamerthemesra_bgplain}%
+    \else%
+      \includegraphics[width=\paperwidth]{beamerthemesra_bg}%
+    \fi%
+    \fi%
+  }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% enumeration style and borders setup
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \setbeamersize{sidebar width left=1.07cm}
+  \setbeamersize{text margin left=0.5em}
+  \setbeamersize{text margin right=3.2mm}
+
+	% the top-level item symbol is rendered into the sidebar
+  \setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 1ex height 1ex}\hspace{0.5em}}
+  \setbeamertemplate{itemize subitem}{\raise.5pt\hbox{\vrule width 0.8ex height 0.8ex}}
+  \setbeamertemplate{itemize subsubitem}{\raise.5ex\hbox{\vrule width 1ex height 0.2ex}}
+  \setbeamertemplate{headline}[default]
+
+  \setlength{\labelwidth}{2em}
+  \setlength{\labelsep}{0.5em}
+  \setlength{\leftmargini}{0em}
+  \setlength{\leftmarginii}{1em}
+  \setlength{\leftmarginiii}{1em}
+
+% the above looks nice on slides, but bad in block environments; hence we override
+% beamers original block envs to modify them
+
+  % command to be installed at the begin of every block environment
+  \newcommand{\beamerblock}{
+    \setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 0.8ex height 0.8ex}}
+    \setbeamertemplate{itemize subitem}{\raise.5pt\hbox{\vrule width 0.6ex height 0.6ex}}
+		\setlength{\leftmargini}{1.5em}
+    \setlength{\labelsep}{0.5em}
+	}
+
+  \renewenvironment{block}[1]{%
+    \begin{actionenv}%
+			\beamerblock%
+      \def\insertblocktitle{#1}%
+      \par%
+      \mode<presentation>{%\usebeamerfont{block}%
+        \setbeamercolor{itemize item}{fg=block title.fg}%
+        \setbeamercolor{itemize subitem}{fg=block title.fg}%
+			}	
+      \usebeamertemplate{block begin}}
+    {\par%
+      \usebeamertemplate{block end}%
+    \end{actionenv}
+  }
+  \renewenvironment{alertblock}[1]{%
+    \begin{actionenv}%
+			\beamerblock%
+      \def\insertblocktitle{#1}%
+      \par%
+      \mode<presentation>{%\usebeamerfont{block}%
+        \setbeamercolor{local structure}{parent=alerted text}%
+        \setbeamercolor{itemize item}{fg=block title alerted.fg}%
+        \setbeamercolor{itemize subitem}{fg=block title alerted.fg}%
+			}
+      \usebeamertemplate{block alerted begin}}
+    {\par%
+      \usebeamertemplate{block alerted end}%
+    \end{actionenv}
+  }
+  \renewenvironment{exampleblock}[1]{%
+    \begin{actionenv}%
+			\beamerblock%
+      \def\insertblocktitle{#1}%
+      \par%
+      \mode<presentation>{%\usebeamerfont{block}%
+        \setbeamercolor{local structure}{parent=example text}
+        \setbeamercolor{itemize item}{fg=block title example.fg}%
+        \setbeamercolor{itemize subitem}{fg=block title example.fg}%
+			}%
+      \usebeamertemplate{block example begin}}
+    {\par%
+      \usebeamertemplate{block example end}%
+    \end{actionenv}
+  }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% title page definition 
+%
+% The title frame is supposed to be used with \begin{frame}[title], which
+% renders the title background image (with large logos) 		
+%
+% Besides the usual title page stuff, we additionally have \inserturl, which,
+%	if not \@empty, is rendered into the foot line:
+% \def\inserturl{\url{https://coolsite.com}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setbeamertemplate{title page}{
+	\vbox{}
+  \vfill
+  \begin{centering}
+    \hskip\dimexpr-1.0cm%
+		\begin{minipage}[c]{\dimexpr\columnwidth+1.0cm}%
+    	\begin{beamercolorbox}[sep=8pt,center]{title}
+      	\vskip2cm%
+      	\usebeamerfont{title}\inserttitle\par%
+      	\vskip0.5em%
+      	\ifx\insertsubtitle\@empty%
+      	\else%
+        	{\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      	\fi%     
+    	\end{beamercolorbox}%
+    	\vskip0.5em\par
+			\begin{beamercolorbox}[sep=8pt,center]{author}
+				\usebeamerfont{author}\insertauthor
+			\end{beamercolorbox}
+			\begin{beamercolorbox}[sep=8pt,center]{institute}
+				\usebeamerfont{institute}\insertinstitute
+			\end{beamercolorbox}
+			\begin{beamercolorbox}[sep=8pt,center]{date}
+				\usebeamerfont{date}\insertdate
+			\end{beamercolorbox}
+  	\end{minipage}%
+		\ifx\inserturl\@empty%
+		\else
+		\vskip0pt plus 1filll
+		\hskip-1cm{\usebeamerfont{url}\usebeamercolor[fg]{url}\inserturl\par\vskip2pt}
+		\fi
+  \end{centering}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% footline definitions
+%
+% The footline is one of the things that are heavily customizable in beamer using
+% outer themes. However, we skip (and do not support) all those fancy beamer
+% themes here and just let beamer it render as text line. This gives us full
+% control and easy adaptation, but some things (especially the vertical layout)
+% remain a bit hacky :-)
+%
+% To provide for more easy customization within presentations, the framenumbering
+% can be customized (and also locally surpressed) by overwriting the
+% macro \InsertFrameNumber
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % default style for frame numbers
+  \def\InsertFrameNumber{\insertframenumber\,--\,\inserttotalframenumber}
+  \setbeamertemplate{footline}[text line]{
+    % beamer has already set footline color/font here
+    %
+    % use raisebox to align footline with i4logo
+    \raisebox{2.0mm}{\vbox{
+      % insert a strut (invisible vertical line) to prevent line breaks
+      \rule{0mm}{3mm}
+      % here the real content starts
+      % print author and title
+      \insertshortauthor
+      \hspace{2em}
+      \insertshorttitle
+      \ifx\insertsection\@empty
+      \else
+        \ --\ \insertsection
+      \fi
+      % if a shortdate is given, print it in brackets after the title
+      % \ifx\insertshortdate\@empty
+      % \else
+      %   ~(\insertshortdate)
+      % \fi
+      \hspace{2em}
+      % if section/subsection are defined, print them (seperated by an em-dash)
+      % \ifx\insertsection\@empty%
+      % \else%
+      %   \insertsection%
+      %     \ifx\insertsubsection\@empty%
+      %     \else%
+      %       \,--\,\insertsubsection%
+      %     \fi
+      %   \fi
+      % print the remaining stuff right-aligned
+      \hfill
+      % print page number
+      {
+        \usebeamercolor[fg]{page number in head/foot}\usebeamerfont{page number in head/foot}
+        \parbox[t]{0.7cm}{\centering{\InsertFrameNumber}}
+      }%
+    }}
+  }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% frametitle setup
+%
+% This is probably the most hacky part of i4beamer We completely overwrite the
+% code beamer uses to render the frame title, especially to get the vertical
+% spacing and alignment right, so it fits with the "background".
+%
+% The i4-Layout does not really offer space for subtitles. We support them
+% anyway by printing them right-aligned.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\newsavebox{\beamerthemesra@box}
+  \setbeamertemplate{frametitle}{
+    \usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}
+		% we need to measure the title width, so we box it
+		\savebox\beamerthemesra@box{\insertframetitle\strut}%
+		\usebox{\beamerthemesra@box}%
+		% no subtitle was given, we render the luh-logo
+		\ifx\insertframesubtitle\@empty
+			% we render it at the current font's height and depth (+ some offset for better looks)
+			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
+			% but only if it fits without a line break!
+			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
+				\hfill\raisebox{-0.8\fontchardp\font`g}{\usebox{\@tempboxa}}%
+		  \fi
+    \else {%
+      \usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}
+      \hfill\insertframesubtitle\strut
+    }%
+    \fi
+    \par\vskip2pt
+  }
+
+\mode
+<all>
