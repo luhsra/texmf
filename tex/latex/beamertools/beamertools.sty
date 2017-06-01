@@ -1,0 +1,1280 @@
+% $Id$
+
+\NeedsTeXFormat{LaTeX2e}[1999/01/01]
+\ProvidesPackage{beamertools}[2017/06/01]
+\RequirePackage{pgfopts,etoolbox}           % we process package options with pgfkeys
+\RequirePackage{pgf}                        % we calculate stuff with pgfmath
+\RequirePackage[PGF]{adjustbox}                  
+\RequirePackage[absolute,overlay]{textpos}  % we still use this for absolute positioning
+\RequirePackage{ragged2e}                   % at least btQuoteBlocks should have hyphenated texts
+\RequirePackage{pgfplots}                   % we need \pgfplotsforeach
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% package options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \def\bt@message#1{\message{beamertools: #1}} 
+
+  \newif\ifbtFramesInToC
+  \newif\ifbtFramesInPDFToC
+  \newif\ifbtAutoNotes
+  \newif\ifbtPhysicalPagesInPDFToC
+  \newif\ifbtNoListings 
+    \newif\if@btlstlinebgrdNotFound
+    \newif\if@btlstautogobbleNotFound
+  \newif\ifbtNoShortcuts
+  \newif\ifbtWoschBlocks
+  \newif\ifbtNoTikZ
+    \newif\if@bttikzlibraryshadowsblurNotFound
+  \newif\ifbtSRAColors
+
+  \newcommand{\btset}[1]{\pgfqkeys{/bt}{#1}}
+
+  \pgfset{
+    /bt/.cd,
+    framesintoc/.is if=btFramesInToC,                               % put frame titles as level 3 element in ToC
+    framesinpdftoc/.is if=btFramesInPDFToC,                         % put frame titles as level 3 element in PDF ToC
+    autonotes/.is if=btAutoNotes,                                   % add empty note to every slide 
+    physicalpagesinpdftoc/.is if=btPhysicalPagesInPDFToC,           % use physical page numbers (instead of labels) in PDF ToC
+    nolistings/.is if=btNoListings,                                 % do not include listing support (and related packages) 
+    noshortcuts/.is if=btNoShortcuts,                               % do not include shortcut macros (\bi \ii \ei and so on) 
+    woschblocks/.is if=btWoschBlocks,                               % define Wosch-style block envs (bearblock, codeblock, ...)
+    notikz/.is if=btNoTikZ,                                         % do not include TikZ-support nor macros that depend on TikZ
+  	sracolors/.is if=btSRAColors																		% patch i4 colors to LUH/SRA colors
+	}
+  
+
+  % add a new .provide style= handler
+  \btset{/handlers/.provide style/.code={%
+    \pgfkeysifdefined{\pgfkeyscurrentpath/.@cmd}%
+      {}%
+      {\pgfkeys {\pgfkeyscurrentpath /.code=\pgfkeysalso {#1}}}%
+  }}
+
+  % enable all package features (useful for debugging)
+  \btset{everything/.style={framesintoc, framesinpdftoc, autonotes, physicalpagesinpdftoc, woschblocks}}
+
+  % if the name of this style does not mean anything to you then just don't care
+  \btset{spic/.style={autonotes,physicalpagesinpdftoc,woschblocks, every block/.style={rounded, shadow=false, shaded transition=false}}}
+
+  \ProcessPgfPackageOptions{/bt}
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %% Load option-specific extra packages
+  %%
+  
+  \ifbtFramesInPDFToC
+    \RequirePackage{bookmark}
+  \fi
+  \ifbtNoListings\else
+    \RequirePackage{listings,pgffor}
+    % The following packages are most probably not (yet) available, so we load them conditionally
+    % (and otherwise embed their implementation)
+    \IfFileExists{lstlinebgrd.sty}{\RequirePackage{lstlinebgrd}}{\@btlstlinebgrdNotFoundtrue}  
+    \IfFileExists{lstautogobble.sty}{\RequirePackage{lstautogobble}}{\@btlstautogobbleNotFoundtrue}  
+  \fi
+  \ifbtNoTikZ\else
+    \RequirePackage{tikz}
+    \usetikzlibrary{calc,shadows}
+    % The following libraries are most probably not (yet) available, so we load them conditionally
+    % (and otherwise embed their implementation)
+    \IfFileExists{tikzlibraryshadows.blur.code.tex}{\usetikzlibrary{shadows.blur}}{\@bttikzlibraryshadowsblurNotFoundtrue}  
+  \fi
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %% Process pagage options that patch beamer commands on global level
+  %%
+
+  % Insert an empty \note{} in every frame. 
+  % This ensures that (with \setbeameroption{show notes}) every slide is followed by a
+  % (possibly empty) notes slide, so that both can be grouped together by 2x1 printing (pdfnup)  
+  \ifbtAutoNotes
+    \def\beamer@framenotesbegin{% at beginning of slide
+      \gdef\beamer@noteitems{}%
+      \gdef\beamer@notes{{}}% used to be totally empty.
+    }
+  \fi
+
+  % Use physical page numbers for PDF page labels (shown as page numbers in the PDF ToC).
+  % Beamer invokes \thispdfpagelabel{\insertframenumber} early in its \frame command,
+  % so we hook into a later command that is executed on every frame to do \thispdfpagelabel{\thepage}
+  \ifbtPhysicalPagesInPDFToC
+    \appto{\beamer@framenotesbegin}{\thispdfpagelabel{\thepage}}
+  \fi
+
+  % Add each frame title as level 3 (subsubsection) entry into the PDF ToC
+  \ifbtFramesInPDFToC
+    \apptocmd{\beamer@@frametitle}{%
+      \bookmark[page=\the\c@page,level=3]{#1}
+    }%
+    {\bt@message{patching of \string\beamer@@frametitle{} to add frame title to PDF ToC succeeded}}%
+    {\bt@message{patching of \string\beamer@@frametitle{} to add frame title to PDF ToC FAILED}}%
+  \fi
+
+  % Add each frame title as level 3 (subsubsection) entry into the LaTeX ToC
+  \ifbtFramesInToC
+    \apptocmd{\beamer@@frametitle}{%
+      \addtocontents{toc}{\protect\beamer@subsectionintoc{\the\c@section}{0}{#1}{\the\c@page}{\the\c@part}%
+          {\the\beamer@tocsectionnumber}}%
+    }%
+    {\bt@message{patching of \string\beamer@@frametitle{} to add frame title to ToC succeeded}}%
+    {\bt@message{patching of \string\beamer@@frametitle{} to add frame title to ToC FAILED}}%
+  \fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% misc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %% color definitions  
+    
+  % i4 colors, also defined in beamerthemei4.sty!
+  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
+  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
+  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
+  \providecolor{darkred}{rgb}{0.8,0,0}
+
+  % the orange Daniel uses so much on his slides
+  \colorlet{i4orange}{orange!30}
+  % the "example green" beamer defines in the default colortheme
+  \colorlet{beamergreen}{green!50!black}
+
+	% luh/sra colors, also defined in beamerthemesra.sty!
+	\providecolor{luhgreen}{RGB}{200,211,23}		% CMKY 30,0,94,0, Pantone 382
+	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
+	\providecolor{luhblue}{RGB}{61,113,188} 					% CMKY 100,70,0,0, Pantone 293C
+  \providecolor{srared}{RGB}{208,38,38}
+	\providecolor{luhgray}{RGB}{128,128,128}
+	\providecolor{luhlightgray}{RGB}{220,220,221}
+  % the orange Daniel uses so much on his slides
+  \colorlet{sraorange}{orange!30}
+
+	\ifbtSRAColors
+ 	 	% Quick hack: redefine i4 colors with SRA values
+  	\colorlet{beamergreen}{luhgreen!80!black}
+		\setbeamercolor{example text}{fg=beamergreen}
+		\colorlet{i4red}{srared}
+		\colorlet{i4blue}{luhblue}
+		\colorlet{i4gray}{luhlightgray}
+	\fi
+
+
+  %% some predefined box registers to be used whereever
+  \newsavebox{\LstA}
+  \newsavebox{\LstB}
+  \newsavebox{\LstC}
+  \newsavebox{\LstD}
+
+
+
+  
+  \def\btConvertTo#1#2{\strip@pt\dimexpr #2*65536/\number\dimexpr 1#1}
+
+
+  % Insert last-modified date
+  % pdfTeX provides the primitive \pdffilemoddate to query this information
+  % for files. (LuaTeX uses its own Lua functions for the same thing.) Since
+  % pdfTeX is used by default in all LaTeX distributions in the last few years
+  % (at least), there's no harm in using the new functionality unless you're
+  % dealing with very old production systems. Here's an example:
+
+  % usage (for own documents) \btFileModDate{\jobname.tex} 
+  \def\bt@parsedate #1:20#2#3#4#5#6#7#8\empty{20#2#3-#4#5-#6#7}
+  \def\btInsertFileModDate#1{\expandafter\bt@parsedate\pdffilemoddate{#1}\empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% beamer extension macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % Define lengths for some (internal) beamer-lengths
+  \newlength{\btLeftMargin}
+  \newlength{\btRightMargin}
+  % Set them after beamer theme has been loaded
+  \AtBeginDocument{% 
+    \setlength{\btLeftMargin}{\Gm@lmargin}%   total text indent from left edge of the frame (including sidebar)
+    \setlength{\btRightMargin}{\Gm@rmargin}%  total margin from the right edge of the frame (including sidebar)
+  }
+  % \btItemMargin --> list-induced total left margin of the current itemize level
+  \newcommand{\btItemMargin}{\ifnum \@itemdepth =2 \leftmarginii \else \ifnum \@itemdepth =3 (\leftmarginii + \leftmarginiii) \else 0pt\fi\fi}
+  
+  % \btAddExtraItemSep[<sep>=\smallskipamount]: Advances \itemsep by <sep> * (3 - itemize level)
+  \newcommand{\btAddExtraItemSep}[1][\smallskipamount]{%
+    \pgfmathparse{(3.25-\@itemdepth)*#1}%
+    \addtolength{\itemsep}{\pgfmathresult pt}%
+    \ifnum \@itemdepth=1 \else
+      \addtolength{\topsep}{0.5\itemsep}%
+    \fi
+  }
+
+  % \btUseExtraItemSep[<sep>=\smallskipamount]: Patches itemize/enumerate environements so that \btAddExtraItemSep[<sep>] is invoked
+  \newcommand{\btUseExtraItemSep}[1][\smallskipamount]{%
+    \let\OLDbi=\itemize%
+%    \def\itemize{\OLDbi\btAddExtraItemSep[#1]\vskip\topsep}%
+    \appto{\beamer@firstlineitemizeunskip}{\btAddExtraItemSep[#1]\vskip\topsep}%
+    \let\OLDbe=\enditemize%
+    \def\enditemize{\OLDbe\btAddExtraItemSep[#1]}%
+  }
+
+  \newcommand{\btVFill}{\vskip0pt plus 1filll}
+
+  % \btPrevFrameTitle, \btPrevShortFrameTitle, \btPrevFrameSubtitle --> Title of the previous frame
+  \gdef\btPrevFrameTitle{}
+  \gdef\btPrevShortFrameTitle{}
+  \gdef\btPrevFrameSubtitle{}
+  %
+  % We hook setting these macros into \beamer@framenotesend
+  \appto{\beamer@framenotesend}{%
+    % Prevent recursive let if using slide employs overlays
+    \expandafter\ifx\beamer@frametitle\btPrevFrameTitle\else%
+      \aftergroup\let\aftergroup\btPrevFrameTitle\aftergroup\beamer@frametitle%
+      \aftergroup\let\aftergroup\btPrevShortFrameTitle\aftergroup\beamer@shortframetitle%
+      \aftergroup\let\aftergroup\btPrevFrameSubtitle\aftergroup\insertframesubtitle%
+    \fi
+  }
+
+  % Inserts Buttons to skip over (lenghtly) animations in the titelarea
+  % (overwrites \framesubtitle)
+  \newcommand{\btAnimationControls}{\framesubtitle{%
+    \adjustbox{totalheight=2ex}{
+    \hyperlinkframestart{\beamerbutton{\raisebox{0.2ex}{$\blacktriangleleft\!\blacktriangleleft$}}}
+    \hyperlinkframeend{\beamerbutton{\raisebox{0.2ex}{$\blacktriangleright\!\blacktriangleright$}}}
+  }}}
+
+  \newenvironment<>{infoblock}[1]{%
+    \begin{actionenv}#2%
+        \ifdef{\beamerblock}{\beamerblock}{}% apply beamerthemei4 corrections, if available
+        \def\insertblocktitle{#1}%
+        \par%
+        \mode<presentation>{%
+         \setbeamercolor{local structure}{fg=orange!90!black}
+         \setbeamercolor{block title}{fg=orange!90!black,bg=i4orange}
+         \setbeamercolor{block body}{fg=black,bg=i4orange!50}
+       }%
+        \usebeamertemplate{block begin}}
+      {\par\usebeamertemplate{block end}\end{actionenv}}
+
+  \btset{%
+    shadow/.default={true},
+    shadow/.initial={true},
+    shaded transition/.is choice,
+      shaded transition/true/.code={% taken from beamerbaseboxes.sty, line 247ff
+        \pgfdeclareverticalshading[lower.bg,upper.bg]{bmb@transition}{200cm}{color(0pt)=(lower.bg); color(2pt)=(lower.bg); color(4pt)=(upper.bg)}
+      },
+      shaded transition/false/.code={%
+        \pgfdeclareverticalshading[lower.bg,upper.bg]{bmb@transition}{200cm}{ color(0pt)=(lower.bg); color(4pt)=(lower.bg); color(4pt)=(upper.bg)}
+      },
+      shaded transition/.default={true},
+    shaded shadow/.is choice,
+      shaded shadow/true/.code={% taken from beamerbaseboxes.sty, line 239ff
+        \pgfdeclareradialshading[black,bg]{bmb@shadowball}{\pgfpointorigin}{color(0bp)=(black!50!bg); color(4bp)=(bg)}
+        \pgfdeclareradialshading[black,bg]{bmb@shadowballlarge}{\pgfpointorigin}{color(0bp)=(black!50!bg); color(4bp)=(black!50!bg); color(8bp)=(bg)}
+        \pgfdeclareverticalshading[black,bg]{bmb@shadow}{200cm}{color(0bp)=(bg); color(4bp)=(black!50!bg); color(8bp)=(black!50!bg)}
+      },
+      shaded shadow/false/.code={%
+        \pgfdeclareradialshading[black,bg]{bmb@shadowball}{\pgfpointorigin}{color(0bp)=(black!20!bg); color(4bp)=(black!20!bg)}
+        \pgfdeclareradialshading[black,bg]{bmb@shadowballlarge}{\pgfpointorigin}{color(0bp)=(black!20!bg); color(8bp)=(black!20!bg)}
+        \pgfdeclareverticalshading[black,bg]{bmb@shadow}{200cm}{ color(0bp)=(black!20!bg); color(8bp)=(black!20!bg)}
+      },
+      shaded shadow/.default={true},
+    rounded/.is choice,
+      rounded/true/.code={\setbeamertemplate{blocks}[rounded][shadow=\pgfkeysvalueof{/bt/shadow}]},
+      rounded/false/.code={\setbeamertemplate{blocks}[default]},
+      rounded/.default={true},
+    type/.is choice,
+      type/alert/.code={\def\bt@blocktype{alert}},
+      type/example/.code={\def\bt@blocktype{example}},
+      type/normal/.code={\def\bt@blocktype{}},
+      type/info/.code={\def\bt@blocktype{info}},
+    text width/.code={\pgfmathsetlengthmacro{\bt@textwidth}{#1}},
+    scale content/.code={\pgfmathsetmacro{\bt@contentscale}{#1}},
+    scale/.code={\pgfkeysalso{text width=#1\textwidth, scale content=#1}},
+    align/.is choice,
+      align/left/.code=\raggedright,
+      align/right/.code=\raggedleft,
+      align/center/.code=\centering,
+      align/.append code={\preto{\bt@endcmds}{\par}},
+    % shortcuts
+    left/.style={align=left},
+    right/.style={align=right},
+    center/.style={align=center},
+    alert/.style={type=alert},
+    example/.style={type=example},
+    normal/.style={type=normal},
+    % default settings
+    every block/.provide style={rounded, shadow=true},
+  }
+
+  \newenvironment<>{btBlock}[2][]{
+    \begin{actionenv}#3%
+      \def\bt@blocktype{}%
+      \def\bt@endcmds{}%
+      \btset{every block, #1}
+      \ifdef{\bt@contentscale}{%
+        \ifdef{\bt@textwidth}{}{\def\bt@textwidth{\textwidth}}%
+        \pgfmathsetlengthmacro{\bt@textwidth}{\bt@textwidth/\bt@contentscale}%
+        \preto{\bt@endcmds}{\end{adjustbox}}%
+        \adjustboxset{}%
+        \begin{adjustbox}{scale=\bt@contentscale}%
+      }{}%  
+      \ifdef{\bt@textwidth}{%
+        \preto{\bt@endcmds}{\end{minipage}}%
+        \begin{minipage}{\bt@textwidth}%
+      }{}%
+      \begin{\bt@blocktype block}{#2}%
+   }{%
+      \end{\bt@blocktype block}%
+      \bt@endcmds%
+    \end{actionenv}%
+    \ignorespacesafterend%
+  }
+
+  % redefine theorems on the basis of btBlock
+  \newif\ifbtNumbered
+  \btset{%
+    numbered/.is if=btNumbered,
+    every theorem/.provide style={},
+  }
+  \setbeamertemplate{theorem begin}{%
+    % optional parameters are passed in \inserttheoremaddition, originally intended to
+    % pass an additional title string (e.g., source) for the theorem
+    % we here use it to pass key=value options to the implementing block environement.
+    % a title= option can be used to pass the title, however, this key
+    % is also executed for any unknown key, so we remain compatible to the original beamer behavior
+    \btset{%
+      title/.initial,
+      .unknown/.style={title=\pgfkeyscurrentname},
+      % pass via style to expand
+      theorem block parameters/.style/.expanded={\ifx\inserttheoremaddition\@empty\else\expandonce\inserttheoremaddition\fi},
+    }
+    \begin{btBlock}[every theorem, theorem block parameters]  {%
+      \pgfkeysifdefined{/bt/title}{{\inserttheoremheadfont\pgfkeysvalueof{/bt/title}}\hfill}{} 
+      (\inserttheoremname \ifbtNumbered\inserttheoremnumber\fi) 
+    }%
+  }
+  \setbeamertemplate{theorem end}{%
+    \end{btBlock}
+  }
+
+  \btset{%
+%    source/.code={\def\bt@source{#1}},
+    source/.code={%
+      \def\bt@sourceauthor{\citeauthor{#1}}
+      \def\bt@sourceyear{\citeyear{#1}}
+      \def\bt@sourcetitle{\citetitle{#1}}
+      \def\bt@sourceextra{\cite{#1}}
+    },
+    source line font/.initial={\normalfont\footnotesize},
+%    source format/.code={\citeauthor{#1}~\citeyear{#1}:\,\emph{\citetitle{#1}}~\cite{#1}},
+    source line precode/.initial={\par\smallskip\begin{minipage}{\textwidth}\RaggedLeft},
+    source line postcode/.initial={\end{minipage}},
+    source line/.code={\bt@sourceauthor\ifdef{\bt@sourceyear}{~\bt@sourceyear}{}\ifdef{\bt@sourcetitle}{:\,\emph{\bt@sourcetitle}}{}\ifdef{\bt@sourceextra}{~\bt@sourceextra}{}},
+    source author/.code={\def\bt@sourceauthor{#1}},
+    source year/.code={\def\bt@sourceyear{#1}},
+    source title/.code={\def\bt@sourcetitle{#1}},
+    source extra/.code={\def\bt@sourceextra{#1}},
+  }
+
+  \newenvironment<>{btQuote}[1][]{
+    \setlength\unitlength{1ex}
+    \newcommand*\bt@openquote{\hskip-1.5ex\makebox(5,-1.6){\scalebox{3}{\local{``}}}}
+    \newcommand*\bt@closequote{\hskip-1.5ex\makebox(5,-1.6){\scalebox{3}{\local{''}}}}
+    \btset{#1}
+    \RaggedRight
+    \sl\rmfamily\bt@openquote
+  }
+  {\bt@closequote\ifdef{\bt@sourceauthor}{{\btset{source line precode, source line font, source line, source line postcode}}}{}}
+
+  \newenvironment<>{btQuoteBlock}[2][]
+  {\begin{btBlock}#3[type=normal,#1]{#2}\begin{btQuote}[#1]}
+  {\end{btQuote}\end{btBlock}}
+
+\ifbtWoschBlocks
+
+  % provide legacy block environments used by Wosch and Daniel
+  \btset{every wosch block/.provide style={rounded, shadow={\ifdef{\shadow}{\shadow}{\pgfkeysnovalue}}}} 
+  \newenvironment<>{bearblock}[2][]{
+    \begin{btBlock}#3[every wosch block, type=alert,#1]{#2}
+  }{% 
+    \end{btBlock}%
+    \ignorespacesafterend%
+  }
+  \newenvironment<>{ovalblock}[2][]{
+    \begin{btBlock}#3[every wosch block, type=normal,#1]{#2}
+  }{% 
+    \end{btBlock}%
+    \ignorespacesafterend%
+  }
+  \newenvironment<>{codeblock}[2][]{
+    \begin{btBlock}#3[every wosch block, type=example,#1]{#2}
+  }{% 
+    \end{btBlock}%
+    \ignorespacesafterend%
+  }
+\fi % \btWoschBlocks
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  beamer pgfkeys tricks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \btset{onslide/.code args={<#1>#2}{%
+    \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+  }}
+  \btset{alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  }}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% shortcut macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifbtNoShortcuts\else
+
+  % shortcuts
+  \newcommand{\ttt}{\texttt}
+  \newcommand{\bi}{\begin{itemize}}
+  \newcommand{\ei}{\end{itemize}}
+  \newcommand{\be}{\begin{enumerate}}
+  \newcommand{\ee}{\end{enumerate}}
+  \newcommand{\ii}{\item}
+  \newcommand{\iiad}{\ii[\textbf{+}]}  % advantage
+  \newcommand{\iida}{\ii[\textbf{--}]} % disadvantage
+  % skips one itemize level
+  \newcommand{\bii}{\bi \ii[] \bi}
+  \newcommand{\eii}{\ei \ei}
+  % skips two itemize level
+  \newcommand{\biii}{\bii \ii[] \bi}
+  \newcommand{\eiii}{\eii \ei}
+
+  \newenvironment{sampleenv}{\begin{altenv}%
+    {\usebeamertemplate{example text begin}%
+     \usebeamercolor[fg]{example text}%
+     \usebeamerfont{example text}}
+    {\usebeamertemplate{example text end}}{\color{.}}{}}{\end{altenv}}
+
+  \newcommand<>{\sample}[1]{\hskip0pt\begin{sampleenv}#2#1\end{sampleenv}}
+
+  % patch built-in \alert and \structure commands to leave vertical (?) mode first with \hskip0pt,
+  % so they do not insert a vertical space if used at the beginning of table cells, \parbox, etc.
+  %
+  % Note: this should be possible with \renewcommand<>, which however, does not work due to a bug
+  %       in the definition of \renewcommand<> in beamerbaseoverlay.sty :-( 
+  \expandafter\let\csname beamerx@\string\alert \endcsname=\relax%
+  \renewcommand<>{\alert}[1]{\hskip0pt\begin{alertenv}#2#1\end{alertenv}}
+  \expandafter\let\csname beamerx@\string\structure \endcsname=\relax%
+  \renewcommand<>{\structure}[1]{\hskip0pt\begin{structureenv}#2#1\end{structureenv}}
+
+  % derive additional alert, structure, and sample commands
+  \newcommand<>{\Alert}[1]{\alert#2{\emph#2{#1}}}
+  \newcommand<>{\ALERT}[1]{\alert#2{\textbf#2{#1}}}
+  \newcommand<>{\Structure}[1]{\structure#2{\emph#2{#1}}}
+  \newcommand<>{\STRUCTURE}[1]{\structure#2{\textbf#2{#1}}}
+  \newcommand<>{\Sample}[1]{\sample#2{\emph#2{#1}}}
+  \newcommand<>{\SAMPLE}[1]{\sample#2{\textbf#2{#1}}}
+
+  % easy access to local structure color, as above
+  \newcommand<>{\local}[1]{\hskip0pt{\only#2{\usebeamercolor[fg]{local structure}}#1}}
+  \newcommand<>{\Local}[1]{\local#2{\emph#2{#1}}}
+  \newcommand<>{\LOCAL}[1]{\local#2{\textbf#2{#1}}}
+
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \InputPDFFrames to reuse existing PDF slides (especially old OO stuff) 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \newbool{bt@pdfframes@onpagehook}
+  \def\bt@pdfframes@onpagehook{\booltrue{bt@pdfframes@onpagehook}}
+  \let\bt@pdfframes@afterpagehook\relax%
+  \let\bt@pdfframes@contenthook\relax%
+  \let\bt@pdfframes@backgroundhook\relax%
+
+  \btset{%
+    pdfframes/.cd,
+    file/.estore in=\bt@pdfframes@file,
+    file/.value required,
+    range/.estore in=\bt@pdfframes@range,
+    range/.initial = {1},
+    execute/.code={\ifbool{bt@pdfframes@onpagehook}{\gappto\bt@pdfframes@afterpagehook{#1}}{#1}},
+    add content/.code={\appto\bt@pdfframes@contenthook{#1}},
+    add item note/.style={add content={\par\note{\bi #1 \ei}}},
+    title/.style={add content={\frametitle{#1}}},
+    subtitle/.style={add content={\framesubtitle{#1}}},
+    subsubsection/.style={execute={\subsubsection{#1}}},
+    subsection/.style={execute={\subsection{#1}}},
+    insert agenda/.style={execute={\InsertAgenda}},%            FIXME \InsertAgenda not defined by beamertools!
+    insert full agenda/.style={execute={\InsertFullAgenda}},%   FIXME \InsertFullAgenda not defined by beamertools!
+    %
+    % exclude printing parts of the Beamer footline 
+    footline/.code = {\pgfkeysalso{footline/.cd, #1, /bt/pdfframes/.cd}},
+    footline/no title/.code={\let\insertshorttitle\@empty},
+    footline/no date/.code={\let\insertshortdate\@empty},
+    footline/no section/.code={\let\insertsection\@empty},
+    footline/no author/.code={\let\insertshortauthor\@empty},
+    footline/no section/.code={\let\insertsection\@empty},
+    footline/no frame number/.code={\let\InsertFrameNumber\@empty},
+    footline/empty/.style={no title, no section, no author, no section, no frame number, no date},
+    footline/frame numbers/.style={no title, no section, no author, no section, no date},
+    %
+    % clear (by overprinting with a white box) title, footline, and frame number of the included PDF frame
+    clear/.code={\appto{\bt@pdfframes@backgroundhook}{\bt@pdfframes@clearonbackground}\pgfkeysalso{clear/.cd, #1, /bt/pdfframes/.cd}},
+    % clear={not title, not frame number, not footline} ==> prevent overprinting of certain elements
+    clear/not title/.style={title height=0pt},
+    clear/not frame number/.style={frame number height=0pt},
+    clear/not footline/.style={footline height=0pt},
+    % clear metrics
+    clear/footline x offset/.store in=\bt@clear@footlinexoffset,
+    clear/footline width/.store in=\bt@clear@footlinewidth,
+    clear/footline height/.store in=\bt@clear@footlineheight,
+    clear/frame number width/.store in=\bt@clear@numberwidth,
+    clear/frame number height/.store in=\bt@clear@numberheight,
+    clear/title x offset/.store in=\bt@clear@titlexoffset,
+    clear/title width/.store in=\bt@clear@titlewidth,
+    clear/title height/.store in=\bt@clear@titleheight,
+    clear/footline color/.store in=\bt@clear@footlinecolor,
+    clear/frame number color/.store in=\bt@clear@numbercolor,
+    clear/title color/.store in=\bt@clear@titlecolor,
+    % clear default metrics for i4beamer
+    clear/setup/i4beamer/.style={%
+      clear/title x offset=11.5mm,
+			clear/footline x offset={\bt@clear@titlexoffset},
+      clear/footline width=106.5mm,
+      clear/footline height=5.5mm,
+      clear/frame number width={\paperwidth-\bt@clear@footlinewidth-\bt@clear@footlinexoffset},
+      clear/frame number height={\bt@clear@footlineheight},
+      clear/title width={\paperwidth-\bt@clear@xsoffset},
+      clear/title height=9.3mm,
+    	clear/footline color=white,
+    	clear/frame number color=white,
+    	clear/title color=white,
+    },
+    % clear default metrics for srabeamer 
+		clear/setup/srabeamer/.style={%
+			clear/setup/i4beamer,
+			clear/footline color=luhlightgray,
+			clear/frame number color=luhlightgray,
+			clear/footline x offset=0mm,
+      clear/footline width=105.2mm,
+      clear/footline height=5.4mm,
+      clear/frame number height={\dimexpr\bt@clear@footlineheight-1.2mm\relax},
+		},
+    %
+    % apply keys on certain included pages only
+    on page/.code 2 args={%
+      \appto\bt@pdfframes@onpagehook{%
+        \ifnum\p=0#1\relax
+          \pgfkeysalso{/bt/pdfframes/.cd, #2}%
+        \fi%
+      }
+    },
+    on pages/.code 2 args={%
+      \pgfplotsinvokeforeach{#1}{%
+        \appto\bt@pdfframes@onpagehook{%
+          \ifnum\p=0##1\relax
+            \pgfkeysalso{/bt/pdfframes/.cd, #2}%
+          \fi%
+        }
+      }
+    }
+  }
+	
+	\AtBeginDocument{
+		% setup default values 
+		\@ifpackageloaded{beamerthemei4}{\btset{pdfframes/.cd, clear/setup/i4beamer}}{
+			\@ifpackageloaded{beamerthemesra}{\btset{pdfframes/.cd, clear/setup/srabeamer}}{%
+				\bt@message{WARNING! unknown theme, you need to setup /bt/pdfframes/clear/* values for the InputPDFFrame command.}%
+		}}
+	}
+
+  % helper command to implement the clear stuff
+  \newcommand\bt@pdfframes@clearonbackground{%
+    \makebox[0pt][r]{\raisebox{0pt}[0pt]{\makebox[\paperwidth][l]{%
+    \rlap{%
+			\rule{\dimexpr\bt@clear@footlinexoffset\relax}{0pt}%																						advance to xpos
+			\makebox[\dimexpr\paperwidth-\bt@clear@footlinexoffset\relax][l]{%
+  	  	\color{\bt@clear@footlinecolor}\rule{\bt@clear@footlinewidth}{\bt@clear@footlineheight}%      cover footline
+      	\color{\bt@clear@numbercolor}\rule{\dimexpr\bt@clear@numberwidth}{\bt@clear@numberheight}%    cover number
+		}}% 
+    \raisebox{\dimexpr\paperheight-\bt@clear@titleheight}{%																						raise to title
+    \rlap{%																																													
+			\rule{\dimexpr\bt@clear@titlexoffset\relax}{0pt}%																								advance to xpos
+			\makebox[\dimexpr\paperwidth-\bt@clear@titlexoffset\relax][l]{%
+      	\color{\bt@clear@titlecolor}\rule{\dimexpr\paperwidth-\bt@clear@titlexoffset}{\dimexpr\bt@clear@titleheight}%  cover title
+    }}} 
+    }}}%
+  }
+
+  % \InputPDFFrames{key=<value>, key=<value>, ...}
+  \newcommand{\InputPDFFrames}[1]{%
+    \bgroup
+    \btset{pdfframes/.cd, #1}%
+    \foreach \p in \bt@pdfframes@range{%
+      \global\let\bt@pdfframes@afterpagehook\relax%
+      \aftergroup\bt@pdfframes@afterpagehook%
+      \bt@pdfframes@onpagehook%
+      \usebackgroundtemplate{\includegraphics[width=\paperwidth,page=\p]{\bt@pdfframes@file}\bt@pdfframes@backgroundhook}
+      \frame{\bt@pdfframes@contenthook}
+    }
+    \egroup
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% listings extensions 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifbtNoListings\else
+  \bt@message{setting up extensions for the 'listings' package}
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %
+  % Provide means to typeset "umlaute" in listings even with utf8 encoding
+  %
+  \def\bt@value{utf8}
+  \ifx\inputencodingname\bt@value
+    \bt@message{input encoding is utf8, enabling umlaute for lstlistings}
+    \lstdefinestyle{umlaute}{inputencoding=utf8, extendedchars=true,
+      literate={ä}{{\"a}}1 {ü}{{\"u}}1 {ö}{{\"o}}1 {Ä}{{\"A}}1 {Ü}{{\"U}}1 {Ö}{{\"O}}1 {ß}{{\ss}}1
+    }
+    \lstset{style=umlaute}
+  \fi
+
+  \lstdefinestyle{basestyle}{
+    basicstyle=\footnotesize\ttfamily, 
+    keywordstyle=\color{i4blue},
+    commentstyle=\color{beamergreen},
+    showstringspaces=false, 
+    breaklines=false,
+    mathescape=true,
+    lineskip=-3pt,
+    escapechar={§},
+    numbersep=1.5em,
+    numberstyle=\tiny,
+    showlines
+  }
+
+  \lstset{style=basestyle}
+
+  
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %
+  % \btIfInRange{number}{range list}{TRUE}{FALSE}
+  %
+  % Test in int number <number> is element of a (comma separated) list of ranges
+  % (such as: {1,3-5,7,10-12,14}) and processes <TRUE> or <FALSE> respectively
+
+  \newcount\bt@rangea
+  \newcount\bt@rangeb
+
+  \newcommand\btIfInRange[2]{%
+      \global\let\bt@inrange\@secondoftwo%
+      \edef\bt@rangelist{#2}%
+      \foreach \range in \bt@rangelist {%
+          \afterassignment\bt@getrangeb%
+          \bt@rangea=0\range\relax%
+          \pgfmathtruncatemacro\result{ ( #1 >= \bt@rangea) && (#1 <= \bt@rangeb) }%
+          \ifnum\result=1\relax%
+              \breakforeach%
+              \global\let\bt@inrange\@firstoftwo%
+          \fi%
+      }%
+      \bt@inrange%
+  }
+  \newcommand\bt@getrangeb{%
+      \@ifnextchar\relax%
+          {\bt@rangeb=\bt@rangea}%
+          {\@getrangeb}%
+  }
+  \def\@getrangeb-#1\relax{%
+      \ifx\relax#1\relax%
+          \bt@rangeb=100000%   \maxdimen is too large for pgfmath
+      \else%
+          \bt@rangeb=#1\relax%
+      \fi%
+  }
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %
+  % \btLstHL<overlay spec>{range list}
+  %
+  % TODO BUG: \btLstHL commands can not yet be accumulated if more than one overlay spec match.
+  % 
+  \providecolor{btLstHL}{named}{i4orange}
+  \newcommand<>{\btLstHL}[1]{%
+    \only#2{\btIfInRange{\value{lstnumber}}{#1}{\color{btLstHL}\def\lst@linebgrdcmd{\color@block}}{\def\lst@linebgrdcmd####1####2####3{}}}%
+  }%
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %
+  % \btInputEmph<overlay spec>[listing options]{range list}{file name}
+  %
+  \newcommand<>{\btLstInputEmph}[3][\empty]{%                                                    
+    \only#4{%
+      \lstset{linebackgroundcolor=\btLstHL{#2},#1}%
+      \lstinputlisting{#3}%
+   }% \only
+  }
+
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% lstlinebgrd.sty
+  %% see: http://tex.stackexchange.com/questions/18969/creating-a-zebra-effect-using-listings/18989#18989
+  %%
+  %% This small package is not yet published/not commonly available.
+  %% If available, load it; otherwise embed the required stuff
+  %%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \if@btlstlinebgrdNotFound
+  
+    % Patch line number key to call line background macro
+    \lst@Key{numbers}{none}{%
+        \def\lst@PlaceNumber{\lst@linebgrd}%
+        \lstKV@SwitchCases{#1}%
+        {none&\\%
+         left&\def\lst@PlaceNumber{\llap{\normalfont
+                    \lst@numberstyle{\thelstnumber}\kern\lst@numbersep}\lst@linebgrd}\\%
+         right&\def\lst@PlaceNumber{\rlap{\normalfont
+                    \kern\linewidth \kern\lst@numbersep
+                    \lst@numberstyle{\thelstnumber}}\lst@linebgrd}%
+        }{\PackageError{Listings}{Numbers #1 unknown}\@ehc}}
+
+    % New keys
+    \lst@Key{linebackgroundcolor}{}{%
+        \def\lst@linebgrdcolor{#1}%
+    }
+    \lst@Key{linebackgroundsep}{0pt}{%
+        \def\lst@linebgrdsep{#1}%
+    }
+    \lst@Key{linebackgroundwidth}{\linewidth}{%
+        \def\lst@linebgrdwidth{#1}%
+    }
+    \lst@Key{linebackgroundheight}{\ht\strutbox}{%
+        \def\lst@linebgrdheight{#1}%
+    }
+    \lst@Key{linebackgrounddepth}{\dp\strutbox}{%
+        \def\lst@linebgrddepth{#1}%
+    }
+    \lst@Key{linebackgroundcmd}{\color@block}{%
+        \def\lst@linebgrdcmd{#1}%
+    }
+
+    % Line Background macro
+    \newcommand{\lst@linebgrd}{%
+        \ifx\lst@linebgrdcolor\empty\else
+        \rlap{%
+            \lst@basicstyle
+            \color{-.}% By default use the opposite (`-`) of the current color (`.`) as background
+            \lst@linebgrdcolor{%
+            \kern-\dimexpr\lst@linebgrdsep\relax%
+            \lst@linebgrdcmd{\lst@linebgrdwidth}{\lst@linebgrdheight}{\lst@linebgrddepth}%
+            }%
+        }%
+        \fi
+    }
+  \fi% \ifbt@kstkinebgrdNotFound 
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% lstautogobble.sty
+  %% see: http://tex.stackexchange.com/questions/19953/how-to-automatically-skip-leading-white-spaces-in-listings/21613#21613
+  %%
+  %% This small package is not yet published/not commonly available.
+  %% If available, load it; otherwise embed the required stuff
+  %%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \if@btlstautogobbleNotFound
+    \bt@message{'lstautogobble.sty' not found, setting up internal version}
+
+    % LaTeX Package `lstautogobble`
+    % Counts the leading spaces of the first line and sets `gobble` to this number
+    % Copyright (c) 2011 by Martin Scharrer <martin@scharrer-online.de>
+    % for http://tex.stackexchange.com/questions/19953/how-to-automatically-skip-leading-white-spaces-in-listings
+    % This is free software under the LPPL v1.3c or later and was also posted under the CC BY-SA 3.0 license.
+    % \ProvidesPackage{lstautogobble}[2011/06/25 v1.0 Implements 'autogobble' option for 'listings']
+
+    % Counter for leading spaces
+    \newcount\lstag@spacecount
+
+    % Some macros for comparison:
+    \def\lstag@activespace{\lst@ProcessSpace}%  Definition of an active space
+
+    \begingroup
+    \catcode`\^^M=\active%
+    \gdef\lstag@activenl{^^M}%  Active CR (ASCII 13) character which is used as line break
+    \endgroup
+
+
+    % Define `autogobble` option as boolean (by default off)
+    \lst@Key{autogobble}{false}[t]{\lstKV@SetIf{#1}\lst@ifautogobble}
+
+    % `ungobble` option
+    \lst@Key{ungobble}{0}{\def\lst@ungobble{#1}}
+
+    % Insert required code at environment init
+    \lst@AddToHook{Init}{\lst@autogobble}
+
+    % Autogobble init macro.
+    % If the option is active and `gobble` is not set, init vars and overwrite the process macro with own definition.
+    \def\lst@autogobble{%
+        \lst@ifautogobble
+            \ifnum\lst@gobble>0\else
+                \def\lst@gobble{\lstag@gobble}%
+                \def\lstag@gobble{0}%
+                \lstag@spacecount\z@
+                \def\lstag@spaceaccu{}%
+                \let\lstag@restofline\empty
+                \let\lstag@origlstenv@Process\lstenv@Process
+                \let\lstenv@Process\lstag@countleadingspaces
+            \fi
+        \fi
+    }
+
+    % Checks if the next following character (read as argument) is a line break (as it is supposed to be)
+    % Otherwise there is some text direct after the `\begin{<env>}[<options>]` which is dropped by `listings`.
+    \def\lstag@countleadingspaces#1{%
+        \expandafter\ifx\lstag@activenl#1\relax
+            \expandafter\lstag@countleadingspaces@
+        \else
+            \def\lstag@restofline{Dummy replacement of text after begin of listing to trigger original warning message}%
+            \expandafter\lstag@countleadingspaces
+        \fi
+    }
+
+    % After the new line is found this macro counts the spaces
+    \def\lstag@countleadingspaces@#1{%
+        \ifx\lstag@activespace#1\relax
+            \advance\lstag@spacecount by \@ne
+            % Accumulate spaces (i.e. their definitions) for later re-insertion:
+            \expandafter\def\expandafter\lstag@spaceaccu\expandafter{\lstag@spaceaccu\lst@ProcessSpace}%
+            \let\next\lstag@countleadingspaces@
+        \else% Character wasn't a space
+            % Set gobble option (indirect):
+            \xdef\lstag@gobble{\the\numexpr\lstag@spacecount-\lst@ungobble\relax}%
+            % Restore original definition of process macro:
+            \global\let\lstenv@Process\lstag@origlstenv@Process
+            % Re-insert all collected material or appropriate replacement material:
+            \edef\next{\noexpand\lstenv@Process\lstag@restofline\expandafter\noexpand\lstag@activenl\expandafter\unexpanded\expandafter{\lstag@spaceaccu}\noexpand#1}%
+        \fi
+        \next
+    }
+
+  \fi% \ifbt@lstautogobbleNotFound 
+  
+
+\fi% else \ifbtNoListings
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TikZ extensions and macros that depend on TikZ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifbtNoTikZ\else
+  \bt@message{setting up extensions for the 'tikz' package (suppress with notikz=true)}
+
+  % Key to apply style on specific overlays only
+  % usage (e.g.): \node[onslide=<2->{fill=red}]{I am red on slide 2!};
+  %
+  % see also: http://tex.stackexchange.com/questions/6135/how-to-make-beamer-overlays-with-tikz-node 
+  %
+  \tikzset{onslide/.code args={<#1>#2}{%
+    \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+  }}
+  \tikzset{alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  }}
+
+  % Key to add font macros to the current font (instead of replacing it)
+  \tikzset{add font/.code={\expandafter\def\expandafter\tikz@textfont\expandafter{\tikz@textfont#1}}} 
+  
+  % Key handler for .provide style=<...>, which defines a style only if it not yet exists
+  \tikzset{/handlers/.provide style/.code={%
+    \pgfkeysifdefined{\pgfkeyscurrentpath/.@cmd}%
+      {}%
+      {\pgfkeys {\pgfkeyscurrentpath /.code=\pgfkeysalso {#1}}}%
+  }}
+
+
+  % Key to get "precise" pins to nodes that do not "jump around" with certain angle values
+  % see also: http://tex.stackexchange.com/questions/43912/how-can-i-force-tikz-pin-angle
+  \tikzset{
+      precise pin/.style args={#1:#2}{
+          pin={[
+              inner sep=0pt,
+              label={[
+               append after command={
+                      node [
+                          inner sep=0pt,
+                          at=(\tikzlastnode.#1),
+                          anchor=#1+180
+                      ] {#2}
+                  }
+              ]center:{}}
+          ]#1:{}}
+      }
+  }
+ 
+
+  % Key to scale the content of a node by a factor #1
+  \tikzset{scale content/.style={
+    execute at begin node={%
+      \numdef{\scale@content@nest}{\scale@content@nest+1}% increase nesting counter
+      \ifnumequal{\scale@content@nest}{1}{%              % do not nest 
+        \pgfmathsetmacro{\scale@content}{#1}%
+        \begin{lrbox}{\@tempboxa}%
+        \ifx\tikz@text@width\pgfutil@empty\else
+          % if 'text width' has been specified, scale it accordingly by using a minipage
+          \pgfmathsetlength{\@tempdima}{\textwidth/#1}%
+          \begin{minipage}{\@tempdima}%
+        \fi
+      }{}%
+    }, 
+    execute at end node={%
+      \ifnumequal{\scale@content@nest}{1}{%
+        \ifx\tikz@text@width\pgfutil@empty\else
+          \end{minipage}%
+        \fi
+        \end{lrbox}%
+        \scalebox{\scale@content}{\usebox\@tempboxa}%
+      }{}%
+      \numdef{\scale@content@nest}{\scale@content@nest-1}% decrease nesting counter
+    }%
+  }}
+
+  % Key that takes a \hypertarget as argument and typsets an invisible clickable node of the same dimension on top
+  % of the current node that jumps to the given target:
+  % \hypertarget{mytarget}{}
+  % ...
+  % \node[hyoerlink=mytarget]{Foo}
+  %
+  % see also: http://tex.stackexchange.com/questions/36109/making-nodes-hyperlinkable
+  \tikzset{
+      hyperlink/.style={
+          alias=sourcenode,
+          append after command={
+              let     \p1 = (sourcenode.north west),
+                  \p2=(sourcenode.south east),
+                  \n1={\x2-\x1},
+                  \n2={\y1-\y2} in
+              node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\phantom{\rule{\n1}{\n2}}}}
+          }
+      }
+  }
+
+  % Keys to support piece-wise uncovering of elements in TikZ pictures:
+  % \node[visible on=<2->](foo){Foo}
+  %
+  % Internally works by setting opacity=0 when invisible, which has the 
+  % adavantage (compared to \node<2->(foo){Foo} that the node is always there, hence
+  % always consumes space that (foo) is always available.
+  %
+  % The actual command that implements the invisibility can be overriden
+  % by altering the style invisible. For instance \tikzsset{invisible/.style={opacity=0.2}}
+  % would dim the "invisible" parts. Alternatively, the color might be set to white, if the
+  % output driver does not support transparencies (e.g., PS) 
+  %
+  \tikzset{
+    global opacity/.style={
+      opacity=#1,
+      text opacity=#1,
+      every shadow/.append style={opacity=#1},
+    },
+    invisible/.style={global opacity=0},
+    visible/.style={global opacity=1},
+    visible on/.style={alt=#1{}{invisible}},
+  }
+
+
+  \tikzset{
+        boxshadow/.style={drop shadow},
+        normalbox/.style={shape=rectangle,draw,fill=#1, boxshadow},
+        normalbox/.default={white},
+        orangebox/.style={normalbox=i4orange,draw=i4gray,rounded corners=4pt},
+        redbox/.style={normalbox, draw=i4red,very thick, inner sep=8pt},
+        putat/.style={overlay, remember picture, every path/.append style={yscale=-1}, at={($(current page.north west) + #1 $)}, anchor=north west},
+        relpos/.style={ overlay, remember picture,  every path/.append style={yscale=-1}, at={#1}, anchor=north west},
+  }
+
+  \newcommand<>{\NormalBox}[2][\empty]{%
+    \onslide#3{\tikz[#1, every node/.style={normalbox, #1}]\node []{#2};}
+  }
+  \newcommand<>{\TightBox}[2][\empty]{%
+    \onslide#3{\tikz[#1, every node/.style={normalbox, inner sep=0pt, #1}]\node []{#2};}
+  }
+  \newcommand<>{\OrangeBox}[2][]{%
+    \onslide#3{\tikz[every node/.style={orangebox, #1}, #1]\node []{#2};}
+  } 
+  \newcommand<>{\RedBox}[2][]{%
+    \setbeamercolor{structure}{use=alerted text, fg=alerted text.fg}
+    \onslide#3{\tikz[every node/.style={redbox, #1}, #1]\node []{#2};}
+  } 
+  \newcommand<>{\TikzPoint}[2][\empty]{%
+    \onslide#3{\tikz[remember picture, #1, every coodinate/.style={#1}]\coordinate (#2);}%
+  }
+
+  \tikzset{every btImage/.style={text width=2cm}}
+  \newcommand<>{\btImage}[2][]{%
+    \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{\includegraphics[width=\textwidth]{#2}};}%
+  }
+
+
+  %**
+  % \PutAt<overlay spec>[<box width>]{(<x>, <y>)}{<content>}
+  %
+  % real absolute positioning of <content> on a slide, if content is a figure,
+  % minipage or whatever kind of LR-box, the <box width> argument may be omitted
+  %
+  %
+  % implementation notes: 
+  %   - based on   \usepackage[absolute,overlay]{textpos}
+  %   - NOT combinable with any beamer feature that is based on pgfpages
+  %     (such as dual-screen support, built-in 2up handouts, etc.), as textpos 
+  %     and pgfpages interfere at the shippout-level.
+  %
+
+  \newcommand<>{\PutAt}[3][0pt]{%
+    \only#4{%
+    \begin{textblock*}{#1}#2%
+      #3
+    \end{textblock*}%
+    }%
+  }
+
+  %**
+  % \ShowPutAtGrid
+  %
+  % draws a helpful grid on the current slide to figure <x> and <y> parameters for \PutAt
+  % 
+  \newcommand{\ShowPutAtGrid}{
+    \begin{textblock*}{128mm}(0cm,0cm)
+    \tikz[color=red!20!white]\draw[very thin, step=5mm] (0mm,0mm) grid (130mm,100mm);
+    \end{textblock*}
+    \begin{textblock*}{128mm}(0cm,0cm)
+    \begin{tikzpicture}[color=red]
+      \draw[step=1cm] (0,0mm) grid (130mm,100mm);	
+      \foreach \n in {0,...,12}
+        \draw[xshift=.5mm,yshift=-1.5mm, inner sep=0pt, anchor=west] (\n,10) node {\scriptsize{\textbf{\n}}};
+      \foreach \n in {1,...,9}
+        \draw[xshift=.5mm,yshift=-1.5mm, inner sep=0pt, anchor=west] (0,10-\n) node {\scriptsize{\textbf{\n}}};
+    \end{tikzpicture}
+    \end{textblock*}
+  }
+
+
+  \newenvironment<>{btHighlight}[1][]
+  {\begin{onlyenv}#2\begingroup\tikzset{bt@Highlight@par/.style={#1}}\begin{lrbox}{\@tempboxa}}
+  {\end{lrbox}\bt@HL@box[bt@Highlight@par]{\@tempboxa}\endgroup\end{onlyenv}}
+
+  \newcommand<>\btHL[1][]{%
+    \only#2{\begin{btHighlight}[#1]\bgroup\aftergroup\bt@HL@endenv}%
+  }
+  \def\bt@HL@endenv{%
+    \end{btHighlight}%   
+    \egroup
+  }
+  \newcommand{\bt@HL@box}[2][]{%
+    \tikz[#1]{%
+      \pgfpathrectangle{\pgfpoint{1pt}{0pt}}{\pgfpoint{\wd #2}{\ht #2}}%
+      \pgfusepath{use as bounding box}%
+      \node[anchor=base west, fill=i4orange,outer sep=0pt,inner xsep=1pt, inner ysep=0pt, rounded corners=3pt, minimum height=\ht\strutbox+1pt,#1]{\raisebox{1pt}{\strut}\strut\usebox{#2}};
+    }%
+  }
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% tikzlibraryshadows.blur.code.tex (1.01, 2012/04/24)
+  %% see: http://www.ctan.org/tex-archive/graphics/pgf/contrib/pgf-blur
+  %%
+  %% This small library is not yet published/not commonly available.
+  %% If available, load it; otherwise embed the required stuff
+  %%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \if@bttikzlibraryshadowsblurNotFound
+  \bt@message{TikZ library 'shadows.blur ('tikzlibraryshadows.blur.code.tex') not found, setting up internal version}
+    \tikzset{
+      /tikz/shadow blur radius/.store in=\pgfbs@radius,
+      /tikz/shadow blur radius=.4ex,
+      /tikz/shadow blur extra rounding/.store in=\pgfbs@extra@rounding,
+      /tikz/shadow blur extra rounding=\pgfutil@empty,
+      /tikz/shadow blur extra rounding/.default=\pgfbs@radius,
+      /tikz/shadow blur steps/.store in=\pgfbs@steps,
+      /tikz/shadow blur steps=4,
+      /tikz/shadow opacity/.store in=\pgfbs@opacity,
+      /tikz/shadow opacity=40,
+      /tikz/blur shadow/.style={
+        shadow scale=1,
+        shadow xshift=.5ex,
+        shadow yshift=-.5ex,
+        preaction=render blur shadow,
+        every shadow,
+        #1,
+      },
+      /tikz/render blur shadow/.code={
+        \pgfbs@savebb
+        \pgfsyssoftpath@getcurrentpath{\pgfbs@input@path}%
+        \pgfbs@compute@shadow@bbox
+        \pgfbs@process@rounding{\pgfbs@input@path}{\pgfbs@fadepath}%
+        \pgfbs@apply@canvas@transform
+        \colorlet{pstb@shadow@color}{white!\pgfbs@opacity!black}%
+        \pgfdeclarefading{shadowfading}{\pgfbs@paint@fading}%
+        \pgfsetfillcolor{black}%
+        \pgfsetfading{shadowfading}%
+           {\pgftransformshift{\pgfpoint{\pgfbs@midx}{\pgfbs@midy}}}%
+        \pgfbs@usebbox{fill}%
+        \pgfbs@restorebb
+      },
+    }
+    \def\pgfbs@savebb{%
+      \edef\pgfbs@restorebb{%
+        \global\pgf@picminx=\the\pgf@picminx\relax
+        \global\pgf@picmaxx=\the\pgf@picmaxx\relax
+        \global\pgf@picminy=\the\pgf@picminy\relax
+        \global\pgf@picmaxy=\the\pgf@picmaxy\relax
+      }%
+    }
+    \def\restorebb{}%
+    \def\pgfbs@process@rounding#1#2{
+      \expandafter\ifx\pgfbs@extra@rounding\pgfutil@empty%
+        \pgfprocessround{#1}{#2}%
+      \else%
+        \pgfmathsetmacro\pgfbs@exrd@val{\pgfbs@extra@rounding}%
+        \pgfbs@roundpath{#1}{\pgfbs@exrd@val pt}%
+        \pgfsyssoftpath@getcurrentpath{\pgfbs@extraroundedpath}%
+        \pgfprocessround{\pgfbs@extraroundedpath}{#2}%
+      \fi%
+    }
+    \def\pgfbs@roundpath#1#2{%
+      {%
+        \def\pgfbs@rp@skipround{%
+          \let\pgfbs@rp@possibleround\pgfbs@rp@insertround}%
+        \def\pgfbs@rp@insertround{\pgfsyssoftpath@specialround{#2}{#2}}%
+        \let\pgfbs@rp@possibleround\pgfbs@rp@insertround%
+        %
+        \def\pgfsyssoftpath@movetotoken##1##2{%
+          \pgfsyssoftpath@moveto{##1}{##2}}%
+        \def\pgfsyssoftpath@linetotoken##1##2{%
+          \pgfbs@rp@possibleround\pgfsyssoftpath@lineto{##1}{##2}}%
+        \def\pgfsyssoftpath@rectcornertoken##1##2##3##4##5{%
+          \pgf@xa=##1\relax%
+          \advance\pgf@xa by##4%
+          \pgf@ya=##2\relax%
+          \advance\pgf@ya by##5%
+          \pgfsyssoftpath@moveto{##1}{##2}%
+          \pgfbs@rp@possibleround%
+          \pgfsyssoftpath@lineto{\the\pgf@xa}{##2}%
+          \pgfbs@rp@possibleround%
+          \pgfsyssoftpath@lineto{\the\pgf@xa}{\the\pgf@ya}%
+          \pgfbs@rp@possibleround%
+          \pgfsyssoftpath@lineto{##1}{\the\pgf@ya}%
+          \pgfbs@rp@possibleround%
+          \pgfsyssoftpath@closepath}%
+        \def\pgfsyssoftpath@curvetosupportatoken%
+           ##1##2##3##4##5##6##7##8{%
+          \pgfbs@rp@possibleround%
+          \pgfsyssoftpath@curveto{##1}{##2}{##4}{##5}{##7}{##8}}%
+        \def\pgfsyssoftpath@closepathtoken##1##2{%
+          \pgfbs@rp@possibleround\pgfsyssoftpath@closepath}%
+        \def\pgfsyssoftpath@specialroundtoken##1##2{%
+          \pgfmathsetmacro\pgfbs@rp@ra{max(##1,#2)}%
+          \pgfmathsetmacro\pgfbs@rp@rb{max(##2,#2)}%
+          \pgfsyssoftpath@specialround%
+              {\pgfbs@rp@ra pt}{\pgfbs@rp@rb pt}%
+          \let\pgfbs@rp@possibleround\pgfbs@rp@skipround%
+        }
+        #1%
+      }
+    }
+    \def\pgfbs@compute@shadow@bbox{%
+      \edef\pgfbs@minx{\the\pgf@pathminx}%
+      \edef\pgfbs@miny{\the\pgf@pathminy}%
+      \edef\pgfbs@maxx{\the\pgf@pathmaxx}%
+      \edef\pgfbs@maxy{\the\pgf@pathmaxy}%
+      \pgfmathsetmacro\pgfbs@midx{0.5*(\pgfbs@minx + \pgfbs@maxx)}%
+      \pgfmathsetmacro\pgfbs@midy{0.5*(\pgfbs@miny + \pgfbs@maxy)}%
+      \pgfmathsetmacro\pgfbs@minx{\pgfbs@minx - \pgfbs@radius}%
+      \pgfmathsetmacro\pgfbs@miny{\pgfbs@miny - \pgfbs@radius}%
+      \pgfmathsetmacro\pgfbs@maxx{\pgfbs@maxx + \pgfbs@radius}%
+      \pgfmathsetmacro\pgfbs@maxy{\pgfbs@maxy + \pgfbs@radius}%
+      \pgfmathsetmacro\pgfbs@wd{\pgfbs@maxx - \pgfbs@minx}%
+      \pgfmathsetmacro\pgfbs@ht{\pgfbs@maxy - \pgfbs@miny}%
+      \pgfsyssoftpath@setcurrentpath\pgfutil@empty%
+      \pgfsyssoftpath@rect{\pgfbs@minx pt}{\pgfbs@miny pt}%
+                          {\pgfbs@wd pt}{\pgfbs@ht pt}%
+      \pgfsyssoftpath@getcurrentpath{\pgfbs@shadow@bbox}%
+      \pgfsyssoftpath@setcurrentpath\pgfutil@empty%
+    }
+
+    \def\pgfbs@set@fading@pic@bbox{
+      \global\pgf@picminx=\pgfbs@minx pt\relax
+      \global\pgf@picminy=\pgfbs@miny pt\relax
+      \global\pgf@picmaxx=\pgfbs@maxx pt\relax
+      \global\pgf@picmaxy=\pgfbs@maxy pt\relax
+    }
+    \def\pgfbs@usefadepath#1{%
+      \pgfsyssoftpath@setcurrentpath{\pgfbs@fadepath}%
+      \pgfsyssoftpath@flushcurrentpath%
+      \pgfusepath{#1}%
+    }
+    \def\pgfbs@usebbox#1{%
+      \pgfsyssoftpath@setcurrentpath{\pgfbs@shadow@bbox}%
+      \pgfsyssoftpath@flushcurrentpath%
+      \pgfusepath{#1}%
+    }
+    \def\pgfbs@apply@canvas@transform{
+      \pgflowlevel{
+        \pgftransformshift{\pgfpoint{\pgfbs@midx}{\pgfbs@midy}}
+        \pgftransformscale{\pgfkeysvalueof{/tikz/shadow scale}}
+        \pgftransformshift{\pgfpoint%
+          {\pgfkeysvalueof{/tikz/shadow xshift}-\pgfbs@midx}
+          {\pgfkeysvalueof{/tikz/shadow yshift}-\pgfbs@midy}
+        }
+      }
+    }
+    \def\pgfbs@paint@fading{
+      \pgfpicture
+        % fix bounding box.
+        \pgfbs@set@fading@pic@bbox
+        % compute increments for line width and opacity
+        \pgfmathsetmacro\pgfbs@op@step{50/\pgfbs@steps}
+        \pgfmathsetmacro\pgfbs@wth@step{4*\pgfbs@radius/(2*\pgfbs@steps-1)}
+        % draw the outer part of the fading,
+        % starting with lightest, outermost line
+        \pgfsetroundjoin
+        \pgfmathsetmacro\pgfbs@max@i{\pgfbs@steps-2}
+        \pgfmathsetmacro\pgfbs@wth{2*\pgfbs@radius}
+        \pgfmathsetmacro\pgfbs@op{100-0.5*\pgfbs@op@step}
+        \foreach \pgfbs@i in {0,...,\pgfbs@max@i} {
+          \pgfsetlinewidth{\pgfbs@wth pt}
+          \pgfsetstrokecolor{black!\pgfbs@op!pstb@shadow@color}
+          \pgfbs@usefadepath{stroke}
+          \pgfmathsetmacro\pgfbs@wth{\pgfbs@wth-\pgfbs@wth@step}
+          \global\let\pgfbs@wth=\pgfbs@wth
+          \pgfmathsetmacro\pgfbs@op{\pgfbs@op-\pgfbs@op@step}
+          \global\let\pgfbs@op=\pgfbs@op
+        }
+        % clip to inside of path
+        \scope
+        \pgfbs@usefadepath{clip}
+        % fill inside with final darkest shadow color
+        \pgfsetfillcolor{pstb@shadow@color}
+        \pgfbs@usebbox{fill}
+        % draw the inner part of the fading,
+        % starting with the darkest, innermost line
+        \pgfmathsetmacro\pgfbs@wth{2*\pgfbs@radius}
+        \pgfmathsetmacro\pgfbs@op{0.5*\pgfbs@op@step}
+        \foreach \pgfbs@i in {0,...,\pgfbs@max@i} {
+          \pgfsetlinewidth{\pgfbs@wth pt}
+          \pgfsetstrokecolor{black!\pgfbs@op!pstb@shadow@color}
+          \pgfbs@usefadepath{stroke}
+          \pgfmathsetmacro\pgfbs@wth{\pgfbs@wth-\pgfbs@wth@step}
+          \global\let\pgfbs@wth=\pgfbs@wth
+          \pgfmathsetmacro\pgfbs@op{\pgfbs@op+\pgfbs@op@step}
+          \global\let\pgfbs@op=\pgfbs@op
+        }
+        \endscope
+        % a final stroke to hide clip/antialiasing artifcats
+        \pgfsetstrokecolor{black!50!pstb@shadow@color}
+        \pgfsetlinewidth{0.5*\pgfbs@wth@step}
+        \pgfbs@usefadepath{stroke}
+      \endpgfpicture
+    }
+  \fi% \if@bttikzlibraryshadowsblurNotFound
+\fi% else \ifbtNoTikZ

@@ -1,0 +1,531 @@
+\documentclass{beamer}
+
+\ifdefined\woschtheme%
+  % beamer class setup (wosch style)
+  \usecolortheme{seahorse}
+  \usecolortheme{rose}
+  \useoutertheme{infolines}
+\else
+  % beamer class setup (i4 style)
+  \usecolortheme{rose}
+  \usetheme{i4}
+\fi
+
+\setbeamertemplate{navigation symbols}{}
+
+% we use UTF8
+\usepackage[utf8]{inputenc}
+
+% font setup
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\renewcommand{\sfdefault}{cmbr} 
+\usepackage[scaled=0.85]{beramono}
+
+% Misc
+\usepackage{xspace}
+
+% load the beamertools package
+\usepackage[everything,physicalpagesinpdftoc]{beamertools}
+\usetikzlibrary{positioning}
+\def\beamertools{\texttt{beamertools}\xspace}
+\def\key#1{{\color{black!50}\texttt{/bt/#1}}}
+\def\tikzkey#1{{\color{black!50}\texttt{/tikz/#1}}}
+
+% typesetting LaTeX code together with result
+\usepackage{showexpl}
+\lstloadlanguages{[LaTeX]TeX}
+\lstdefinestyle{expl}{
+  basicstyle=\scriptsize\ttfamily,
+  language=[LaTeX]Tex,
+  breaklines=true,
+  breakautoindent=true,
+  breakindent=2ex,
+  moredelim=**[is][\bfseries]{''}{''},
+  moredelim=[is][\color{beamergreen}\slshape]{'}{'},
+  numbers=none, numbersep=2ex,xleftmargin=0pt, 
+  morekeywords={structure,alert,tikz,node,lstset,tikzset,path,draw},
+  morekeywords=[2]{ bi,ei,ii,bii,eii,biii,eiii,iiad,iida,Alert,ALERT,Structure,STRUCTURE,sample,Sample,SAMPLE,
+                    btBlock,btUseExtraItemSep,btAddExtraItemSep,btset,btConvertTo,btInsertFileModDate,
+                    btLstInputEmph, btVFill, btHL, btPrevFrameTitle, btPrevFrameSubtitle, btPrevShortFrameTitle},
+  keywordstyle=[2]{\color{i4red}},
+  morekeywords=[3]{onslide, {scale content}, {add font}},
+  keywordstyle=[3]{\color{i4red}},
+}
+
+% set expl-specific listings options
+\lstset{rframe={},pos=b,explpreset={style=expl}}
+
+% set standard listing options
+\lstset{
+  style=expl,
+}
+
+\lstMakeShortInline{!}
+
+
+\begin{document}
+
+\title[beamertools]{Documentation of the \beamertools package}
+\author[dl] {Daniel Lohmann}
+\date{\btInsertFileModDate{\jobname.tex}}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Purpose of the package}
+  \btUseExtraItemSep[\medskipamount]
+  \bi
+    \ii The \beamertools package provides a convenient interface to certain extensions and patches I have developed for my \texttt{beamer} presentations, especially the lecture slides for (G)SPiC and BS 
+    \ii I created this package after figuring out, that
+      \bi
+        \ii my \texttt{preamble.tex} files become way too long, way too redundant and way too complicated
+        \ii I found certain repeating code patterns in my lecture presentations that could be shortened quite a bit by better abstractions
+        \ii I always wanted to write an own \LaTeX{} package :-)
+      \ei
+  \ei
+\end{frame}
+\begin{frame}[fragile,t]{Package loading and options}
+  \bi
+    \ii Package options are processed with !pgfkeys!
+      \bi
+        \ii Example: !\usepackage[autonotes,notikz]{beamertools}! 
+        \ii<2> All \lstinline{pgfkeys} features (e.g., styles) can be employed:
+           !\usepackage[spic]{beamertools}! 
+      \ei
+      \ii The following \alt<1>{options}{styles} are available (sorry, no real docu yet):
+  \ei
+  \only<1>{\lstinputlisting[linerange=31-38]{beamertools.sty}}
+  \only<2>{\lstinputlisting[linerange=48-54]{beamertools.sty}}
+\end{frame}
+
+\section{Shortcut and Helper Macros}
+
+\begin{frame}[fragile]{Shortcuts for List Environments}
+Shortcuts for the !itemize! environment: !\bi! ... !\ii! ... !\ei!
+\begin{LTXexample}[pos=r]
+  \bi
+    \ii<+-> Level 1
+      \bi
+        \ii Level 2
+      \ei
+    \ii<+-> Level 1 again
+  \ei
+\end{LTXexample}
+Variants to skip one or two levels (for compact lists):
+\begin{LTXexample}[pos=r]
+  \bii
+    \ii This is a level 2 item
+    \ii This is a level 2 item
+  \eii
+  \biii
+    \ii This is a level 3 item
+    \ii This is a level 3 item
+  \eiii
+\end{LTXexample}
+Variants for advantage/disadvantage lists (easy to redefine):
+\begin{LTXexample}[pos=r]
+  \bii
+    \iiad This is an advantage
+    \iida This is a disadvantage
+  \eii
+\end{LTXexample}
+\end{frame}
+
+\begin{frame}[fragile,allowframebreaks]{Spacing in List Environments}
+Better spacing between items, weighted by the itemize level.
+\smallskip
+\bi
+  \ii The !\btAddExtraItemSep['<sep>=\smallskipamount']! command advances !\itemsep! by !'<sep> * (3 - itemize level)'!. 
+\ei
+\begin{LTXexample}[pos=r]
+\bii
+  \ii Normal Spacing
+  \ii Normal Spacing
+  \btAddExtraItemSep
+  \ii Extended Spacing
+    \bi
+      \ii Normal Spacing
+      \ii Normal Spacing
+    \ei
+  \ii Extended Spacing
+\eii
+\end{LTXexample}
+\bi
+  \ii It has to be applied inside the !itemize! environment and only affects the current level.
+\ei
+\framebreak
+\bi
+  \ii The !\btUseExtraItemSep['<sep>=\smallskipamount']! command patches the !itemize! environment, so that !\btAddExtraItemSep['<sep>']! is invoked implicitly: 
+\ei
+\begin{LTXexample}[pos=r]
+\btUseExtraItemSep[1ex]
+\bi
+  \ii Extended Spacing
+  \ii Extended Spacing
+    \bi
+      \ii Extended Spacing
+      \ii Extended Spacing
+    \ei
+  \ii Extended Spacing
+\ei
+\end{LTXexample}
+\bi
+  \ii If applied at the begin of a !frame! environement, it affects all lists on the frame. 
+  \ii This can be great to fine-tune the spacing.
+\ei
+\end{frame}
+
+\begin{frame}[fragile]{Additional text styles}
+  \framesubtitle{Very useful}
+Some additional variants of the \lstinline{\alert}, \lstinline{\structure}, and a (all new) \lstinline{\sample} command. All accept an \lstinline{<'overlay spec'>}:
+\begin{LTXexample}[pos=r]
+  \bii
+    \ii This is \alert{text}
+    \ii This is \Alert{text}
+    \ii This is \ALERT{text}
+  \eii
+\end{LTXexample}
+\begin{LTXexample}[pos=r]
+  \bii
+    \ii This is \structure{text}
+    \ii This is \Structure{text}
+    \ii This is \STRUCTURE{text}
+  \eii
+\end{LTXexample}
+\begin{LTXexample}[pos=r]
+  \bii
+    \ii This is \sample{text}
+    \ii This is \Sample{text}
+    \ii This is \SAMPLE{text}
+  \eii
+\end{LTXexample}
+\end{frame}
+
+\begin{frame}[fragile]{Previous frame title}
+  The macros !\btPrevFrameTitle!, !\btPrevFrameSubtitle!, !\btPrevShortFrametitle! provide the title, subtitle and short title of the previous frame (look back to see what was the title):
+\begin{LTXexample}[pos=r]
+  \bii
+    \ii \btPrevFrameTitle 
+    \ii \btPrevFrameSubtitle
+    \ii \btPrevShortFrameTitle
+  \eii
+\end{LTXexample}
+\end{frame}
+
+\section{Block Environments}
+\begin{frame}[fragile, allowframebreaks]{The \texttt{btBlock} Environment}
+  \btUseExtraItemSep[\medskipamount]
+  \bi
+    \ii General structure
+      \begin{lstlisting}[autogobble]
+        \begin{btBlock}<'overlay spec'>['pgfkeys key=val list']{'title'}
+          'block content'
+        \end{btBlock}
+      \end{lstlisting}
+        \ii Minimal Example
+
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[]{Block}
+  Something important
+\end{btBlock}
+\end{LTXexample}
+
+        \ii Using block types: \key{type=alert|example|normal}
+
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[type=alert]{Block}
+  Something important
+\end{btBlock}
+\end{LTXexample}
+
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[type=example]{Block}
+  Something important
+\end{btBlock}
+\end{LTXexample}
+
+        \ii Scaling: \key{scale content=} and \key{scale=}
+          \bi
+            \ii \key{scale content=} keeps width, but scales block content so that more stuff fits into it \par
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[scale content=0.7]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+
+            \ii \key{scale=} scales block "as is", so that block consumes less space \par
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[scale=0.7]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+
+          \ei
+        \ii Setting block width: \key{text width=}\par
+\begin{LTXexample}[pos=b]
+\begin{btBlock}[text width=5cm]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+\hrule
+\par
+\begin{LTXexample}[pos=b]
+\begin{btBlock}[text width=0.8\textwidth]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+
+        \ii Horizontal alignment: \key{align=left|right|center}\par
+\begin{LTXexample}[pos=b]
+\begin{btBlock}[text width=0.8\textwidth,align=right]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+\hrule
+\par
+\begin{LTXexample}[pos=b]
+\begin{btBlock}[scale=0.8, align=center]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+
+        \ii Beamer-Block options: \key{rounded} and \key{shadow}\par
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[shadow=false]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+\hrule
+\par
+\begin{LTXexample}[pos=r]
+\begin{btBlock}[rounded=false]{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+        \ii Setting defaults: The \key{every block} style 
+
+\begin{LTXexample}[pos=r]
+\btset{every block/.style={
+  rounded, shadow=false, 
+  scale=0.8, center}
+}
+\begin{btBlock}{Block}
+  more info
+\end{btBlock}
+
+\bigskip
+
+\btset{every block/.append style={shadow, alert}}
+\begin{btBlock}{Block}
+  more info
+\end{btBlock}
+\end{LTXexample}
+
+  \ei
+\end{frame}
+
+\begin{frame}[fragile]{Wosch-compatible blocks}
+\bi
+\ii
+  If you load the package with the \key{woschblocks} option, 
+  the following environments will be defined on the base of \texttt{btBlock}.\newline
+  {\footnotesize (Note that \texttt{btBlock} options can still be specified)}
+\par
+\begin{LTXexample}[pos=r]
+\begin{bearblock}{Block}
+  more info
+\end{bearblock}
+\medskip
+\begin{ovalblock}{Block}
+  more info
+\end{ovalblock}
+\medskip
+\def\shadow{true}
+\begin{codeblock}[scale content=0.8]{Block}
+  more info
+\end{codeblock}
+\end{LTXexample}
+\ii
+  These should be fully compatible to the ones Wosch uses in his slides (including handling of the \texttt{\textbackslash shadow} macro)
+
+\ei
+
+\end{frame}
+
+\section{TikZ Stuff}
+\begin{frame}[fragile]{Additional styles for TikZ}
+\bi
+\ii Add to current font (instead of replacing it) \tikzkey{add font=\emph{font command}}
+\ii Scale inner content of a node \tikzkey{scale content=\emph{factor}}\par
+\ii Use beamer overlays with TikZ styles \tikzkey{onslide=}
+\par
+\begin{LTXexample}
+\tikz\node[%
+    font=\ttfamily,
+    onslide=<1>{draw=blue}, 
+    onslide=<2->{fill=red!50, add font=\bfseries},
+    onslide=<3>{scale content=1.5}
+  ]{Attention!};
+\end{LTXexample}
+\ei
+\end{frame}
+
+\begin{frame}[fragile]{Piecewise appearing for TikZ}
+\bi
+\ii Use beamer overlays for visibility \tikzkey{visible on=}
+\par
+\begin{LTXexample}
+\begin{tikzpicture}[every node/.style={fill=i4red!30, draw=i4red}]
+  \node{Foo}
+    child[visible on=<2->]{node {Bar}}
+    child[visible on=<3->]{node {Baz}}
+  ;  
+\end{tikzpicture}
+\end{LTXexample}
+\ii<4-> Default implementation is based on \\
+  \tikzkey{opacity=0}:
+\begin{lstlisting}
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt=#1{}{invisible}},
+}
+\end{lstlisting}
+\ei
+\PutAt<4->{(7.5cm,4cm)}{%
+  \begin{btBlock}[text width=5cm, scale content=0.7]{Advantage: Elements are always there}
+    \bi
+      \ii Image size does not depend on the overlay step
+      \ii Named nodes are always defined (for coordinate calculation)
+   \ei
+  \end{btBlock}
+}
+\end{frame}
+
+\begin{frame}[fragile]{Piecewise appearing for TikZ (cont.) }
+\bi
+\ii By overriding the \tikzkey{invisible} style, the "invisible" appearance can be customized (e.g., to dim elements instead) 
+\par
+\begin{LTXexample}
+\tikzset{invisible/.style={opacity=0.2}}
+\begin{tikzpicture}[every node/.style={fill=i4red!30, draw=i4red}]
+  \node{Foo}
+    child[visible on=<2->]{node {Bar}}
+    child[visible on=<3->]{node {Baz}}
+  ;  
+\end{tikzpicture}
+\end{LTXexample}
+\ei
+\end{frame}
+
+
+\section{Extensions to \texttt{listings}}
+
+\begin{frame}[fragile]{Highlighting lines in Listings}
+\begin{LTXexample}[pos=r]
+\lstset{language=C, numbers=left}
+\begin{lstlisting}[
+  autogobble,
+  linebackgroundcolor={%
+    \btLstHL{4}%
+    \btLstHL<1>{1-2,5-6}%
+    \btLstHL<2>{7}%
+  }]
+    /**
+    * Prints Hello World. äöü
+    **/
+    #include <stdio.h>
+
+    int main(void) {
+       printf("Hello World!");  
+       return 0;
+    }
+\end{lstlisting}
+\end{LTXexample}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Highlighting lines in listings from external files}
+\begin{LTXexample}[pos=r]
+\btLstInputEmph[language=C, numbers=left]{3,6-7}{hello.c}
+\end{LTXexample}
+
+\end{frame}
+
+\begin{frame}[fragile]{Highlighting single elements in listings}
+\scriptsize !\btHL<'overlay spec'>['tikz key=val list']! highlights till the end of a group (no line breaks, though).  Hence, it can be as a ordinary font command with listings:
+\begin{LTXexample}[pos=b]
+\bii
+  \ii Some {text mit \btHL highlighting}, overlays are {\btHL<2>[red!20]also} possible.
+\eii
+\lstset{language=C, autogobble}
+\begin{lstlisting}[
+    moredelim={**[is][\btHL<1->]{@1}{@}},
+    moredelim={**[is][{\btHL<2>}]{@2}{@}}
+  ]
+    #include @2<stdio.h>@
+
+    int @1main@(void) {
+       printf("Hello World!");  
+       return 0;
+    }
+\end{lstlisting}
+\end{LTXexample}
+\end{frame}
+
+\begin{frame}[fragile]{Highlighting single elements in listings}
+\bii
+\ii !\btHL<'overlay spec'>['tikz key=val list']! actually draws the content inside a TikZ node, so you can play with named nodes and other options:
+\eii
+\begin{LTXexample}[pos=b]
+\begin{lstlisting}[language=C, autogobble, numbers=left,
+    moredelim={**[is][{%
+      \btHL[name=X, remember picture, onslide=<2->{fill=red!50}]%
+    }]{@}{@}},
+  ]
+    @int main (void)@ {
+       printf("Hello World!");  
+       return 0;
+    }
+\end{lstlisting}
+% main() is typset into the node (X):
+\tikz[remember picture, overlay]{
+  \path<2> node[red, above right=3mm of X](L){This is the entry point};
+  \draw<2>[->, red, shorten >=5pt] (L.west)--(X);
+}
+\end{LTXexample}
+\end{frame}
+
+\section{Misc Macros and Stuff}
+
+\begin{frame}[fragile]{Miscellaneous}
+\bi
+\ii Dimension conversions with \lstinline|\btConvertTo{'dim'}{'dim value'}|:
+\par
+\begin{LTXexample}[pos=r]
+100pt=\btConvertTo{mm}{100pt}mm
+\end{LTXexample}
+\ii Get file modification date of some file (ISO format) with \lstinline|\btInsertFileModDate{'file'}|:
+\par
+\begin{LTXexample}[pos=r]
+This document was changed on 
+\btInsertFileModDate{\jobname.tex}
+\end{LTXexample}
+\ii Real vertical fill to bottom with \lstinline|\btVFill|, stackable
+\begin{LTXexample}[pos=r]
+\btVFill
+\fbox{Always at Bottom}
+\end{LTXexample}
+\btVFill
+\fbox{Always at Bottom}
+\ei
+  
+\end{frame}
+
+
+\end{document}
+
