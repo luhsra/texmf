@@ -2,12 +2,12 @@
 %
 % vim: set fenc=utf-8 ft=latex
 % !Mode:: "TeX:UTF-8"
-% !TEX encoding = UTF-8 Unicode 
+% !TEX encoding = UTF-8 Unicode
 % -*- mode: latex -*-
 % -*- coding: UTF-8 -*-
 % kate: encoding utf-8;
 %
-% IMPORTANT Note: This file is UTF-8 encoded! 
+% IMPORTANT Note: This file is UTF-8 encoded!
 %                 You should see some umlauts here: ÄÖÜßaöü
 %
 
@@ -29,7 +29,7 @@
   \usepackage{iftex}
   \ifluatex
     \usepackage[no-math]{fontspec}
-    \setmainfont{RotisSansSerifStd}[
+    \setsansfont{RotisSansSerifStd}[
       Extension       = .otf,
       UprightFont     = *-Light,
       BoldFont        = *-Bold,
@@ -68,26 +68,26 @@
 \begin{document}
 \title{Beamer Theme SRA}
 \author[dl]{Daniel Lohmann}
-\date{\today} 
+\date{\today}
 
 \begin{frame}[title]
 	\titlepage
 \end{frame}
 
 \begin{frame}\frametitle{Table of contents}\tableofcontents
-\end{frame} 
+\end{frame}
 
 
-\section{Section no.1} 
+\section{Section no.1}
 
 \begin{frame}
-	\frametitle{Title} 
+	\frametitle{Title}
 	Each frame should have a title.
 \end{frame}
 
 \begin{frame}
 	\frametitle{Title with Subtitle}
-	\framesubtitle{Subtitle} 
+	\framesubtitle{Subtitle}
 	And can optionally have a subtitle, which replaces the LUH Logo.
 \end{frame}
 
@@ -99,25 +99,25 @@
 \subsection{Subsection no.1.1  }
 
 \begin{frame}{~}
-	Without title somethink is missing. 
+	Without title somethink is missing.
 \end{frame}
 
-\begin{frame}[plain]{} 
-	However, together with the [plain] option this gives a lot of space! 
+\begin{frame}[plain]{}
+	However, together with the [plain] option this gives a lot of space!
 \end{frame}
 
 \subsection{Subsection no.1.2}
 
-\section{Section no. 2} 
+\section{Section no. 2}
 
 \subsection{Lists I}
 
 \begin{frame}{unnumbered lists}
 
-	Blubs and bla, didelda, ah, ah, ah. 
+	Blubs and bla, didelda, ah, ah, ah.
 	\begin{itemize}
-		\item Introduction to  \LaTeX  
-		\item Course 2 
+		\item Introduction to  \LaTeX
+		\item Course 2
 		\begin{itemize}
 			\item Bla
 			\item Blub
@@ -126,36 +126,36 @@
 				\item Blub
 			\end{itemize}
 		\end{itemize}
-		\item Termpapers and presentations with \LaTeX 
+		\item Termpapers and presentations with \LaTeX
 	\item Beamer class
-	\end{itemize} 
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{lists with pause}
 	\begin{itemize}
-		\item Introduction to  \LaTeX \pause 
-		\item Course 2 \pause 
-		\item Termpapers and presentations with \LaTeX \pause 
+		\item Introduction to  \LaTeX \pause
+		\item Course 2 \pause
+		\item Termpapers and presentations with \LaTeX \pause
 		\item Beamer class
-	\end{itemize} 
+	\end{itemize}
 \end{frame}
 
 \subsection{Lists II}
 
 \begin{frame}\frametitle{numbered lists}
 	\begin{enumerate}
-		\item Introduction to  \LaTeX  
-		\item Course 2 
-		\item Termpapers and presentations with \LaTeX 
+		\item Introduction to  \LaTeX
+		\item Course 2
+		\item Termpapers and presentations with \LaTeX
 		\item Beamer class
 	\end{enumerate}
 \end{frame}
 
 \begin{frame}\frametitle{numbered lists with pause}
 	\begin{enumerate}
-		\item Introduction to  \LaTeX \pause 
-		\item Course 2 \pause 
-		\item Termpapers and presentations with \LaTeX \pause 
+		\item Introduction to  \LaTeX \pause
+		\item Course 2 \pause
+		\item Termpapers and presentations with \LaTeX \pause
 		\item Beamer class
 	\end{enumerate}
 \end{frame}
