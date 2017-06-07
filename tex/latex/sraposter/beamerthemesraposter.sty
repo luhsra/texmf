@@ -1,0 +1,151 @@
+\ProvidesPackage{beamerthemesraposter} % this style was created by Rob J Hyndman and is an adapation of i6dv by David Vilar
+% Adapted by Christian Dietrich
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\selectcolormodel{cmyk}
+\mode<presentation>
+
+\usepackage{tikz}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% color setup
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
+  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
+  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
+  \providecolor{darkred}{rgb}{0.8,0,0}
+
+
+	\providecolor{luhgreen}{RGB}{177,201,32}		% CMKY 30,0,94,0, Pantone 382
+	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
+  \providecolor{srared}{RGB}{208,38,38}
+	\providecolor{luhgray}{RGB}{128,128,128}
+	\providecolor{luhlightgray}{RGB}{220,220,221}
+
+  % the "example green" beamer defines in the default colortheme
+  \colorlet{beamergreen}{luhgreen!80!black}
+  \setbeamercolor{example text}{fg=beamergreen}
+
+  % headline colors and fonts
+  \setbeamercolor{headline}{fg=white,bg=luhblue}
+
+  \setbeamercolor{title in headline}{}
+  \setbeamerfont{title in headline}{size=\Huge, series=\sffamily}
+
+  \setbeamercolor{author in headline}{}
+  \setbeamerfont{author in headline}{size=\Large, series=\sffamily}
+
+  \setbeamercolor{institute in headline}{fg=lightgray}
+  \setbeamercolor{logo in headline}{fg=black,bg=lightgray}
+
+
+  \setbeamercolor{structure}{fg=luhblue,bg={}}
+  \setbeamercolor{section in toc}{fg=luhblue}
+  \setbeamercolor{subsection in toc}{fg=luhblue}
+  \setbeamercolor{alerted text}{fg=srared}
+  \setbeamercolor*{palette primary}{fg=black,bg=white}
+  \setbeamercolor*{palette secondary}{fg=luhblue,bg=white}
+  \setbeamercolor*{palette tertiary}{fg=srared,bg=white}
+  \setbeamercolor*{palette quaternary}{fg=darkred,bg=gray!5!white}
+  \setbeamercolor{titlelike}{parent=structure}
+  \setbeamercolor{itemize item}{fg=srared}
+  \setbeamercolor{itemize subitem}{fg=luhgray}
+  \setbeamercolor{itemize subsubitem}{fg=luhgray}
+  \setbeamercolor{sidebar left}{bg={}}
+  \setbeamercolor{footline}{fg=luhgray}
+  \setbeamercolor{page number in head/foot}{fg=footline.fg}
+
+  % footline colors and fonts
+  \setbeamercolor{footline}{fg=black, bg=luhgray!50}
+  \setbeamerfont{footline}{size=\normalsize}
+
+  % body colors and fonts
+  \setbeamercolor*{normal text}{fg=black,bg=white}
+
+  % block environment
+  \setbeamercolor*{block body}{bg=luhgray!20,fg=black}
+  \setbeamercolor*{block title}{fg=white,bg=luhblue}
+  \setbeamerfont{block title}{size=\large,series=\bf}
+
+  % example environment
+  \setbeamercolor*{example block body}{bg=luhgray!20,fg=black}
+  \setbeamercolor*{example block title}{fg=white,bg=luhblue}
+  \setbeamerfont{example title}{size=\large,series=\bf}
+
+
+
+  % support for URL on title page (not a standard beamer element)
+  \let\inserturl\@empty
+  \newcommand\titleurl[1]{\def\inserturl{#1}}%
+  \setbeamercolor*{url}{fg=black,bg={}}
+  \setbeamerfont*{url}{family=\ttfamily,size=\footnotesize}
+
+\setbeamertemplate{itemize items}[triangle]
+\setbeamertemplate{navigation symbols}{}  % no navigation on a poster
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{block begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[leftskip=1cm,colsep*=.75ex]{block title}%
+    \usebeamerfont*{block title}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=.75ex,sep=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+  }
+  \setbeamertemplate{block end}{
+  \end{beamercolorbox}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{headline}{
+  \leavevmode
+
+  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \vskip 3ex
+    \hfill
+    \begin{minipage}{0.98\textwidth}\centering
+      \usebeamercolor{title in headline}{\color{fg}\usebeamerfont{title in headline}{\inserttitle}\\[1ex]}
+      \usebeamercolor{author in headline}{\color{fg}\usebeamerfont{author in headline}{\insertauthor}\\[1ex]}
+    \end{minipage}
+    \hfill
+    \vskip 2ex
+
+  \end{beamercolorbox}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{footline}{
+  \begin{beamercolorbox}[leftskip=1cm,rightskip=1cm]{footline}%
+    % Green Bar on the right
+    %\tikz[overlay]
+    %   \node[xshift=0.9\paperwidth,inner sep=0pt,anchor=north east,fill=luhgreen,
+    %        minimum width=7cm,minimum height=1ex]{};
+    \vskip 1ex
+    \raisebox{-0.5\height}{\includegraphics[height=2.5cm]{sraposter/sra-logo-sRGB}}
+    \hskip 1ex%
+    \parbox{11cm}{%
+      \usebeamerfont{footline}{
+        Institute of Systems Engineering\\[2pt]
+        {\bfseries System and Computer Architecture}\\[2pt]
+        \url{https://www.sra.uni-hannover.de}\\[2pt]
+        Prof. Dr.-Ing. Daniel Lohmann
+      }
+    }%
+    \hfill
+    \raisebox{-0.4cm}{\insertfooter}
+    \raisebox{-0.5\height}{\includegraphics[height=2cm]{sraposter/luh-logo-cmyk}%
+    }%
+    \vskip 1ex
+  \end{beamercolorbox}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mode<all>
+
+\def\footer#1{\def\insertfooter{#1}}

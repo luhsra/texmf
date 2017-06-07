@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % $Id$
 %
-% a beamer style for SRA 
+% a beamer style for SRA
 %
 % Copyright 2017 by Daniel Lohmann (lohmann@sra.uni-hannover.de)
 %
@@ -53,7 +53,16 @@
 
   % the "example green" beamer defines in the default colortheme
   \colorlet{beamergreen}{luhgreen!80!black}
-	\setbeamercolor{example text}{fg=beamergreen}
+  \setbeamercolor{example text}{fg=beamergreen}
+
+  % headline colors and fonts
+\setbeamercolor{headline}{fg=white,bg=i6colorschemeHeadline}
+\setbeamercolor{title in headline}{fg=white}
+\setbeamercolor{author in headline}{fg=lightgray}
+\setbeamercolor{institute in headline}{fg=lightgray}
+\setbeamercolor{logo in headline}{fg=black,bg=lightgray}
+\setbeamercolor{separation line}{bg=i6colorscheme1}
+
 
   \setbeamercolor{structure}{fg=luhblue,bg={}}
   \setbeamercolor{section in toc}{fg=luhblue}
@@ -157,7 +166,7 @@
       \mode<presentation>{%\usebeamerfont{block}%
         \setbeamercolor{itemize item}{fg=block title.fg}%
         \setbeamercolor{itemize subitem}{fg=block title.fg}%
-			}	
+			}
       \usebeamertemplate{block begin}}
     {\par%
       \usebeamertemplate{block end}%
@@ -196,10 +205,10 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% title page definition 
+% title page definition
 %
 % The title frame is supposed to be used with \begin{frame}[title], which
-% renders the title background image (with large logos) 		
+% renders the title background image (with large logos)
 %
 % Besides the usual title page stuff, we additionally have \inserturl, which,
 %	if not \@empty, is rendered into the foot line:
@@ -219,7 +228,7 @@
       	\ifx\insertsubtitle\@empty%
       	\else%
         	{\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
-      	\fi%     
+      	\fi%
     	\end{beamercolorbox}%
     	\vskip0.5em\par
 			\begin{beamercolorbox}[sep=8pt,center]{author}

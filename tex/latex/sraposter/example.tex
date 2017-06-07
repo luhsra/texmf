@@ -1,0 +1,89 @@
+%% start of file `i4poster.tex'.
+%% Copyright 2010  Timo Hoenig  <thoenig@cs.fau.de>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License version 1.3c,
+% available at http://www.latex-project.org/lppl/.
+
+\IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
+\documentclass[]{beamer}
+\usetheme{sraposter}
+\usepackage[orientation=portrait,size=a2,scale=1.4,debug]{beamerposter}
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+
+\usepackage{ifluatex}
+\ifluatex
+  \usepackage[no-math]{fontspec}
+  \setsansfont{RotisSansSerifStd}[
+    Extension       = .otf,
+    UprightFont     = *-Light,
+    BoldFont        = *-Bold,
+    ItalicFont      = *-LightIt,
+  ]
+   \setmonofont{VeraMono}[
+   	Extension       = .ttf,
+   	BoldFont        = *-Bold,
+   	ItalicFont      = *-Italic,
+   	BoldItalicFont  = *-Bold-Italic,
+   	Scale           = MatchLowercase,
+   ]
+\else
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{helvet}
+    \usepackage[scaled=0.85]{beramono}
+\fi
+
+\title{OSEK-V: Application-Specific RTOS Instantiation in Hardware}
+\author{Christian Dietrich, Daniel Lohmann}
+\footer{}
+
+
+\begin{document}
+\begin{frame}{}
+
+\begin{textblock}{19.5}(1,5)
+\begin{block}{The spotted frog habitat}
+Blah blah blah
+\end{block}
+
+\begin{block}{Some interesting specimens}
+Stuff and nonsense
+\end{block}
+\end{textblock}
+
+\begin{textblock}{19.5}(21.8,5)
+\begin{block}{The spotted frog habitat}
+Blah blah blah
+\end{block}
+
+\begin{block}{Some interesting specimens}
+Stuff and nonsense
+\end{block}
+\end{textblock}
+
+\begin{textblock}{19.3}(21.8,5)
+\begin{block}{My latest paper about frogs}
+Published in the \emph{Journal of Irreproducible Results}.
+\end{block}
+\end{textblock}
+
+\begin{block}{\large Fontsizes}
+  \centering
+  {\tiny tiny}\par
+  {\scriptsize scriptsize}\par
+  {\footnotesize footnotesize}\par
+  {\normalsize normalsize}\par
+  {\large large}\par
+  {\Large Large}\par
+  {\LARGE LARGE}\par
+  {\veryHuge veryHuge}\par
+  {\VeryHuge VeryHuge}\par
+  {\VERYHuge VERYHuge}\par
+\end{block}
+
+\vfill
+\end{frame}
+\end{document}
