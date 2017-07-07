@@ -25,7 +25,7 @@
 %% package options
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	\newif\ifsraGrayTopLevelItems
+\newif\ifsraGrayTopLevelItems
 
   \pgfset{
     /sra/.cd,
@@ -98,14 +98,18 @@
 }
 
 \usebackgroundtemplate{%
+    \ifthenelse{%
+      \lengthtest{\beamer@paperwidth=16cm}}% condition (16cm is the width of the frame with an aspect ratio = 16:9)
+          {\def\beamersra@prefix{beamerthemesra169}}%
+          {\def\beamersra@prefix{beamerthemesra}}%
     \ifbeamer@titleframe%
-      \includegraphics[width=\paperwidth]{beamerthemesra_bgtitle}%
+      \includegraphics[width=\paperwidth]{\beamersra@prefix_bgtitle}%
       \global\beamer@titleframefalse% Toggle the key again
       \beamertemplatenavigationsymbolshorizontal%
     \else\ifbeamer@plainframe%
-      \includegraphics[width=\paperwidth]{beamerthemesra_bgplain}%
+      \includegraphics[width=\paperwidth]{\beamersra@prefix_bgplain}%
     \else%
-      \includegraphics[width=\paperwidth]{beamerthemesra_bg}%
+      \includegraphics[width=\paperwidth]{\beamersra@prefix_bg}%
     \fi%
     \fi%
   }
