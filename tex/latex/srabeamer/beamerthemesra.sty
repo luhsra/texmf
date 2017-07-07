@@ -15,6 +15,8 @@
 \ProvidesPackage{beamerthemesra}[2017/03/20]
 \RequirePackage{pgfopts}	% we process options with pgfkeys
 \RequirePackage{iftex}
+\RequirePackage{sra-color}
+
 
 \def\sra@message#1{\message{beamerthemesra: #1}}
 
@@ -39,17 +41,6 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
-  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
-  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
-  \providecolor{darkred}{rgb}{0.8,0,0}
-
-
-	\providecolor{luhgreen}{RGB}{177,201,32}		% CMKY 30,0,94,0, Pantone 382
-	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
-  \providecolor{srared}{RGB}{208,38,38}
-	\providecolor{luhgray}{RGB}{128,128,128}
-	\providecolor{luhlightgray}{RGB}{220,220,221}
 
   % the "example green" beamer defines in the default colortheme
   \colorlet{beamergreen}{luhgreen!80!black}
