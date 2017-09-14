@@ -8,16 +8,16 @@ See example.tex for a quick usage tour.
 
 Files:
 
-beamerthemesra.sty							- The actual style file, load with \usetheme{sra}.
-beamerthemesra_bg.pdf						- Image files for the graphical layout of standard, [plain] and [title] slides.
-beamerthemesra_bgplain.pdf			  This basically is the trick: Instead of using pgf to draw all graphical layout stuff manually,
+beamerthemesra.sty              - The actual style file, load with \usetheme{sra}.
+beamerthemesra_bg.pdf           - Image files for the graphical layout of standard, [plain] and [title] slides.
+beamerthemesra_bgplain.pdf        This basically is the trick: Instead of using pgf to draw all graphical layout stuff manually,
 beamerthemesra_bgtitle.pdf        we have PDFs of 128x96mm that contain it and are included as background image.
-beamerthemesra.afdesign					- Source for the PDF images (Affinity Designer)
-example.pdf											- The Example.
+beamerthemesra.afdesign         - Source for the PDF images (Affinity Designer)
+example.pdf                     - The Example.
 example.tex
-luh-logo-cmyk.pdf								- Logos (we nevertheless include some of them manually).
+luh-logo-cmyk.pdf               - Logos (we nevertheless include some of them manually).
 luh-logo-rgb.pdf
-pgfsys-luatex.def								- Necessary to make recent lualatex versions work with PGF 3.0. See below.
+pgfsys-luatex.def               - Necessary to make recent lualatex versions work with PGF 3.0. See below.
 
 
 Notes:
