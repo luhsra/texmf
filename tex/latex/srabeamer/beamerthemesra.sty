@@ -15,6 +15,8 @@
 \ProvidesPackage{beamerthemesra}[2017/03/20]
 \RequirePackage{pgfopts}	% we process options with pgfkeys
 \RequirePackage{iftex}
+\RequirePackage{ifthen}
+
 \RequirePackage{sra-color}
 
 
@@ -119,9 +121,14 @@
 % enumeration style and borders setup
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  \setbeamersize{sidebar width left=1.07cm}
-  \setbeamersize{text margin left=0.5em}
-  \setbeamersize{text margin right=3.2mm}
+  \ifthenelse{%
+    \lengthtest{\beamer@paperwidth=16cm}}% condition (16cm is the width of the frame with an aspect ratio = 16:9)
+  {\setbeamersize{sidebar width left=2.07cm}
+    \setbeamersize{text margin left=0.5em}
+    \setbeamersize{text margin right=2.07cm}}
+  {\setbeamersize{sidebar width left=1.07cm}
+    \setbeamersize{text margin left=0.5em}
+    \setbeamersize{text margin right=3.2mm}}
 
 	% the top-level item symbol is rendered into the sidebar
   \setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 1ex height 1ex}\hspace{0.5em}}
