@@ -604,7 +604,7 @@
   }
 
   % \InputPDFFrames{key=<value>, key=<value>, ...}
-  \newcommand{\InputPDFFrames}[1]{%
+  \newcommand{\btInputPDFFrames}[1]{%
     \bgroup
     \btset{pdfframes/.cd, #1}%
     \foreach \p in \bt@pdfframes@range{%
@@ -616,6 +616,8 @@
     }
     \egroup
   }
+	% compatibility
+	\let\InputPDFFrames=\btInputPDFFrames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% listings extensions 
