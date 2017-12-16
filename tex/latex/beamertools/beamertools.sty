@@ -288,6 +288,7 @@
     text width/.code={\pgfmathsetlengthmacro{\bt@textwidth}{#1}},
     scale content/.code={\pgfmathsetmacro{\bt@contentscale}{#1}},
     scale/.code={\pgfkeysalso{text width=#1\textwidth, scale content=#1}},
+		putat/.store in=\bt@putat,
     align/.is choice,
       align/left/.code=\raggedright,
       align/right/.code=\raggedleft,
@@ -309,6 +310,15 @@
       \def\bt@blocktype{}%
       \def\bt@endcmds{}%
       \btset{every block, #1}
+			\ifdef{\bt@putat}{%
+				\def\bt@putat@aux(##1,##2){\pgfmathsetlengthmacro{\bt@putat@x}{##1}\pgfmathsetlengthmacro{\bt@putat@y}{##2}}%
+				\expandafter\bt@putat@aux\bt@putat%
+				% We need the extra \only as it is the only overlay command that actually throws away 
+				% the content instead of rendering it in an invisible box. The latter does not help us,
+				% as textblock works on shipout level!
+				\only#3{\preto{\bt@endcmds}{\end{textblock*}}}%
+				\only#3{\begin{textblock*}{0pt}(\bt@putat@x,\bt@putat@y)}%
+			}{}
       \ifdef{\bt@contentscale}{%
         \ifdef{\bt@textwidth}{}{\def\bt@textwidth{\textwidth}}%
         \pgfmathsetlengthmacro{\bt@textwidth}{\bt@textwidth/\bt@contentscale}%
@@ -992,7 +1002,7 @@
         normalbox/.style={shape=rectangle,draw,fill=#1, boxshadow},
         normalbox/.default={white},
         orangebox/.style={normalbox=i4orange,draw=i4gray,rounded corners=4pt},
-        redbox/.style={normalbox, draw=i4red,very thick, inner sep=8pt},
+        redbox/.style={normalbox, draw=srared,very thick, inner sep=8pt},
         putat/.style={overlay, remember picture, every path/.append style={yscale=-1}, at={($(current page.north west) + #1 $)}, anchor=north west},
         relpos/.style={ overlay, remember picture,  every path/.append style={yscale=-1}, at={#1}, anchor=north west},
   }
