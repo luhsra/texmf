@@ -188,6 +188,10 @@
   % Define lengths for some (internal) beamer-lengths
   \newlength{\btLeftMargin}
   \newlength{\btRightMargin}
+
+	% current overlay within frame
+	\newcommand*{\btSlideInFrame}{\number\beamer@slideinframe}
+
   % Set them after beamer theme has been loaded
   \AtBeginDocument{% 
     \setlength{\btLeftMargin}{\Gm@lmargin}%   total text indent from left edge of the frame (including sidebar)
@@ -482,7 +486,15 @@
   \newcommand<>{\SAMPLE}[1]{\sample#2{\textbf#2{#1}}}
 
   % easy access to local structure color, as above
-  \newcommand<>{\local}[1]{\hskip0pt{\only#2{\usebeamercolor[fg]{local structure}}#1}}
+
+	% define environment, so we can also pass it as action specification (local@+)
+  \newenvironment{localenv}{\begin{altenv}%
+      {\usebeamertemplate{structure text begin}\usebeamercolor[fg]{local structure}\usebeamerfont{structure}}
+      {\usebeamertemplate{structure text end}}{\color{.}}{}}{\end{altenv}}
+	
+  \newcommand<>{\local}[1]{\begin{localenv}#2\relax#1\end{localenv}}
+
+%  \newcommand<>{\local}[1]{\hskip0pt{\only#2{\usebeamercolor[fg]{local structure}}#1}}
   \newcommand<>{\Local}[1]{\local#2{\emph#2{#1}}}
   \newcommand<>{\LOCAL}[1]{\local#2{\textbf#2{#1}}}
 
@@ -531,6 +543,7 @@
     clear/not title/.style={title height=0pt},
     clear/not frame number/.style={frame number height=0pt},
     clear/not footline/.style={footline height=0pt},
+		clear/plain/.style={footline color=white, frame number color=white},
     % clear metrics
     clear/footline x offset/.store in=\bt@clear@footlinexoffset,
     clear/footline width/.store in=\bt@clear@footlinewidth,
@@ -1027,6 +1040,9 @@
   \tikzset{every btImage/.style={text width=2cm}}
   \newcommand<>{\btImage}[2][]{%
     \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{\includegraphics[width=\textwidth]{#2}};}%
+  }
+  \newcommand<>{\btNoImage}[2][]{%
+    \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{#2};}%
   }
 
 
