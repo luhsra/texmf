@@ -399,7 +399,7 @@
   {\bt@closequote\ifdef{\bt@sourceauthor}{{\btset{source line precode, source line font, source line, source line postcode}}}{}}
 
   \newenvironment<>{btQuoteBlock}[2][]
-  {\begin{btBlock}#3[type=normal,#1]{#2}\begin{btQuote}[#1]}
+  {\begin{btBlock}#3[#1]{#2}\begin{btQuote}[#1]}
   {\end{btQuote}\end{btBlock}}
 
 \ifbtWoschBlocks
