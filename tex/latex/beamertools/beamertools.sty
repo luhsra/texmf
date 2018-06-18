@@ -220,6 +220,15 @@
 
   \newcommand{\btVFill}{\vskip0pt plus 1filll}
 
+
+	% \btAgainFrameIfExists<ov spec>{<frame label}
+	% like \againframe<ov spec>{frame label}, but does not yield an error if the frame does not exist
+	\newcommand<>{\btAgainFrameIfExists}[1]{%
+		\ifcsdef{beamer@again@#1}{%
+			\againframe#2{#1}
+		}{}
+	}
+
   % \btPrevFrameTitle, \btPrevShortFrameTitle, \btPrevFrameSubtitle --> Title of the previous frame
   \gdef\btPrevFrameTitle{}
   \gdef\btPrevShortFrameTitle{}
@@ -394,7 +403,7 @@
     \newcommand*\bt@closequote{\hskip-1.5ex\makebox(5,-1.6){\scalebox{3}{\local{''}}}}
     \btset{#1}
     \RaggedRight
-    \sl\rmfamily\bt@openquote
+    \sl\rmfamily\bt@openquote%
   }
   {\bt@closequote\ifdef{\bt@sourceauthor}{{\btset{source line precode, source line font, source line, source line postcode}}}{}}
 
@@ -1027,11 +1036,16 @@
     \onslide#3{\tikz[#1, every node/.style={normalbox, inner sep=0pt, #1}]\node []{#2};}
   }
   \newcommand<>{\OrangeBox}[2][]{%
+		\bgroup
+    \setbeamercolor{local structure}{fg=orange!90!black}
     \onslide#3{\tikz[every node/.style={orangebox, #1}, #1]\node []{#2};}
+		\egroup
   } 
   \newcommand<>{\RedBox}[2][]{%
-    \setbeamercolor{structure}{use=alerted text, fg=alerted text.fg}
+		\bgroup
+    \setbeamercolor{local structure}{use=alerted text, fg=alerted text.fg}
     \onslide#3{\tikz[every node/.style={redbox, #1}, #1]\node []{#2};}
+		\egroup
   } 
   \newcommand<>{\TikzPoint}[2][\empty]{%
     \onslide#3{\tikz[remember picture, #1, every coodinate/.style={#1}]\coordinate (#2);}%
