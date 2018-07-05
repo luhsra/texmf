@@ -126,28 +126,30 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   %% color definitions  
-    
-  % i4 colors, also defined in beamerthemei4.sty!
-  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
-  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
-  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
-  \providecolor{darkred}{rgb}{0.8,0,0}
+	\IfFileExists{sra-color.sty}{
+		\RequirePackage{sra-color}
+	}{% 
+		% i4 colors, also defined in beamerthemei4.sty!
+		\providecolor{i4red}{rgb}{0.69,0.11,0.18}
+		\providecolor{i4blue}{rgb}{0.0,0.4,0.62}
+		\providecolor{i4gray}{rgb}{0.827,0.827,0.827}
+		\providecolor{darkred}{rgb}{0.8,0,0}
 
-  % the orange Daniel uses so much on his slides
-  \colorlet{i4orange}{orange!30}
-  % the "example green" beamer defines in the default colortheme
-  \colorlet{beamergreen}{green!50!black}
+		% the orange Daniel uses so much on his slides
+		\colorlet{i4orange}{orange!30}
+		% the "example green" beamer defines in the default colortheme
+		\colorlet{beamergreen}{green!50!black}
 
-	% luh/sra colors, also defined in beamerthemesra.sty!
-	\providecolor{luhgreen}{RGB}{200,211,23}		% CMKY 30,0,94,0, Pantone 382
-	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
-	\providecolor{luhblue}{RGB}{61,113,188} 					% CMKY 100,70,0,0, Pantone 293C
-  \providecolor{srared}{RGB}{208,38,38}
-	\providecolor{luhgray}{RGB}{128,128,128}
-	\providecolor{luhlightgray}{RGB}{220,220,221}
-  % the orange Daniel uses so much on his slides
-  \colorlet{sraorange}{orange!30}
-
+		% luh/sra colors, also defined in beamerthemesra.sty!
+		\providecolor{luhgreen}{RGB}{200,211,23}		% CMKY 30,0,94,0, Pantone 382
+		\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
+		\providecolor{luhblue}{RGB}{61,113,188} 					% CMKY 100,70,0,0, Pantone 293C
+		\providecolor{srared}{RGB}{208,38,38}
+		\providecolor{luhgray}{RGB}{128,128,128}
+		\providecolor{luhlightgray}{RGB}{220,220,221}
+		% the orange Daniel uses so much on his slides
+		\colorlet{sraorange}{orange!30}
+	}
 	\ifbtSRAColors
  	 	% Quick hack: redefine i4 colors with SRA values
   	\colorlet{beamergreen}{luhgreen!80!black}
