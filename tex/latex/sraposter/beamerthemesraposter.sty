@@ -68,7 +68,8 @@
   % block environment
   \setbeamercolor*{block body}{bg=luhgray!20,fg=black}
   \setbeamercolor*{block title}{fg=white,bg=luhblue}
-  \setbeamerfont{block title}{size=\large,series=\bf}
+  % the expression after \bfseries adjust the height of the block title to that of the maximal character height + depth (e.g. 'j'), works only with e-TeX extensions
+  \setbeamerfont{block title}{size=\large,series=\bfseries\rule{0pt}{\dimexpr\fontcharht\font`X\relax}\rule[-\dimexpr\fontchardp\font`g\relax]{0pt}{\dimexpr\fontchardp\font`g\relax},size=\large}
 
   % example environment
   \setbeamercolor*{example block body}{bg=luhgray!20,fg=black}
