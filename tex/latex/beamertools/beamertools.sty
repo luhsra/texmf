@@ -1030,6 +1030,7 @@
         redbox/.style={normalbox, draw=srared,very thick, inner sep=8pt},
         putat/.style={overlay, remember picture, every path/.append style={yscale=-1}, at={($(current page.north west) + #1 $)}, anchor=north west},
         relpos/.style={ overlay, remember picture,  every path/.append style={yscale=-1}, at={#1}, anchor=north west},
+        every tikzpoint/.style={},
   }
 
   \newcommand<>{\NormalBox}[2][\empty]{%
@@ -1051,7 +1052,7 @@
 		\egroup
   } 
   \newcommand<>{\TikzPoint}[2][\empty]{%
-    \onslide#3{\tikz[remember picture, #1, every coodinate/.style={#1}]\coordinate (#2);}%
+    \onslide#3{\tikz[remember picture, every tikzpoint, #1, every coodinate/.style={every tikzpoint, #1}]\coordinate (#2);}%
   }
 
   \tikzset{every btImage/.style={text width=2cm}}
