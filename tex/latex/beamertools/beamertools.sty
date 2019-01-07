@@ -205,6 +205,10 @@
   % \btAddExtraItemSep[<sep>=\smallskipamount]: Advances \itemsep by <sep> * (3 - itemize level)
   \newcommand{\btAddExtraItemSep}[1][\smallskipamount]{%
     \pgfmathparse{(3.25-\@itemdepth)*#1}%
+		% Check if argument contained a unit. If not, we take it as factor.
+		\ifpgfmathunitsdeclared\else%
+			\pgfmathparse{\pgfmathresult*\smallskipamount}
+		\fi
     \addtolength{\itemsep}{\pgfmathresult pt}%
     \ifnum \@itemdepth=1 \else
       \addtolength{\topsep}{0.5\itemsep}%
