@@ -169,8 +169,7 @@
 
 
   
-  \def\btConvertTo#1#2{\strip@pt\dimexpr #2*65536/\number\dimexpr 1#1}
-
+  \def\btConvertToMM#1{\the\numexpr \dimexpr #1\relax*635/118407168\relax}
 
   % Insert last-modified date
   % pdfTeX provides the primitive \pdffilemoddate to query this information
@@ -227,13 +226,44 @@
   \newcommand{\btVFill}{\vskip0pt plus 1filll}
 
 
-	% \btAgainFrameIfExists<ov spec>{<frame label}
-	% like \againframe<ov spec>{frame label}, but does not yield an error if the frame does not exist
-	\newcommand<>{\btAgainFrameIfExists}[1]{%
-		\ifcsdef{beamer@again@#1}{%
-			\againframe#2{#1}
-		}{}
-	}
+	% \btAgainFrameIfExists<ov spec>[options]{<frame label}
+	%
+	% Like \againframe<ov spec>[options]{frame label}, but does not yield an error 
+	% if the frame does not exist. Instead inserts a placeholder.
+	% 
+	% Options include beamer standard options, but furthermore: 
+  %     title     = {new title}       
+  %     subtitle  = {new subtitle}
+  %     at begin  = {tex code}
+  %     at end    = {tex code}
+  % to change the title/subtitle or execute aribitrary code on the slide 
+  % 
+  \newcommand<>{\btAgainFrameIfExists}[2][]{%
+    \def\bt@againframe@begin{}
+    \def\bt@againframe@end{}
+    \def\bt@againframe@opt{}
+    \appto{\beamer@framenotesbegin}{\bt@againframe@begin}
+    \appto{\beamer@framenotesend}{\bt@againframe@end}
+    \btset{%
+      at begin/.code={\appto{\bt@againframe@begin}{##1}},
+      at end/.code={\preto{\bt@againframe@end}{##1}},
+      subtitle/.style={at begin={\framesubtitle{##1}\let\framesubtitle=\@gobble}},
+      title/.style={at begin={\frametitle{##1}\let\frametitle=\@gobble}},
+      /bt/.unknown/.code={% BUG: currently we support only single parameterless option because I haven't figured out how to get expansion and catcodes for comma-speration "right"
+        \eappto{\bt@againframe@opt}{\pgfkeyscurrentname}%
+      }
+    }
+    \ifcsdef{beamer@again@#2}{%
+      \bgroup
+      \btset{#1}%
+      \againframe#3[\bt@againframe@opt]{#2}
+      \egroup
+    }{%
+      \bgroup
+      \btset{#1}%
+      \frame[\bt@againframe@opt]{\frametitle{\large \alert{\texttt{\textbackslash btAgainFrameIfExist#3\{\detokenize{#2}\}}}} Frame mit Label \structure{\texttt{\detokenize{#2}}} nicht gefunden.}
+      \egroup
+  }}
 
   % \btPrevFrameTitle, \btPrevShortFrameTitle, \btPrevFrameSubtitle --> Title of the previous frame
   \gdef\btPrevFrameTitle{}
