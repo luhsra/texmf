@@ -1,8 +1,8 @@
 \RequirePackage{hyperref}
 \RequirePackage{acronym}
 
-\newcommand{\srastyle}[1]{
-  \textbf{[\acs{sra:#1}]}%
+\newcommand{\srastyle}[2][]{
+  {\color{red}#1}\textbf{[\acs{sra:#2}]}%
 }
 
 \newcommand{\defsrastyle}[3]{%
@@ -28,14 +28,50 @@
       Words are a burden to the reader. You have to have a reason to put this burden onto your reader. Therefore, think for every word "is it neccessary and adds value to my text"! Think for every sentence: "is it necessary"! Think for every paragraph: "is it necessary"?
       \@EoS
     }
+
     \defsrastyle{comma-intro}{Comma after introductionary word, phrase, or clause.}{
       Clauses that relate sentences to previous ones or put them in some temporal or locational relation are separated by a comma from the following sentence. Examples:\par
       Nevertheless\textbf{,}\ldots\par
       Eventually\textbf{,}\ldots\par
       \@BiW[23]
     }
-    \defsrastyle{make-strong-claims}{Make strong and definite Statements!}{
+
+    \defsrastyle{make-strong-statements}{Make strong and definite Statements!}{
       Germans have the habit of making everything a can, could, would, or maybe. That is a respectable approach. However, it leads to the feeling of our anglo-saxon friends that not even we are conviced of our stuff. Therefore, make strong and definite statements if you are confident in what you say. Use coulds and shoulds always on purpose!
     }
+
+    \defsrastyle{articles}{In English, articles are not optional!}{
+      Most of the time, you cannot leave out the article in an English sentence. Compare:\par
+      Wrong: After bad day, we started to...\par
+      Correct: After \textbf{a} bad day, we started to
+    }
+
+    \defsrastyle{BE}{British English vs. American English}{
+      The Empire is dead! The language of science is American English.
+    }
+
+    \defsrastyle{of-a}{Too clumsy constructs with "XXX of a YYY"}{
+      Most of the time, constructs that have the pattern "XXX of a YYY" feel clumsy in the text flow. And often, they are unnecessary. Please compare:\par
+      Clumsy: example of two systems\par
+      Elegant: two example systems
+    }
+
+    \defsrastyle{passive}{Avoid Passive Voice most of the time}{
+      The passive voice, although an elegant construct in German, has two problems in English texts: (1) It feels more complicated than a short sentence with active voice. (2) It obfuscates the acting subject. Stand by your actions! Name Ross and Reiter. Often, this is an violation of the \srastyle{precision} principle.
+}
+
+\defsrastyle{precision}{Be as precise and determined as possible}{%
+With our writing, we want to transport knowledge from the author's brains to the brains of our reader.
+Thereby, we want to be as precise as possible and useful.
+A precise formulation is the sharp sword that cuts through a world of known and unknown unknowns.
+However, we also can get cut if we make statements that are more precise than our data.
+Do not pretend precision, where you do not have it!
+}
+
+\defsrastyle{abbreviations}{Use abbreviations only in parenthesis}{
+  Abbreviations should only used in parenthesis. In a continuous text, we want to use normal words as they ease the reader's flow. It minimizes the mental burden of the reader.\par
+  Example: For example, I want to use this and that (e.g., an apple)\par
+  Please note that the comma after for example is an instance of \srastyle{comma-intro}
+}
   \end{description}
 }
