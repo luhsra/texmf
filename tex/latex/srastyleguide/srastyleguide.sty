@@ -1,0 +1,41 @@
+\RequirePackage{hyperref}
+\RequirePackage{acronym}
+
+\newcommand{\srastyle}[1]{
+  \textbf{[\acs{sra:#1}]}%
+}
+
+\newcommand{\defsrastyle}[3]{%
+  \item[\textbf{#2}]{\acrodef{sra:#1}{sra:#1}\par#3\par \string\srastyle\{#1\}}\\[1ex]
+  }
+
+\newcommand{\@EoS}{
+  Source: The Elements of Style, Strunk and White.
+}
+
+\newcommand{\@BiW}[1][?]{
+  Source: Bugs in Writing, Segment #1, Lyn Dupree
+}
+
+\AtEndDocument{
+  \newpage%
+  \twocolumn
+  \section*{SRA Style Guide}
+  The SRA style guide is a collection of writing principles that proved to be useful. It tries to concentrate of repeating errors and text smells. Often, these principles stem from real style guides. Be aware, that they are highly opinionated and can be discussed over a glass of beer.
+
+  \begin{description}
+    \defsrastyle{extra-words}{Unnecessary Words}{
+      Words are a burden to the reader. You have to have a reason to put this burden onto your reader. Therefore, think for every word "is it neccessary and adds value to my text"! Think for every sentence: "is it necessary"! Think for every paragraph: "is it necessary"?
+      \@EoS
+    }
+    \defsrastyle{comma-intro}{Comma after introductionary word, phrase, or clause.}{
+      Clauses that relate sentences to previous ones or put them in some temporal or locational relation are separated by a comma from the following sentence. Examples:\par
+      Nevertheless\textbf{,}\ldots\par
+      Eventually\textbf{,}\ldots\par
+      \@BiW[23]
+    }
+    \defsrastyle{make-strong-claims}{Make strong and definite Statements!}{
+      Germans have the habit of making everything a can, could, would, or maybe. That is a respectable approach. However, it leads to the feeling of our anglo-saxon frieds that not even we are conviced of our stuff. Therefore, make strong and definite statements if you are confident in what you say. Use coulds and shoulds always on purpose!
+    }
+  \end{description}
+}
