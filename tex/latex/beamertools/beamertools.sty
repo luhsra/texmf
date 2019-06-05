@@ -266,18 +266,37 @@
   }}
 
   % \btPrevFrameTitle, \btPrevShortFrameTitle, \btPrevFrameSubtitle --> Title of the previous frame
-  \gdef\btPrevFrameTitle{}
-  \gdef\btPrevShortFrameTitle{}
   \gdef\btPrevFrameSubtitle{}
   %
-  % We hook setting these macros into \beamer@framenotesend
-  \appto{\beamer@framenotesend}{%
-    % Prevent recursive let if using slide employs overlays
-    \expandafter\ifx\beamer@frametitle\btPrevFrameTitle\else%
-      \aftergroup\let\aftergroup\btPrevFrameTitle\aftergroup\beamer@frametitle%
-      \aftergroup\let\aftergroup\btPrevShortFrameTitle\aftergroup\beamer@shortframetitle%
-      \aftergroup\let\aftergroup\btPrevFrameSubtitle\aftergroup\insertframesubtitle%
+  % First, we provide a function that executes the given body only if we are on the first slide
+  \gdef\bt@framenumber{0}
+  \appto{\beamer@framenotesend}{\xdef\bt@framenumber{\the\c@framenumber}}
+  \def\bt@onframechange#1{%
+    \ifdim\the\c@framenumber pt=\bt@framenumber pt\else%
+      #1%
     \fi
+  }
+  % \btPrevFrameTitle & \btPrevShortFrameTitle
+  \gdef\btPrevFrameTitle{}\gdef\btPrevFrameTitle@tmp{}
+  \gdef\btPrevShortFrameTitle{}\gdef\btPrevShortFrameTitle@tmp{}
+  \pretocmd{\beamer@@frametitle}{%
+    \bt@onframechange{%
+      \global\let\btPrevShortFrameTitle\btPrevShortFrameTitle@tmp%
+      \global\let\btPrevFrameTitle\btPrevFrameTitle@tmp%
+      \global\let\btPrevFrameSubtitle\btPrevFrameSubtitle@tmp% See below for patching of framesubtitle
+    }%
+    \xdef\btPrevShortFrameTitle@tmp{#1}%
+    \xdef\btPrevFrameTitle@tmp{#2}%
+  }
+  {\bt@message{patching of \string\beamer@@frametitle{} to support \string\btPrevFrameTitle{} succeeded}}%
+  {\bt@message{patching of \string\beamer@@frametitle{} to support \string\btPrevFrameTitle{} FAILED}}%{
+
+  % \btPrevFrameSubtitle
+  \gdef\btPrevFrameSubtitle{}\gdef\btPrevFrameSubtitle@tmp{}
+  \letcs\bt@framesubtitle@real{beamerx@\string\framesubtitle}%
+  \renewcommand<>\framesubtitle[1]{
+    \xdef\btPrevFrameSubtitle@tmp{#1}%
+    \bt@framesubtitle@real{#1}{#2}
   }
 
   % Inserts Buttons to skip over (lenghtly) animations in the titelarea
