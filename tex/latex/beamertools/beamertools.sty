@@ -279,23 +279,42 @@
   % \btPrevFrameTitle & \btPrevShortFrameTitle
   \gdef\btPrevFrameTitle{}\gdef\btPrevFrameTitle@tmp{}
   \gdef\btPrevShortFrameTitle{}\gdef\btPrevShortFrameTitle@tmp{}
+  \gdef\btPrevFrameSubtitle{}\gdef\btPrevFrameSubtitle@tmp{}
+
+  % We have to partially expand the those title variables, that we carry over to the next frame in order to avoid an recursive
+  % macro definition.
+  \def\bt@expandin@helper#1#2#3{%
+    \patchcmd{#3}{#2}{#1}{}{}%
+  }%
+  \def\bt@expandin#1#2{% {macro}{in-macro}
+    % This macro expands the in-macro in macro once.
+    \expandafter\bt@expandin@helper\expandafter{#2}{#2}{#1}%
+  }
+  \def\bt@pxdef#1#2{%
+    % Expand all title macros once after the definition of the variable.
+    \def#1{#2}%
+    \bt@expandin{#1}{\btPrevFrameTitle}%
+    \bt@expandin{#1}{\btPrevShortFrameTitle}%
+    \bt@expandin{#1}{\btPrevFrameSubtitle}%
+    \expandafter\gdef\expandafter#1\expandafter{#1}%
+  }
+
   \pretocmd{\beamer@@frametitle}{%
     \bt@onframechange{%
       \global\let\btPrevShortFrameTitle\btPrevShortFrameTitle@tmp%
       \global\let\btPrevFrameTitle\btPrevFrameTitle@tmp%
       \global\let\btPrevFrameSubtitle\btPrevFrameSubtitle@tmp% See below for patching of framesubtitle
     }%
-    \xdef\btPrevShortFrameTitle@tmp{#1}%
-    \xdef\btPrevFrameTitle@tmp{#2}%
+    \bt@pxdef\btPrevShortFrameTitle@tmp{#1}%
+    \bt@pxdef\btPrevFrameTitle@tmp{#2}%
   }
   {\bt@message{patching of \string\beamer@@frametitle{} to support \string\btPrevFrameTitle{} succeeded}}%
   {\bt@message{patching of \string\beamer@@frametitle{} to support \string\btPrevFrameTitle{} FAILED}}%{
 
   % \btPrevFrameSubtitle
-  \gdef\btPrevFrameSubtitle{}\gdef\btPrevFrameSubtitle@tmp{}
   \letcs\bt@framesubtitle@real{beamerx@\string\framesubtitle}%
   \renewcommand<>\framesubtitle[1]{
-    \xdef\btPrevFrameSubtitle@tmp{#1}%
+     \bt@pxdef\btPrevFrameSubtitle@tmp{#1}%
     \bt@framesubtitle@real{#1}{#2}
   }
 
