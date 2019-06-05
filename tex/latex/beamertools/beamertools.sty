@@ -4,7 +4,7 @@
 \ProvidesPackage{beamertools}[2017/06/01]
 \RequirePackage{pgfopts,etoolbox}           % we process package options with pgfkeys
 \RequirePackage{pgf}                        % we calculate stuff with pgfmath
-\RequirePackage[PGF]{adjustbox}                  
+\RequirePackage[PGF]{adjustbox}
 \RequirePackage[absolute,overlay]{textpos}  % we still use this for absolute positioning
 \RequirePackage{ragged2e}                   % at least btQuoteBlocks should have hyphenated texts
 \RequirePackage{pgfplots}                   % we need \pgfplotsforeach
@@ -13,13 +13,13 @@
 %% package options
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  \def\bt@message#1{\message{beamertools: #1}} 
+  \def\bt@message#1{\message{beamertools: #1}}
 
   \newif\ifbtFramesInToC
   \newif\ifbtFramesInPDFToC
   \newif\ifbtAutoNotes
   \newif\ifbtPhysicalPagesInPDFToC
-  \newif\ifbtNoListings 
+  \newif\ifbtNoListings
     \newif\if@btlstlinebgrdNotFound
     \newif\if@btlstautogobbleNotFound
   \newif\ifbtNoShortcuts
@@ -34,15 +34,15 @@
     /bt/.cd,
     framesintoc/.is if=btFramesInToC,                               % put frame titles as level 3 element in ToC
     framesinpdftoc/.is if=btFramesInPDFToC,                         % put frame titles as level 3 element in PDF ToC
-    autonotes/.is if=btAutoNotes,                                   % add empty note to every slide 
+    autonotes/.is if=btAutoNotes,                                   % add empty note to every slide
     physicalpagesinpdftoc/.is if=btPhysicalPagesInPDFToC,           % use physical page numbers (instead of labels) in PDF ToC
-    nolistings/.is if=btNoListings,                                 % do not include listing support (and related packages) 
-    noshortcuts/.is if=btNoShortcuts,                               % do not include shortcut macros (\bi \ii \ei and so on) 
+    nolistings/.is if=btNoListings,                                 % do not include listing support (and related packages)
+    noshortcuts/.is if=btNoShortcuts,                               % do not include shortcut macros (\bi \ii \ei and so on)
     woschblocks/.is if=btWoschBlocks,                               % define Wosch-style block envs (bearblock, codeblock, ...)
     notikz/.is if=btNoTikZ,                                         % do not include TikZ-support nor macros that depend on TikZ
   	sracolors/.is if=btSRAColors																		% patch i4 colors to LUH/SRA colors
 	}
-  
+
 
   % add a new .provide style= handler
   \btset{/handlers/.provide style/.code={%
@@ -59,10 +59,10 @@
 
   \ProcessPgfPackageOptions{/bt}
 
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% Load option-specific extra packages
   %%
-  
+
   \ifbtFramesInPDFToC
     \RequirePackage{bookmark}
   \fi
@@ -70,24 +70,24 @@
     \RequirePackage{listings,pgffor}
     % The following packages are most probably not (yet) available, so we load them conditionally
     % (and otherwise embed their implementation)
-    \IfFileExists{lstlinebgrd.sty}{\RequirePackage{lstlinebgrd}}{\@btlstlinebgrdNotFoundtrue}  
-    \IfFileExists{lstautogobble.sty}{\RequirePackage{lstautogobble}}{\@btlstautogobbleNotFoundtrue}  
+    \IfFileExists{lstlinebgrd.sty}{\RequirePackage{lstlinebgrd}}{\@btlstlinebgrdNotFoundtrue}
+    \IfFileExists{lstautogobble.sty}{\RequirePackage{lstautogobble}}{\@btlstautogobbleNotFoundtrue}
   \fi
   \ifbtNoTikZ\else
     \RequirePackage{tikz}
     \usetikzlibrary{calc,shadows}
     % The following libraries are most probably not (yet) available, so we load them conditionally
     % (and otherwise embed their implementation)
-    \IfFileExists{tikzlibraryshadows.blur.code.tex}{\usetikzlibrary{shadows.blur}}{\@bttikzlibraryshadowsblurNotFoundtrue}  
+    \IfFileExists{tikzlibraryshadows.blur.code.tex}{\usetikzlibrary{shadows.blur}}{\@bttikzlibraryshadowsblurNotFoundtrue}
   \fi
 
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% Process pagage options that patch beamer commands on global level
   %%
 
-  % Insert an empty \note{} in every frame. 
+  % Insert an empty \note{} in every frame.
   % This ensures that (with \setbeameroption{show notes}) every slide is followed by a
-  % (possibly empty) notes slide, so that both can be grouped together by 2x1 printing (pdfnup)  
+  % (possibly empty) notes slide, so that both can be grouped together by 2x1 printing (pdfnup)
   \ifbtAutoNotes
     \def\beamer@framenotesbegin{% at beginning of slide
       \gdef\beamer@noteitems{}%
@@ -125,10 +125,10 @@
 %% misc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  %% color definitions  
+  %% color definitions
 	\IfFileExists{sra-color.sty}{
 		\RequirePackage{sra-color}
-	}{% 
+	}{%
 		% i4 colors, also defined in beamerthemei4.sty!
 		\providecolor{i4red}{rgb}{0.69,0.11,0.18}
 		\providecolor{i4blue}{rgb}{0.0,0.4,0.62}
@@ -168,7 +168,7 @@
 
 
 
-  
+
   \def\btConvertToMM#1{\the\numexpr \dimexpr #1\relax*635/118407168\relax}
 
   % Insert last-modified date
@@ -178,7 +178,7 @@
   % (at least), there's no harm in using the new functionality unless you're
   % dealing with very old production systems. Here's an example:
 
-  % usage (for own documents) \btFileModDate{\jobname.tex} 
+  % usage (for own documents) \btFileModDate{\jobname.tex}
   \def\bt@parsedate #1:20#2#3#4#5#6#7#8\empty{20#2#3-#4#5-#6#7}
 	\def\btInsertFileModDate#1{\bt@message{#1}\expandafter\expandafter\expandafter\bt@parsedate\pdf@filemoddate{#1}\empty}
 
@@ -194,13 +194,13 @@
 	\newcommand*{\btSlideInFrame}{\number\beamer@slideinframe}
 
   % Set them after beamer theme has been loaded
-  \AtBeginDocument{% 
+  \AtBeginDocument{%
     \setlength{\btLeftMargin}{\Gm@lmargin}%   total text indent from left edge of the frame (including sidebar)
     \setlength{\btRightMargin}{\Gm@rmargin}%  total margin from the right edge of the frame (including sidebar)
   }
   % \btItemMargin --> list-induced total left margin of the current itemize level
   \newcommand{\btItemMargin}{\ifnum \@itemdepth =2 \leftmarginii \else \ifnum \@itemdepth =3 (\leftmarginii + \leftmarginiii) \else 0pt\fi\fi}
-  
+
   % \btAddExtraItemSep[<sep>=\smallskipamount]: Advances \itemsep by <sep> * (3 - itemize level)
   \newcommand{\btAddExtraItemSep}[1][\smallskipamount]{%
     \pgfmathparse{(3.25-\@itemdepth)*#1}%
@@ -228,16 +228,16 @@
 
 	% \btAgainFrameIfExists<ov spec>[options]{<frame label}
 	%
-	% Like \againframe<ov spec>[options]{frame label}, but does not yield an error 
+	% Like \againframe<ov spec>[options]{frame label}, but does not yield an error
 	% if the frame does not exist. Instead inserts a placeholder.
-	% 
-	% Options include beamer standard options, but furthermore: 
-  %     title     = {new title}       
+	%
+	% Options include beamer standard options, but furthermore:
+  %     title     = {new title}
   %     subtitle  = {new subtitle}
   %     at begin  = {tex code}
   %     at end    = {tex code}
-  % to change the title/subtitle or execute aribitrary code on the slide 
-  % 
+  % to change the title/subtitle or execute aribitrary code on the slide
+  %
   \newcommand<>{\btAgainFrameIfExists}[2][]{%
     \def\bt@againframe@begin{}
     \def\bt@againframe@end{}
@@ -315,8 +315,8 @@
   \letcs\bt@framesubtitle@real{beamerx@\string\framesubtitle}%
   \renewcommand<>\framesubtitle[1]{
      \bt@pxdef\btPrevFrameSubtitle@tmp{#1}%
-    \bt@framesubtitle@real{#1}{#2}
-  }
+     \bt@framesubtitle@real{#1}{#2}
+   }
 
   % Inserts Buttons to skip over (lenghtly) animations in the titelarea
   % (overwrites \framesubtitle)
@@ -401,7 +401,7 @@
 			\ifdef{\bt@putat}{%
 				\def\bt@putat@aux(##1,##2){\pgfmathsetlengthmacro{\bt@putat@x}{##1}\pgfmathsetlengthmacro{\bt@putat@y}{##2}}%
 				\expandafter\bt@putat@aux\bt@putat%
-				% We need the extra \only as it is the only overlay command that actually throws away 
+				% We need the extra \only as it is the only overlay command that actually throws away
 				% the content instead of rendering it in an invisible box. The latter does not help us,
 				% as textblock works on shipout level!
 				\only#3{\preto{\bt@endcmds}{\end{textblock*}}}%
@@ -413,7 +413,7 @@
         \preto{\bt@endcmds}{\end{adjustbox}}%
         \adjustboxset{}%
         \begin{adjustbox}{scale=\bt@contentscale}%
-      }{}%  
+      }{}%
       \ifdef{\bt@textwidth}{%
         \preto{\bt@endcmds}{\end{minipage}}%
         \begin{minipage}{\bt@textwidth}%
@@ -445,8 +445,8 @@
       theorem block parameters/.style/.expanded={\ifx\inserttheoremaddition\@empty\else\expandonce\inserttheoremaddition\fi},
     }
     \begin{btBlock}[every theorem, theorem block parameters]  {%
-      \pgfkeysifdefined{/bt/title}{{\inserttheoremheadfont\pgfkeysvalueof{/bt/title}}\hfill}{} 
-      (\inserttheoremname \ifbtNumbered\inserttheoremnumber\fi) 
+      \pgfkeysifdefined{/bt/title}{{\inserttheoremheadfont\pgfkeysvalueof{/bt/title}}\hfill}{}
+      (\inserttheoremname \ifbtNumbered\inserttheoremnumber\fi)
     }%
   }
   \setbeamertemplate{theorem end}{%
@@ -489,22 +489,22 @@
 \ifbtWoschBlocks
 
   % provide legacy block environments used by Wosch and Daniel
-  \btset{every wosch block/.provide style={rounded, shadow={\ifdef{\shadow}{\shadow}{\pgfkeysnovalue}}}} 
+  \btset{every wosch block/.provide style={rounded, shadow={\ifdef{\shadow}{\shadow}{\pgfkeysnovalue}}}}
   \newenvironment<>{bearblock}[2][]{
     \begin{btBlock}#3[every wosch block, type=alert,#1]{#2}
-  }{% 
+  }{%
     \end{btBlock}%
     \ignorespacesafterend%
   }
   \newenvironment<>{ovalblock}[2][]{
     \begin{btBlock}#3[every wosch block, type=normal,#1]{#2}
-  }{% 
+  }{%
     \end{btBlock}%
     \ignorespacesafterend%
   }
   \newenvironment<>{codeblock}[2][]{
     \begin{btBlock}#3[every wosch block, type=example,#1]{#2}
-  }{% 
+  }{%
     \end{btBlock}%
     \ignorespacesafterend%
   }
@@ -555,7 +555,7 @@
   % so they do not insert a vertical space if used at the beginning of table cells, \parbox, etc.
   %
   % Note: this should be possible with \renewcommand<>, which however, does not work due to a bug
-  %       in the definition of \renewcommand<> in beamerbaseoverlay.sty :-( 
+  %       in the definition of \renewcommand<> in beamerbaseoverlay.sty :-(
   \expandafter\let\csname beamerx@\string\alert \endcsname=\relax%
   \renewcommand<>{\alert}[1]{\hskip0pt\begin{alertenv}#2#1\end{alertenv}}
   \expandafter\let\csname beamerx@\string\structure \endcsname=\relax%
@@ -575,7 +575,7 @@
   \newenvironment{localenv}{\begin{altenv}%
       {\usebeamertemplate{structure text begin}\usebeamercolor[fg]{local structure}\usebeamerfont{structure}}
       {\usebeamertemplate{structure text end}}{\color{.}}{}}{\end{altenv}}
-	
+
   \newcommand<>{\local}[1]{\begin{localenv}#2\relax#1\end{localenv}}
 
 %  \newcommand<>{\local}[1]{\hskip0pt{\only#2{\usebeamercolor[fg]{local structure}}#1}}
@@ -585,7 +585,7 @@
 \fi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \InputPDFFrames to reuse existing PDF slides (especially old OO stuff) 
+%% \InputPDFFrames to reuse existing PDF slides (especially old OO stuff)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   \newbool{bt@pdfframes@onpagehook}
@@ -610,7 +610,7 @@
     insert agenda/.style={execute={\InsertAgenda}},%            FIXME \InsertAgenda not defined by beamertools!
     insert full agenda/.style={execute={\InsertFullAgenda}},%   FIXME \InsertFullAgenda not defined by beamertools!
     %
-    % exclude printing parts of the Beamer footline 
+    % exclude printing parts of the Beamer footline
     footline/.code = {\pgfkeysalso{footline/.cd, #1, /bt/pdfframes/.cd}},
     footline/no title/.code={\let\insertshorttitle\@empty},
     footline/no date/.code={\let\insertshortdate\@empty},
@@ -654,7 +654,7 @@
     	clear/frame number color=white,
     	clear/title color=white,
     },
-    % clear default metrics for srabeamer 
+    % clear default metrics for srabeamer
 		clear/setup/srabeamer/.style={%
 			clear/setup/i4beamer,
 			clear/footline color=luhlightgray,
@@ -683,9 +683,9 @@
       }
     }
   }
-	
+
 	\AtBeginDocument{
-		% setup default values 
+		% setup default values
 		\@ifpackageloaded{beamerthemei4}{\btset{pdfframes/.cd, clear/setup/i4beamer}}{
 			\@ifpackageloaded{beamerthemesra}{\btset{pdfframes/.cd, clear/setup/srabeamer}}{%
 				\bt@message{WARNING! unknown theme, you need to setup /bt/pdfframes/clear/* values for the InputPDFFrame command.}%
@@ -700,13 +700,13 @@
 			\makebox[\dimexpr\paperwidth-\bt@clear@footlinexoffset\relax][l]{%
   	  	\color{\bt@clear@footlinecolor}\rule{\bt@clear@footlinewidth}{\bt@clear@footlineheight}%      cover footline
       	\color{\bt@clear@numbercolor}\rule{\dimexpr\bt@clear@numberwidth}{\bt@clear@numberheight}%    cover number
-		}}% 
+		}}%
     \raisebox{\dimexpr\paperheight-\bt@clear@titleheight}{%																						raise to title
-    \rlap{%																																													
+    \rlap{%
 			\rule{\dimexpr\bt@clear@titlexoffset\relax}{0pt}%																								advance to xpos
 			\makebox[\dimexpr\paperwidth-\bt@clear@titlexoffset\relax][l]{%
       	\color{\bt@clear@titlecolor}\rule{\dimexpr\paperwidth-\bt@clear@titlexoffset}{\dimexpr\bt@clear@titleheight}%  cover title
-    }}} 
+    }}}
     }}}%
   }
 
@@ -727,7 +727,7 @@
 	\let\InputPDFFrames=\btInputPDFFrames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% listings extensions 
+%% listings extensions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ifbtNoListings\else
@@ -747,10 +747,10 @@
   \fi
 
   \lstdefinestyle{basestyle}{
-    basicstyle=\footnotesize\ttfamily, 
+    basicstyle=\footnotesize\ttfamily,
     keywordstyle=\color{luhblue},
     commentstyle=\color{beamergreen},
-    showstringspaces=false, 
+    showstringspaces=false,
     breaklines=false,
     mathescape=true,
     lineskip=-3pt,
@@ -762,7 +762,7 @@
 
   \lstset{style=basestyle}
 
-  
+
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %
@@ -806,7 +806,7 @@
   % \btLstHL<overlay spec>{range list}
   %
   % TODO BUG: \btLstHL commands can not yet be accumulated if more than one overlay spec match.
-  % 
+  %
   \providecolor{btLstHL}{named}{i4orange}
   \newcommand<>{\btLstHL}[1]{%
     \only#2{\btIfInRange{\value{lstnumber}}{#1}{\color{btLstHL}\def\lst@linebgrdcmd{\color@block}}{\def\lst@linebgrdcmd####1####2####3{}}}%
@@ -816,14 +816,14 @@
   %
   % \btInputEmph<overlay spec>[listing options]{range list}{file name}
   %
-  \newcommand<>{\btLstInputEmph}[3][\empty]{%                                                    
+  \newcommand<>{\btLstInputEmph}[3][\empty]{%
     \only#4{%
       \lstset{linebackgroundcolor=\btLstHL{#2},#1}%
       \lstinputlisting{#3}%
    }% \only
   }
 
-  
+
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% lstlinebgrd.sty
   %% see: http://tex.stackexchange.com/questions/18969/creating-a-zebra-effect-using-listings/18989#18989
@@ -834,7 +834,7 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   \if@btlstlinebgrdNotFound
-  
+
     % Patch line number key to call line background macro
     \lst@Key{numbers}{none}{%
         \def\lst@PlaceNumber{\lst@linebgrd}%
@@ -880,7 +880,7 @@
         }%
         \fi
     }
-  \fi% \ifbt@kstkinebgrdNotFound 
+  \fi% \ifbt@kstkinebgrdNotFound
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% lstautogobble.sty
@@ -967,14 +967,14 @@
         \next
     }
 
-  \fi% \ifbt@lstautogobbleNotFound 
-  
+  \fi% \ifbt@lstautogobbleNotFound
+
 
 \fi% else \ifbtNoListings
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TikZ extensions and macros that depend on TikZ 
+%% TikZ extensions and macros that depend on TikZ
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ifbtNoTikZ\else
@@ -983,7 +983,7 @@
   % Key to apply style on specific overlays only
   % usage (e.g.): \node[onslide=<2->{fill=red}]{I am red on slide 2!};
   %
-  % see also: http://tex.stackexchange.com/questions/6135/how-to-make-beamer-overlays-with-tikz-node 
+  % see also: http://tex.stackexchange.com/questions/6135/how-to-make-beamer-overlays-with-tikz-node
   %
   \tikzset{onslide/.code args={<#1>#2}{%
     \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
@@ -993,8 +993,8 @@
   }}
 
   % Key to add font macros to the current font (instead of replacing it)
-  \tikzset{add font/.code={\expandafter\def\expandafter\tikz@textfont\expandafter{\tikz@textfont#1}}} 
-  
+  \tikzset{add font/.code={\expandafter\def\expandafter\tikz@textfont\expandafter{\tikz@textfont#1}}}
+
   % Key handler for .provide style=<...>, which defines a style only if it not yet exists
   \tikzset{/handlers/.provide style/.code={%
     \pgfkeysifdefined{\pgfkeyscurrentpath/.@cmd}%
@@ -1021,13 +1021,13 @@
           ]#1:{}}
       }
   }
- 
+
 
   % Key to scale the content of a node by a factor #1
   \tikzset{scale content/.style={
     execute at begin node={%
       \numdef{\scale@content@nest}{\scale@content@nest+1}% increase nesting counter
-      \ifnumequal{\scale@content@nest}{1}{%              % do not nest 
+      \ifnumequal{\scale@content@nest}{1}{%              % do not nest
         \pgfmathsetmacro{\scale@content}{#1}%
         \begin{lrbox}{\@tempboxa}%
         \ifx\tikz@text@width\pgfutil@empty\else
@@ -1036,7 +1036,7 @@
           \begin{minipage}{\@tempdima}%
         \fi
       }{}%
-    }, 
+    },
     execute at end node={%
       \ifnumequal{\scale@content@nest}{1}{%
         \ifx\tikz@text@width\pgfutil@empty\else
@@ -1072,14 +1072,14 @@
   % Keys to support piece-wise uncovering of elements in TikZ pictures:
   % \node[visible on=<2->](foo){Foo}
   %
-  % Internally works by setting opacity=0 when invisible, which has the 
+  % Internally works by setting opacity=0 when invisible, which has the
   % adavantage (compared to \node<2->(foo){Foo} that the node is always there, hence
   % always consumes space that (foo) is always available.
   %
   % The actual command that implements the invisibility can be overriden
   % by altering the style invisible. For instance \tikzsset{invisible/.style={opacity=0.2}}
   % would dim the "invisible" parts. Alternatively, the color might be set to white, if the
-  % output driver does not support transparencies (e.g., PS) 
+  % output driver does not support transparencies (e.g., PS)
   %
   \tikzset{
     global opacity/.style={
@@ -1116,13 +1116,13 @@
     \setbeamercolor{local structure}{fg=orange!90!black}
     \onslide#3{\tikz[every node/.style={orangebox, #1}, #1]\node []{#2};}
 		\egroup
-  } 
+  }
   \newcommand<>{\RedBox}[2][]{%
 		\bgroup
     \setbeamercolor{local structure}{use=alerted text, fg=alerted text.fg}
     \onslide#3{\tikz[every node/.style={redbox, #1}, #1]\node []{#2};}
 		\egroup
-  } 
+  }
   \newcommand<>{\TikzPoint}[2][\empty]{%
     \onslide#3{\tikz[remember picture, every tikzpoint, #1, every coodinate/.style={every tikzpoint, #1}]\coordinate (#2);}%
   }
@@ -1143,10 +1143,10 @@
   % minipage or whatever kind of LR-box, the <box width> argument may be omitted
   %
   %
-  % implementation notes: 
+  % implementation notes:
   %   - based on   \usepackage[absolute,overlay]{textpos}
   %   - NOT combinable with any beamer feature that is based on pgfpages
-  %     (such as dual-screen support, built-in 2up handouts, etc.), as textpos 
+  %     (such as dual-screen support, built-in 2up handouts, etc.), as textpos
   %     and pgfpages interfere at the shippout-level.
   %
 
@@ -1162,14 +1162,14 @@
   % \ShowPutAtGrid
   %
   % draws a helpful grid on the current slide to figure <x> and <y> parameters for \PutAt
-  % 
+  %
   \newcommand{\ShowPutAtGrid}{
     \begin{textblock*}{128mm}(0cm,0cm)
     \tikz[color=red!20!white]\draw[very thin, step=5mm] (0mm,0mm) grid (130mm,100mm);
     \end{textblock*}
     \begin{textblock*}{128mm}(0cm,0cm)
     \begin{tikzpicture}[color=red]
-      \draw[step=1cm] (0,0mm) grid (130mm,100mm);	
+      \draw[step=1cm] (0,0mm) grid (130mm,100mm);
       \foreach \n in {0,...,12}
         \draw[xshift=.5mm,yshift=-1.5mm, inner sep=0pt, anchor=west] (\n,10) node {\scriptsize{\textbf{\n}}};
       \foreach \n in {1,...,9}
@@ -1187,7 +1187,7 @@
     \only#2{\begin{btHighlight}[#1]\bgroup\aftergroup\bt@HL@endenv}%
   }
   \def\bt@HL@endenv{%
-    \end{btHighlight}%   
+    \end{btHighlight}%
     \egroup
   }
   \newcommand{\bt@HL@box}[2][]{%
