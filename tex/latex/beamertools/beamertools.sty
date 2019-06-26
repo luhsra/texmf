@@ -1,7 +1,7 @@
 % $Id$
 
 \NeedsTeXFormat{LaTeX2e}[1999/01/01]
-\ProvidesPackage{beamertools}[2017/06/01]
+\ProvidesPackage{beamertools}[2019/06/26]
 \RequirePackage{pgfopts,etoolbox}           % we process package options with pgfkeys
 \RequirePackage{pgf}                        % we calculate stuff with pgfmath
 \RequirePackage[PGF]{adjustbox}
@@ -124,6 +124,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% misc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %% tabulator-based layout
+  \usepackage{tabto}
+    \newlength\btTabPos
+    \newcommand\btSetTab[1][0cm]{%
+      \hskip#1\tabto*{\CurrentLineWidth}\strut%
+      \global\btTabPos=\TabPrevPos%
+    }
+    \newcommand\btDefTab[1][0cm]{%
+      \tabto*{\CurrentLineWidth}%
+      \global\btTabPos=\dimexpr\TabPrevPos+#1\relax%
+    }
+    \newcommand\btUseTab[1][0cm]{\tabto*{\dimexpr\btTabPos+#1}\strut}
+
+    % The same with named tabs
+    \newcommand\btSetNamedTab[2][0cm]{%
+      \global\expandafter\let\csname bt#2TabPos\endcsname=\relax%
+      \global\expandafter\newskip\csname bt#2TabPos\endcsname%
+      \hskip#1\tabto*{\CurrentLineWidth}\strut%
+      \global\csname bt#2TabPos\endcsname=\TabPrevPos%
+    }
+    \newcommand\btDefNamedTab[2][0cm]{%
+      \tabto*{\CurrentLineWidth}%
+      \global\expandafter\csname bt#2TabPos\endcsname=\dimexpr\TabPrevPos+#1\relax%
+    }
+    \newcommand\btUseNamedTab[2][0cm]{%
+      \tabto*{\dimexpr\csname bt#2TabPos\endcsname+#1}\strut%
+    }
+
 
   %% color definitions
 	\IfFileExists{sra-color.sty}{
