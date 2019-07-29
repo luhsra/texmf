@@ -124,19 +124,29 @@
 % enumeration style and borders setup
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\srabeamer@size@wide{
+  \setbeamersize{sidebar width left=0.4cm}
+  \setbeamersize{text margin left=0.5em}
+  \setbeamersize{text margin right=3.2mm}
+  \def\sraTitleHskip{\hskip 0.67cm}
+}
 \def\srabeamer@size@normal{
   \setbeamersize{sidebar width left=1.07cm}
   \setbeamersize{text margin left=0.5em}
   \setbeamersize{text margin right=3.2mm}
+  \let\sraTitleHskip\relax
 }
 \def\srabeamer@size@narrow{
   \setbeamersize{sidebar width left=2.07cm}
   \setbeamersize{text margin left=0.5em}
   \setbeamersize{text margin right=2.07cm}
+  \let\sraTitleHskip\relax
 }
 
 \ifsraWide
-   \srabeamer@size@normal
+  \ifthenelse{\lengthtest{\beamer@paperwidth=16cm}}
+  {\srabeamer@size@normal}
+  {\srabeamer@size@wide}
 \else % Otherwise: Do automatically
    % condition (16cm is the width of the frame with an aspect ratio = % 16:9)
   \ifthenelse{\lengthtest{\beamer@paperwidth=16cm}}
@@ -333,7 +343,7 @@
   \setbeamertemplate{frametitle}{
     \usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}
 		% we need to measure the title width, so we box it
-		\savebox\beamerthemesra@box{\insertframetitle\strut}%
+		\savebox\beamerthemesra@box{\sraTitleHskip\insertframetitle\strut}%
 		\usebox{\beamerthemesra@box}%
 		% no subtitle was given, we render the luh-logo
 		\ifx\insertframesubtitle\@empty

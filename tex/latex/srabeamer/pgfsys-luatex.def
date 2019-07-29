@@ -7,7 +7,6 @@
 %
 % See the file doc/generic/pgf/licenses/LICENSE for more details.
 
-\ProvidesFileRCS $Header: /cvsroot/pgf/pgf/generic/pgf/systemlayer/pgfsys-luatex.def,v 1.35 2014/10/11 09:23:31 vibrovski Exp $
 
 
 % Driver commands for pdf
