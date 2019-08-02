@@ -111,11 +111,13 @@
   \pgfextractx{\sra@tikz@length}{\pgfpointanchor{#1}{east}}%
   \pgfextractx{\pgf@xa}{\pgfpointanchor{#1}{west}}% \pgf@xa is a length defined by PGF for temporary storage. No need to create a new temporary length.
   \addtolength{\sra@tikz@length}{-\pgf@xa}%
+  \addtolength{\sra@tikz@length}{-\pgflinewidth}%
 }
 \newcommand\sra@tikz@heightofnode[1]{%
   \pgfextracty{\sra@tikz@length}{\pgfpointanchor{#1}{north}}%
   \pgfextracty{\pgf@ya}{\pgfpointanchor{#1}{south}}% \pgf@xa is a length defined by PGF for temporary storage. No need to create a new temporary length.
   \addtolength{\sra@tikz@length}{-\pgf@ya}%
+  \addtolength{\sra@tikz@length}{-\pgflinewidth}%
 }
 
 \tikzset{
