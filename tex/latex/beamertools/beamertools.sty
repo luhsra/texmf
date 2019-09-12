@@ -484,6 +484,12 @@
   }
 
   \btset{%
+		quotes/.is choice,
+			quotes/left only/.code={\let\bt@leftquote=\bt@openquote \let\bt@rightquote=\relax},
+			quotes/right only/.code={\let\bt@leftquote=\relax \let\bt@rightquote=\bt@closequote},
+			quotes/both/.code={\let\bt@leftquote=\bt@openquote \let\bt@rightquote=\bt@closequote},
+			quotes/none/.code={\let\bt@leftquote=\relax \let\bt@rightquote=\relax},
+		every quote/.provide style={},	
 %    source/.code={\def\bt@source{#1}},
     source/.code={%
       \def\bt@sourceauthor{\citeauthor{#1}}
@@ -506,11 +512,11 @@
     \setlength\unitlength{1ex}
     \newcommand*\bt@openquote{\hskip-1.5ex\makebox(5,-1.6){\scalebox{3}{\local{``}}}}
     \newcommand*\bt@closequote{\hskip-1.5ex\makebox(5,-1.6){\scalebox{3}{\local{''}}}}
-    \btset{#1}
+    \btset{quotes=both, every quote, #1}
     \RaggedRight
-    \sl\rmfamily\bt@openquote%
+    \sl\rmfamily\bt@leftquote%
   }
-  {\bt@closequote\ifdef{\bt@sourceauthor}{{\btset{source line precode, source line font, source line, source line postcode}}}{}}
+  {\bt@rightquote\ifdef{\bt@sourceauthor}{{\btset{source line precode, source line font, source line, source line postcode}}}{}}
 
   \newenvironment<>{btQuoteBlock}[2][]
   {\begin{btBlock}#3[#1]{#2}\begin{btQuote}[#1]}
