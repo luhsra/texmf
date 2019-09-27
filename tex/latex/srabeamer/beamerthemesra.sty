@@ -124,10 +124,25 @@
 % enumeration style and borders setup
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% the top-level item symbol is rendered into the sidebar
+  \setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 1ex height 1ex}\hspace{0.5em}}
+  \setbeamertemplate{itemize subitem}{\raise.5pt\hbox{\vrule width 0.8ex height 0.8ex}}
+  \setbeamertemplate{itemize subsubitem}{\raise.5ex\hbox{\vrule width 1ex height 0.2ex}}
+  \setbeamertemplate{headline}[default]
+
+  \setlength{\labelwidth}{2em}
+  \setlength{\labelsep}{0.5em}
+  \setlength{\leftmargini}{0em}
+  \setlength{\leftmarginii}{1em}
+  \setlength{\leftmarginiii}{1em}
+
 \def\srabeamer@size@wide{
   \setbeamersize{sidebar width left=0.4cm}
   \setbeamersize{text margin left=0.5em}
   \setbeamersize{text margin right=3.2mm}
+  \setlength{\leftmargini}{0.5em}
+  \setlength{\leftmarginii}{0.5em}
   \def\sraTitleHskip{\hskip 0.67cm}
 }
 \def\srabeamer@size@normal{
@@ -154,17 +169,6 @@
   {\srabeamer@size@normal}
 \fi
 
-	% the top-level item symbol is rendered into the sidebar
-  \setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 1ex height 1ex}\hspace{0.5em}}
-  \setbeamertemplate{itemize subitem}{\raise.5pt\hbox{\vrule width 0.8ex height 0.8ex}}
-  \setbeamertemplate{itemize subsubitem}{\raise.5ex\hbox{\vrule width 1ex height 0.2ex}}
-  \setbeamertemplate{headline}[default]
-
-  \setlength{\labelwidth}{2em}
-  \setlength{\labelsep}{0.5em}
-  \setlength{\leftmargini}{0em}
-  \setlength{\leftmarginii}{1em}
-  \setlength{\leftmarginiii}{1em}
 
 % the above looks nice on slides, but bad in block environments; hence we override
 % beamers original block envs to modify them

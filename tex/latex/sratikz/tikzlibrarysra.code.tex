@@ -14,7 +14,9 @@
    \expandafter{\tikz@node@reset@hook\tikz@in@nodetrue}
 \tikzset{
   if in node/.code 2 args={%
-    \iftikz@in@node\tikzset{#1}\else\tikzset{#1}\fi}}
+    \iftikz@in@node\tikzset{#1}\else\tikzset{#2}\fi%
+  }
+}
 
 % Move visible or invisible nodes and whole scopes to another
 % layer
@@ -32,10 +34,11 @@
     \def\tikz@fillopacity{#1}%
   },
   /tikz/on layer/.style={
-    if in node={node on layer={#1}}
-    {scope on layer={#1}}},
+    if in node={node on layer={#1}}{scope on layer={#1}}
+  },
   /tikz/scope on layer/.code={
     \pgfonlayer{#1}\begingroup%
+    \tikzset{every on layer/.try}%
     \aftergroup\endpgfonlayer%
     \aftergroup\endgroup%
   },
@@ -46,12 +49,25 @@
       % Capture current tempbox
       \setbox\tikz@tempbox=%
       \hbox\bgroup\pgfonlayer{#1}%
+      \tikzset{every on layer/.try}%
       \pgfsetfillopacity{\tikz@fillopacity@smuggle}%
       \pgfsetstrokeopacity{\tikz@drawopacity@smuggle}%
       \unhbox\tikz@tempbox%
       \endpgfonlayer\egroup%
     }%
     \aftergroup\node@onlayer%
+  },
+  % tikz on layer={LAYER}{TIKZ CODE}
+  /tikz/tikz on layer/.style 2 args={
+    append after command={
+      \pgfextra{%
+        \begin{pgfinterruptpath}
+          \begin{pgfonlayer}{#1}
+            #2
+          \end{pgfonlayer}
+        \end{pgfinterruptpath}
+      }%
+    }
   },
 }
 \def\node@onlayer{\aftergroup\node@@onlayer}
