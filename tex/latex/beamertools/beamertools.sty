@@ -140,17 +140,22 @@
 
     % The same with named tabs
     \newcommand\btSetNamedTab[2][0cm]{%
-      \global\expandafter\let\csname bt#2TabPos\endcsname=\relax%
-      \global\expandafter\newskip\csname bt#2TabPos\endcsname%
+      \global\expandafter\let\csname bt\string #2TabPos\endcsname=\relax%
+      \global\expandafter\newskip\csname bt\string #2TabPos\endcsname%
       \hskip#1\tabto*{\CurrentLineWidth}\strut%
-      \global\csname bt#2TabPos\endcsname=\TabPrevPos%
+      \global\csname bt\string #2TabPos\endcsname=\TabPrevPos%
+      % If name is a macro, define it with \btUseNamedTab
+      \ifcat\relax\noexpand#2%
+         \gdef#2{\expandafter\btUseNamedTab\expandafter{\string#2}}%
+      \fi%
     }
+
     \newcommand\btDefNamedTab[2][0cm]{%
       \tabto*{\CurrentLineWidth}%
-      \global\expandafter\csname bt#2TabPos\endcsname=\dimexpr\TabPrevPos+#1\relax%
+      \global\expandafter\csname bt\string #2TabPos\endcsname=\dimexpr\TabPrevPos+#1\relax%
     }
     \newcommand\btUseNamedTab[2][0cm]{%
-      \tabto*{\dimexpr\csname bt#2TabPos\endcsname+#1}\strut%
+      \tabto*{\dimexpr\csname bt\string #2TabPos\endcsname+#1}\strut%
     }
 
 
