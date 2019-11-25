@@ -361,6 +361,55 @@
     \hyperlinkframeend{\beamerbutton{\raisebox{0.2ex}{$\blacktriangleright\!\blacktriangleright$}}}
   }}}
 
+
+% FIXME: Document \btAnimation
+\newcounter{btAnimationSlide}
+\btset{
+  animation/.cd,
+  .unknown/.code={%
+    % This is almost the code that .search also={/bt} would provide.
+    % However, we want to forward the key to step=\keyname.
+    \ifpgfkeysaddeddefaultpath%
+      % only process keys for which no full path has been
+      % provided:
+      \pgfkeyssuccessfalse%
+      \let\pgfkeys@searchalso@name =\pgfkeyscurrentkeyRAW%
+      % search with /tikz as default path:
+      \pgfqkeys{/bt}{\pgfkeys@searchalso@name/.try={#1}}%
+      \ifpgfkeyssuccess%
+      \else%
+         \pgfqkeys{/bt/animation}{step/.expanded={\pgfkeys@searchalso@name}}%
+      \fi%
+    \else%
+      \def\pgfutilnext{\pgfkeysvalueof {/handlers/.unknown/.@cmd}#1\pgfeov}%
+      \pgfutilnext%
+    \fi%
+  },%
+  step/.code args={#1:<#2>}{%
+    \only<#2|handout:#2>{\expandafter\includegraphics\expandafter[\btAnimationGraphicsOpts,page=#1]\btAnimationGraphics}%
+  },
+  range/.code args={#1-#2:<#3->}{%
+    \foreach \p in {#1,...,#2}{%
+      \setcounter{btAnimationSlide}{#3+\p-#1}%
+      \pgfset{/bt/animation/step={\p:<\thebtAnimationSlide>}}%
+    }%
+  },
+  padding/.default={2pt},
+  padding/.style={padding top={#1}, padding bottom={#1}},
+  padding top/.default={2pt},
+  padding top/.code={\vspace{#1}},%
+  padding bottom/.default={2pt},
+  padding bottom/.code={\appto{\bt@endcmds}{\vspace{#1}}},%
+  pdf/.store in=\btAnimationGraphics,      % Which file should be included
+  opts/.store in=\btAnimationGraphicsOpts, % Which options should be forwared to includegraphics
+}
+\newcommand{\btAnimation}[3][]{%
+  \def\bt@endcmds{}%
+  \pgfset{/bt/animation/.cd, opts={#1}, pdf={#3},  #2}%
+  \bt@endcmds%
+}
+
+
   \newenvironment<>{infoblock}[1]{%
     \begin{actionenv}#2%
         \ifdef{\beamerblock}{\beamerblock}{}% apply beamerthemei4 corrections, if available
@@ -494,7 +543,7 @@
 			quotes/right only/.code={\let\bt@leftquote=\relax \let\bt@rightquote=\bt@closequote},
 			quotes/both/.code={\let\bt@leftquote=\bt@openquote \let\bt@rightquote=\bt@closequote},
 			quotes/none/.code={\let\bt@leftquote=\relax \let\bt@rightquote=\relax},
-		every quote/.provide style={},	
+		every quote/.provide style={},
 %    source/.code={\def\bt@source{#1}},
     source/.code={%
       \def\bt@sourceauthor{\citeauthor{#1}}
