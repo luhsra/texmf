@@ -1205,6 +1205,7 @@
       every shadow/.append style={opacity=#1},
       every on layer/.append style={opacity=#1},
       every node/.append style={opacity=#1},
+      every label/.append style={opacity=#1},
     },
     invisible/.style={global opacity=0},
     visible/.style={global opacity=1},
@@ -1293,6 +1294,13 @@
   {\begin{onlyenv}#2\begingroup\tikzset{bt@Highlight@par/.style={#1}}\begin{lrbox}{\@tempboxa}}
   {\end{lrbox}\bt@HL@box[bt@Highlight@par]{\@tempboxa}\endgroup\end{onlyenv}}
 
+  \tikzset{
+    every btHL/.style={
+      fill=i4orange,
+      rounded corners=3pt,
+    }
+  }
+
   \newcommand<>\btHL[1][]{%
     \only#2{\begin{btHighlight}[#1]\bgroup\aftergroup\bt@HL@endenv}%
   }
@@ -1301,10 +1309,10 @@
     \egroup
   }
   \newcommand{\bt@HL@box}[2][]{%
-    \tikz[#1]{%
+    \tikz[remember picture,#1]{%
       \pgfpathrectangle{\pgfpoint{1pt}{0pt}}{\pgfpoint{\wd #2}{\ht #2}}%
       \pgfusepath{use as bounding box}%
-      \node[anchor=base west, fill=i4orange,outer sep=0pt,inner xsep=1pt, inner ysep=0pt, rounded corners=3pt, minimum height=\ht\strutbox+1pt,#1]{\raisebox{1pt}{\strut}\strut\usebox{#2}};
+      \node[anchor=base west, outer sep=0pt,inner xsep=1pt, inner ysep=0pt, every btHL,minimum height=\ht\strutbox+1pt,#1]{\raisebox{1pt}{\strut}\strut\usebox{#2}};
     }%
   }
 
