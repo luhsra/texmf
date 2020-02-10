@@ -362,6 +362,29 @@
   }}}
 
 
+\tikzset{
+  every btImage/.style={text width=2cm},
+  /bt/image/.cd,
+      file/.store in=\btImageFile,      % Which file should be included
+      opts/.store in=\btImageOpts,      % Which options should be forwared to includegraphics
+}
+\newcommand<>{\btImage}[2][]{%
+  \only#3{%
+    \def\bt@endcmds{}%
+    \tikz[/bt/image/file={#2},
+                /bt/image/opts={},
+                .search also={/bt/image},
+                every btImage, #1]%
+    \node[every btImage,#1]{%
+      \edef\btImageOpts{width=\textwidth,\btImageOpts}%
+      \expandafter\includegraphics\expandafter[\btImageOpts]\btImageFile%
+    };\bt@endcmds%
+  }%
+}
+\newcommand<>{\btNoImage}[2][]{%
+  \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{#2};}%
+}
+
 % FIXME: Document \btAnimation
 \newcounter{btAnimationSlide}
 \btset{
@@ -386,7 +409,9 @@
     \fi%
   },%
   step/.code args={#1:<#2>}{%
-    \only<#2|handout:#2>{\expandafter\includegraphics\expandafter[\btAnimationGraphicsOpts,page=#1]\btAnimationGraphics}%
+    \only<#2|handout:#2>{\bt@prefixcmd{%
+        \expandafter\includegraphics\expandafter[\btImageOpts,page=#1]\btImageFile}%
+    }%
   },
   range/.code args={#1-#2:<#3->}{%
     \foreach \p in {#1,...,#2}{%
@@ -394,18 +419,20 @@
       \pgfset{/bt/animation/step={\p:<\thebtAnimationSlide>}}%
     }%
   },
+  raisebox/.code={
+    \def\bt@prefixcmd{\raisebox{-\height}}%
+  },
   padding/.default={2pt},
   padding/.style={padding top={#1}, padding bottom={#1}},
   padding top/.default={2pt},
   padding top/.code={\vspace{#1}},%
   padding bottom/.default={2pt},
   padding bottom/.code={\appto{\bt@endcmds}{\vspace{#1}}},%
-  pdf/.store in=\btAnimationGraphics,      % Which file should be included
-  opts/.store in=\btAnimationGraphicsOpts, % Which options should be forwared to includegraphics
 }
 \newcommand{\btAnimation}[3][]{%
   \def\bt@endcmds{}%
-  \pgfset{/bt/animation/.cd, opts={#1}, pdf={#3},  #2}%
+  \def\bt@prefixcmd{}%
+  \pgfset{/bt/image/opts={#1}, /bt/image/file={#3}, /bt/animation/.cd, #2}%
   \bt@endcmds%
 }
 
@@ -1177,6 +1204,7 @@
       text opacity=#1,
       every shadow/.append style={opacity=#1},
       every on layer/.append style={opacity=#1},
+      every node/.append style={opacity=#1},
     },
     invisible/.style={global opacity=0},
     visible/.style={global opacity=1},
@@ -1217,15 +1245,6 @@
   \newcommand<>{\TikzPoint}[2][\empty]{%
     \onslide#3{\tikz[remember picture, every tikzpoint, #1, every coodinate/.style={every tikzpoint, #1}]\coordinate (#2);}%
   }
-
-  \tikzset{every btImage/.style={text width=2cm}}
-  \newcommand<>{\btImage}[2][]{%
-    \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{\includegraphics[width=\textwidth]{#2}};}%
-  }
-  \newcommand<>{\btNoImage}[2][]{%
-    \only#3{\tikz[every btImage,#1]\node[every btImage,#1]{#2};}%
-  }
-
 
   %**
   % \PutAt<overlay spec>[<box width>]{(<x>, <y>)}{<content>}
