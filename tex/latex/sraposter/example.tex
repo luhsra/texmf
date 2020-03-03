@@ -7,7 +7,15 @@
 
 \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
 \documentclass[]{beamer}
+\usepackage[many]{tcolorbox}
+\usepackage[inkscapelatex=false]{svg}
+\usepackage{sra-color}
 \usetheme{sraposter}
+\usepackage{xspace}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage{booktabs}
+
 \usepackage[orientation=portrait,size=a2,scale=1.4,debug]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
 \setlength{\TPHorizModule}{1cm}
@@ -36,35 +44,32 @@
     \usepackage[scaled=0.85]{beramono}
 \fi
 
+\setbeamertemplate{itemize item}{\color{luhblue}$\blacksquare$}
+
 \title{OSEK-V: Application-Specific RTOS Instantiation in Hardware}
 \author{Christian Dietrich, Daniel Lohmann}
 \footer{}
-
+\conference{International Pig Farmers Conference, IPFC'20, Montreal}
 
 \begin{document}
 \begin{frame}{}
 
-\begin{textblock}{19.5}(1,5)
+\begin{textblock}{19.5}(1,5.75)
 \begin{block}{The spotted frog habitat}
 Blah blah blah
 \end{block}
+\begin{highlightbox}{Contributions}
+    \begin{itemize}
+        \item dicke Kartoffeln!
+    \end{itemize} 
+\end{highlightbox}
 
 \begin{block}{Some interesting specimens}
 Stuff and nonsense
 \end{block}
 \end{textblock}
 
-\begin{textblock}{19.5}(21.8,5)
-\begin{block}{The spotted frog habitat}
-Blah blah blah
-\end{block}
-
-\begin{block}{Some interesting specimens}
-Stuff and nonsense
-\end{block}
-\end{textblock}
-
-\begin{textblock}{19.3}(21.8,5)
+\begin{textblock}{19.3}(21.8,5.75)
 \begin{block}{My latest paper about frogs}
 Published in the \emph{Journal of Irreproducible Results}.
 \end{block}
@@ -83,6 +88,16 @@ Published in the \emph{Journal of Irreproducible Results}.
   {\VeryHuge VeryHuge}\par
   {\VERYHuge VERYHuge}\par
 \end{block}
+
+\begin{textblock}{16.3}(21.5,50.5)
+    \begin{block}{Try This!}
+        \texttt{https://github.com/luhsra/RT.js}
+    \end{block}
+\end{textblock}
+
+\begin{textblock}{3}(38.3,50.5)
+    \includesvg[width=3cm]{qr}
+\end{textblock}
 
 \vfill
 \end{frame}

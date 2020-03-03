@@ -12,18 +12,8 @@
 % color setup
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-  \providecolor{i4red}{rgb}{0.69,0.11,0.18}
-  \providecolor{i4blue}{rgb}{0.0,0.4,0.62}
-  \providecolor{i4gray}{rgb}{0.827,0.827,0.827}
-  \providecolor{darkred}{rgb}{0.8,0,0}
-
-
-	\providecolor{luhgreen}{RGB}{177,201,32}		% CMKY 30,0,94,0, Pantone 382
-	\providecolor{luhblue}{RGB}{0,80,155} 					% CMKY 100,70,0,0, Pantone 293C
-  \providecolor{srared}{RGB}{208,38,38}
-	\providecolor{luhgray}{RGB}{128,128,128}
-	\providecolor{luhlightgray}{RGB}{220,220,221}
+    \RequirePackage{sra-color}
+    \RequirePackage{tcolorbox}
 
   % the "example green" beamer defines in the default colortheme
   \colorlet{beamergreen}{luhgreen!80!black}
@@ -34,6 +24,12 @@
 
   \setbeamercolor{title in headline}{}
   \setbeamerfont{title in headline}{size=\Huge, series=\sffamily}
+
+  \def\insertconference{}
+  \newcommand\conference[1]{\def\insertconference{#1}}
+
+  \setbeamercolor{conference in headline}{}
+  \setbeamerfont{conference in headline}{size=\normalsize, series=\sffamily}
 
   \setbeamercolor{author in headline}{}
   \setbeamerfont{author in headline}{size=\Large, series=\sffamily}
@@ -66,16 +62,24 @@
   \setbeamercolor*{normal text}{fg=black,bg=white}
 
   % block environment
-  \setbeamercolor*{block body}{bg=luhgray!20,fg=black}
-  \setbeamercolor*{block title}{fg=white,bg=luhblue}
-  \setbeamerfont{block title}{size=\large,series=\bfseries\vphantom{j},size=\large}
+  \colorlet{blockbodybg}{luhgray!20}
+  \colorlet{blockbodyfg}{black}
+  \colorlet{blocktitlebg}{luhblue}
+  \colorlet{blocktitlefg}{white}
+  \colorlet{blocksubtitlebg}{luhgray!20}
+  \colorlet{blocksubtitlefg}{black}
+  \setbeamerfont{block subtitle}{series=\bfseries\vphantom{fj},size=\normalsize}
+
+  \newcommand\blocksubtitle[1]{\vspace{.5em}{\large\bfseries\color{blocksubtitlefg} #1}\vphantom{ßj}\vspace{.25em}}
+
+  \setbeamercolor*{block body}{bg=blockbodybg,fg=blockbodyfg}
+  \setbeamercolor*{block title}{bg=blocktitlebg,fg=blocktitlefg}
+  \setbeamerfont{block title}{size=\large,series=\bfseries\vphantom{fj},size=\large}
 
   % example environment
   \setbeamercolor*{example block body}{bg=luhgray!20,fg=black}
-  \setbeamercolor*{example block title}{fg=white,bg=luhblue}
+  \setbeamercolor*{example block title}{fg=white,bg=safegreen}
   \setbeamerfont{example title}{size=\large,series=\bf}
-
-
 
   % support for URL on title page (not a standard beamer element)
   \let\inserturl\@empty
@@ -86,19 +90,79 @@
 \setbeamertemplate{itemize items}[triangle]
 \setbeamertemplate{navigation symbols}{}  % no navigation on a poster
 
+%% params: title, title color, title background, subtitle color, subtitle background, text color, text background
+\newenvironment{colbox}[7]{
+    \leftskip=-0.219cm
+    \vspace{-.25cm}
+    \begin{tcolorbox}[
+        enhanced,
+        adjusted title=#1,
+        colbacktitle=#7,
+        fonttitle={\bfseries\large\color{#2}},
+        colback=#7,
+        colupper=#6,
+        width=\textwidth+.438cm,
+        arc=0pt,
+        outer arc=0pt,
+        boxrule=0pt,
+        subtitle style={
+            colback=#5,
+            colupper=#4,
+            borderline west={5pt}{0pt}{#3},
+        },
+        borderline west={5pt}{0pt}{#3},
+    ]{}
+    \setbeamertemplate{itemize item}{\color{#3}$\blacksquare$}
+    \setbeamertemplate{itemize subitem}{\color{#3}$\blacktriangleright$}
+    \setbeamertemplate{itemize subsubitem}{\color{#3}$\blacktriangleright$}
+    \usebeamerfont{block body}
+  }{
+  \end{tcolorbox}
+}
+
+\newenvironment{examplebox}[1]{
+  \begin{colbox}{#1}{black}{luhblue!50}{black}{luhblue!20}{black}{luhblue!20}
+}{
+  \end{colbox}
+}
+
+\newenvironment{alertbox}[1]{
+    \begin{colbox}{#1}{black}{srared}{black}{srared!50}{black}{srared!20}
+  }{
+  \end{colbox}
+}
+
+\newenvironment{highlightbox}[1]{
+    \begin{colbox}{#1}{black}{safegreen}{black}{safegreen!50}{black}{safegreen!20}
+  }{
+  \end{colbox}
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setbeamertemplate{block begin}{
-  \vskip.75ex
-  \begin{beamercolorbox}[leftskip=1cm,colsep*=.75ex]{block title}%
-    \usebeamerfont*{block title}\insertblocktitle
-  \end{beamercolorbox}%
-  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
-  \usebeamerfont{block body}%
-  \begin{beamercolorbox}[colsep*=.75ex,sep=.75ex,vmode]{block body}%
-    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+    \leftskip=-0.219cm
+    \vskip.2cm
+    \begin{tcolorbox}[
+        enhanced,
+        adjusted title=\insertblocktitle,
+        colbacktitle=blocktitlebg,
+        coltitle=blocktitlefg,
+        fonttitle={\usebeamerfont{block title}},
+        colback=blockbodybg,
+        colupper=blockbodyfg,
+        width=\textwidth+.438cm,
+        arc=0pt,
+        outer arc=0pt,
+        boxrule=0pt,
+    ]
+    \setbeamertemplate{itemize item}{\color{blocktitlebg}$\blacksquare$}
+    \setbeamertemplate{itemize subitem}{\color{blocktitlebg}$\blacktriangleright$}
+    \setbeamertemplate{itemize subsubitem}{\color{blocktitlebg}$\blacktriangleright$}
+    \usebeamerfont{block body}
+    \vspace{.20cm}
   }
   \setbeamertemplate{block end}{
-  \end{beamercolorbox}
+    \vspace{.1cm}
+    \end{tcolorbox}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,13 +170,15 @@
   \leavevmode
 
   \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \hfill
     \begin{minipage}{0.98\textwidth}\centering
-          \usebeamerfont{title in headline}{\vskip 2ex}
-      \usebeamercolor{title in headline}{\color{fg}\usebeamerfont{title in headline}{\inserttitle}\\[1ex]}
-      \usebeamercolor{author in headline}{\color{fg}\usebeamerfont{author in headline}{\insertauthor}\\[1ex]}
+        \usebeamerfont{title in headline}{\vskip 1.5ex}
+        \usebeamerfont{conference in headline}{\usebeamercolor{conference in headline}{\insertconference}\\}
+      \usebeamercolor{title in headline}{\color{fg}\usebeamerfont{title in headline}{\inserttitle}\\[.5ex]}
+      \usebeamercolor{author in headline}{\color{fg}\usebeamerfont{author in headline}{\insertauthor}}
     \end{minipage}
     \hfill
-    \vskip 2ex
+    \vskip 4ex
   \end{beamercolorbox}
 
 }
@@ -125,20 +191,30 @@
     %   \node[xshift=0.9\paperwidth,inner sep=0pt,anchor=north east,fill=luhgreen,
     %        minimum width=7cm,minimum height=1ex]{};
     \vskip 4ex
-    \raisebox{-0.5\height}{\includegraphics[height=2.5cm]{sraposter/sra-logo-sRGB}}
-    \hskip 1ex%
-    \parbox{11cm}{%
-      \usebeamerfont{footline}{
-        Institute of Systems Engineering\\[2pt]
-        {\bfseries Systems Research and Architecture}\\[2pt]
-        \url{https://www.sra.uni-hannover.de}\\[2pt]
-        Prof. Dr.-Ing. Daniel Lohmann
-      }
-    }%
-    \hfill
-    \raisebox{-0.4cm}{\insertfooter}
-    \raisebox{-0.5\height}{\includegraphics[height=2cm]{sraposter/luh-logo-rgb}%
-    }%
+    \begin{minipage}{0.33\textwidth}
+      \raisebox{-0.5\height}{\includegraphics[height=3cm]{sraposter/sra-logo-sRGB}}
+      \hskip 1ex%
+      \parbox{11cm}{%
+        \usebeamerfont{footline}{
+          \vspace*{.4cm}
+          Institute for Systems Engineering\\[2pt]
+          {\bfseries Systems Research and Architecture}\\[2pt]
+          Prof. Dr.-Ing. Daniel Lohmann\\[1pt]
+          \url{https://www.sra.uni-hannover.de}
+        }
+      }%
+  \end{minipage}
+        \mbox{
+        \hskip 1.5cm
+        \raisebox{-0.5\height}{\includegraphics[height=3cm]{sraposter/dfg}}
+    }
+    \begin{minipage}{.1\textwidth}
+        \vskip 2cm
+        LO 1719/3-1\\
+        LO 1719/4-1
+    \end{minipage}
+      \hfill
+      \raisebox{-0.5\height}{\includegraphics[height=3cm]{sraposter/luh-logo-rgb}}%
     \vskip 4ex
   \end{beamercolorbox}
 }
