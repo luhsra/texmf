@@ -413,10 +413,15 @@
         \expandafter\includegraphics\expandafter[\btImageOpts,page=#1]\btImageFile}%
     }%
   },
-  range/.code args={#1-#2:<#3->}{%
+  range/.code args={#1-#2:<#3-#4>}{%
+    \def\@btAnimationEnd{}%
     \foreach \p in {#1,...,#2}{%
       \setcounter{btAnimationSlide}{#3+\p-#1}%
-      \pgfset{/bt/animation/step={\p:<\thebtAnimationSlide>}}%
+      \ifdim\p pt=#2 pt%
+        \ifstrequal{#4}{end}{%
+          \def\@btAnimationEnd{-}}{}%
+      \fi%
+      \pgfset{/bt/animation/step={\p:<\thebtAnimationSlide\@btAnimationEnd>}}%
     }%
   },
   raisebox/.code={
