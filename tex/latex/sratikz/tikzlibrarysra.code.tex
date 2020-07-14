@@ -33,6 +33,16 @@
   /tikz/fill opacity/.add code={}{%
     \def\tikz@fillopacity{#1}%
   },
+  /tikz/global opacity/.style={
+    /tikz/opacity=#1,
+    /tikz/text opacity=#1,
+    /tikz/every shadow/.append style={opacity=#1},
+    /tikz/every on layer/.append style={opacity=#1},
+    /tikz/every node/.append style={opacity=#1},
+    /tikz/every label/.append style={opacity=#1},
+  },
+  /tikz/invisible/.style={global opacity=0},
+  /tikz/visible/.style={global opacity=1},
   /tikz/on layer/.style={
     if in node={node on layer={#1}}{scope on layer={#1}}
   },
