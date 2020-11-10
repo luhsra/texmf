@@ -722,6 +722,10 @@
     file/.value required,
     range/.estore in=\bt@pdfframes@range,
     range/.initial = {1},
+    single frame/.code = {%
+      \addtocounter{framenumber}{1}\xdef\bt@pdfframes@framenumber{\arabic{framenumber}}%
+      \appto{\bt@pdfframes@backgroundhook}{\setcounter{framenumber}{\bt@pdfframes@framenumber}}%
+    },
     execute/.code={\ifbool{bt@pdfframes@onpagehook}{\gappto\bt@pdfframes@afterpagehook{#1}}{#1}},
     add content/.code={\appto\bt@pdfframes@contenthook{#1}},
     add item note/.style={add content={\par\note{\bi #1 \ei}}},
