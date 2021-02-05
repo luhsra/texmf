@@ -31,13 +31,15 @@
 \newif\ifsraWide
 
 
-  \pgfset{
-    /sra/.cd,
-		graytoplevelitems/.is if=sraGrayTopLevelItems,
-                wide/.is if=sraWide,
-	}
+\pgfset{
+  /sra/.cd,
+  bgstyle/.store in=\beamer@bgstyle,
+  bgstyle=sra,
+  graytoplevelitems/.is if=sraGrayTopLevelItems,
+  wide/.is if=sraWide,
+}
 
-  \ProcessPgfPackageOptions{/sra}
+\ProcessPgfPackageOptions{/sra}
 
 \mode<presentation>
 
@@ -105,8 +107,8 @@
 \usebackgroundtemplate{%
     \ifthenelse{%
       \lengthtest{\beamer@paperwidth=16cm}}% condition (16cm is the width of the frame with an aspect ratio = 16:9)
-          {\def\beamersra@prefix{beamerthemesra169}}%
-          {\def\beamersra@prefix{beamerthemesra}}%
+          {\def\beamersra@prefix{beamertheme\beamer@bgstyle 169}}%
+          {\def\beamersra@prefix{beamertheme\beamer@bgstyle}}%
     \ifbeamer@titleframe%
       \includegraphics[width=\paperwidth]{\beamersra@prefix_bgtitle}%
       \global\beamer@titleframefalse% Toggle the key again
@@ -353,7 +355,7 @@
 		\ifx\insertframesubtitle\@empty
 			% we render it at the current font's height and depth (+ some offset for better looks)
 %			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
-			\savebox\@tempboxa{\includegraphics[height=16pt]{luh-logo-rgb}}
+			\savebox\@tempboxa{\includegraphics[height=16pt]{beamertheme\beamer@bgstyle_logo}}
 			% but only if it fits without a line break!
 			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
 				\hfill\raisebox{-0.95\fontchardp\font`g}{\usebox{\@tempboxa}}%
