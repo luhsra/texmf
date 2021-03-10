@@ -715,6 +715,8 @@
   \let\bt@pdfframes@afterpagehook\relax%
   \let\bt@pdfframes@contenthook\relax%
   \let\bt@pdfframes@backgroundhook\relax%
+  \def\bt@clear@logocover{0pt}
+  \let\bt@clear@logohook\relax%
 
   \btset{%
     pdfframes/.cd,
@@ -733,6 +735,7 @@
     subtitle/.style={add content={\framesubtitle{#1}}},
     subsubsection/.style={execute={\subsubsection{#1}}},
     subsection/.style={execute={\subsection{#1}}},
+    section/.style={execute={\section{#1}}},
     insert agenda/.style={execute={\InsertAgenda}},%            FIXME \InsertAgenda not defined by beamertools!
     insert full agenda/.style={execute={\InsertFullAgenda}},%   FIXME \InsertFullAgenda not defined by beamertools!
     %
@@ -760,6 +763,15 @@
     clear/footline height/.store in=\bt@clear@footlineheight,
     clear/frame number width/.store in=\bt@clear@numberwidth,
     clear/frame number height/.store in=\bt@clear@numberheight,
+    % Accent is the color bar in the footer
+    clear/accent width/.store in=\bt@clear@accentwidth,
+    clear/accent height/.store in=\bt@clear@accentheight,
+    clear/accent color/.store in=\bt@clear@accentcolor,
+    % Logo
+    clear/logo insert/.code={%
+      \let\bt@clear@logocover\bt@clear@titleheight%
+      \def\bt@clear@logohook{#1}%
+    },%
     clear/title x offset/.store in=\bt@clear@titlexoffset,
     clear/title width/.store in=\bt@clear@titlewidth,
     clear/title height/.store in=\bt@clear@titleheight,
@@ -772,6 +784,7 @@
 			clear/footline x offset={\bt@clear@titlexoffset},
       clear/footline width=106.5mm,
       clear/footline height=5.5mm,
+      clear/accent width=0mm,
       clear/frame number width={\paperwidth-\bt@clear@footlinewidth-\bt@clear@footlinexoffset},
       clear/frame number height={\bt@clear@footlineheight},
       clear/title width={\paperwidth-\bt@clear@xsoffset},
@@ -788,7 +801,10 @@
 			clear/footline x offset=0mm,
       clear/footline width=105.2mm,
       clear/footline height=5.4mm,
-      clear/frame number height={\dimexpr\bt@clear@footlineheight-1.2mm\relax},
+      clear/accent width=19.6mm,
+      clear/accent height=1.2mm,
+      clear/accent color={luhgreen},
+      clear/frame number height={\dimexpr\bt@clear@footlineheight-\bt@clear@accentheight\relax},
 		},
     %
     % apply keys on certain included pages only
@@ -827,12 +843,21 @@
   	  	\color{\bt@clear@footlinecolor}\rule{\bt@clear@footlinewidth}{\bt@clear@footlineheight}%      cover footline
       	\color{\bt@clear@numbercolor}\rule{\dimexpr\bt@clear@numberwidth}{\bt@clear@numberheight}%    cover number
 		}}%
-    \raisebox{\dimexpr\paperheight-\bt@clear@titleheight}{%																						raise to title
     \rlap{%
-			\rule{\dimexpr\bt@clear@titlexoffset\relax}{0pt}%																								advance to xpos
-			\makebox[\dimexpr\paperwidth-\bt@clear@titlexoffset\relax][l]{%
-      	\color{\bt@clear@titlecolor}\rule{\dimexpr\paperwidth-\bt@clear@titlexoffset}{\dimexpr\bt@clear@titleheight}%  cover title
-    }}}
+      \raisebox{\bt@clear@numberheight}{%
+        \makebox[\dimexpr\paperwidth-3mm\relax][l]{%
+          \rule{\bt@clear@footlinewidth}{0pt}%		        																				advance to xpos
+          \color{\bt@clear@accentcolor}\rule{\bt@clear@accentwidth}{\bt@clear@accentheight}%      cover accent
+        }
+		}}%
+    \raisebox{\dimexpr\paperheight-\bt@clear@titleheight}{%																			  raise to title
+    \rlap{%
+      \makebox[\paperwidth][l]{%                                                       advance to xpos (and cover logo)
+        \color{\bt@clear@titlecolor}%
+        \rule{\dimexpr\bt@clear@titlexoffset\relax}{\bt@clear@logocover}%	  					     cover logo
+        \rule{\dimexpr\paperwidth-\bt@clear@titlexoffset}{\dimexpr\bt@clear@titleheight}%  cover title
+    }}}%
+    \bt@clear@logohook%
     }}}%
   }
 
