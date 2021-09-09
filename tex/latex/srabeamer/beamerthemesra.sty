@@ -171,6 +171,10 @@
   {\srabeamer@size@normal}
 \fi
 
+\def\sraFootlineVskip{2mm}
+\let\sraFootlineHskip\relax
+\def\sraLogoHeight{16pt}
+
 
 % the above looks nice on slides, but bad in block environments; hence we override
 % beamers original block envs to modify them
@@ -294,7 +298,7 @@
     % beamer has already set footline color/font here
     %
     % use raisebox to align footline with i4logo
-    \raisebox{2.0mm}{\vbox{
+    \raisebox{\sraFootlineVskip}{\vbox{\sraFootlineHskip%
       % insert a strut (invisible vertical line) to prevent line breaks
       \rule{0mm}{3mm}
       % here the real content starts
@@ -355,7 +359,8 @@
 		\ifx\insertframesubtitle\@empty
 			% we render it at the current font's height and depth (+ some offset for better looks)
 %			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
-			\savebox\@tempboxa{\includegraphics[height=16pt]{beamertheme\beamer@bgstyle_logo}}
+    \savebox\@tempboxa{%
+      \includegraphics[height=\sraLogoHeight]{beamertheme\beamer@bgstyle_logo}}
 			% but only if it fits without a line break!
 			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
 				\hfill\raisebox{-0.95\fontchardp\font`g}{\usebox{\@tempboxa}}%
@@ -368,5 +373,38 @@
     \par\vskip2pt
   }
 
+
+\ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
+  \def\sraTitleHskip{\hskip -0.8cm\relax}
+  \def\sraFootlineVskip{1mm}
+  \def\sraFootlineHskip{\hskip -8mm\relax}
+  \setbeamercolor{footline}{fg=white}
+  \setbeamerfont{frametitle}{size=\fontsize{20}{24}\selectfont}
+  \setbeamercolor{title}{fg=white}
+  \setbeamerfont{date}{size=\fontsize{12}{14}\selectfont}
+  \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
+  \def\sraLogoHeight{20pt}
+
+  \setbeamertemplate{title page}{
+    \vskip 6.8cm
+ 		\begin{minipage}[l]{\dimexpr\columnwidth+1.0cm}%
+    	\begin{beamercolorbox}{title}
+      	\usebeamerfont{title}\inserttitle%
+      	\ifx\insertsubtitle\@empty\else%
+        	{\ --\ \usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}%
+        \fi\\[1ex]%
+        \ifx\insertauthor\@empty\else%
+           \usebeamerfont{author}\insertauthor\par
+        \fi%
+        \ifx\insertdate\@empty\else%
+    				\usebeamerfont{date}\insertdate
+        \fi
+			\end{beamercolorbox}
+  	\end{minipage}%
+    \vskip0pt plus 1fill\mbox{}
+}
+}{} % End of TUHH
+
+  
 \mode
 <all>
