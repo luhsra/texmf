@@ -360,7 +360,8 @@
 			% we render it at the current font's height and depth (+ some offset for better looks)
 %			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
     \savebox\@tempboxa{%
-      \includegraphics[height=\sraLogoHeight]{beamertheme\beamer@bgstyle_logo}}
+      \ifundef{\sraLogoHeight}{}{\typeout{DEFINED}\show\sraLogoHeight%
+      \includegraphics[height=\sraLogoHeight]{beamertheme\beamer@bgstyle_logo}}{}}
 			% but only if it fits without a line break!
 			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
 				\hfill\raisebox{-0.95\fontchardp\font`g}{\usebox{\@tempboxa}}%
@@ -402,6 +403,53 @@
 			\end{beamercolorbox}
   	\end{minipage}%
     \vskip0pt plus 1fill\mbox{}
+}
+}{} % End of TUHH
+
+\ifthenelse{\equal{\beamer@bgstyle}{tuhh_2022}}{%
+  \def\sraTitleHskip{\hskip -0.8cm\relax}
+  \def\sraFootlineVskip{2.5mm}
+  \def\sraFootlineHskip{\hskip -8mm\relax}
+  \setbeamercolor{footline}{fg=tuhhcyan}
+  \setbeamerfont{frametitle}{size=\fontsize{18}{20}\selectfont}
+  \setbeamercolor{frametitle}{fg=tuhhcyan}
+  \setbeamercolor{title}{fg=tuhhcyan}
+  \setbeamercolor{author}{fg=tuhhcyan}
+  \setbeamercolor{date}{fg=tuhhcyan}
+  \setbeamerfont{date}{size=\fontsize{10}{12}\selectfont}
+  \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
+  \let\sraLogoHeight\relax
+  \let\sraTitleHskip\relax
+  \let\sraFootlineHskip\relax
+  \setbeamersize{sidebar width left=1.07mm}
+  \setbeamersize{text margin right=4.2mm}
+  \setlength{\leftmargini}{1.5em}
+  \setlength{\leftmarginii}{0.5em}
+  \setbeamercolor{itemize item}{fg=srared}
+
+
+
+  \usepackage[absolute,overlay]{textpos}
+
+  \setbeamertemplate{title page}{
+    \begin{textblock*}{8cm}(1cm,1.5cm)
+      \begin{beamercolorbox}{title}
+        \usebeamerfont{title}\inserttitle%
+        \ifx\insertsubtitle\@empty\else%
+        {\\[1ex]\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}%
+        \fi
+      \end{beamercolorbox}
+    \end{textblock*}
+    \begin{textblock*}{4.8cm}(0.55cm,8.7cm)
+      \begin{beamercolorbox}{author}
+        \usebeamerfont{author}\insertauthor
+      \end{beamercolorbox}
+    \end{textblock*}
+    \begin{textblock*}{2.5cm}(3.35cm,7.6cm)
+      \begin{beamercolorbox}{date}
+        \usebeamerfont{date}\insertdate
+      \end{beamercolorbox}
+    \end{textblock*}
 }
 }{} % End of TUHH
 
