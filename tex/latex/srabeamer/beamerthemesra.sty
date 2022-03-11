@@ -360,7 +360,7 @@
 			% we render it at the current font's height and depth (+ some offset for better looks)
 %			\savebox\@tempboxa{\includegraphics[height=\dimexpr\fontcharht\font`A+\fontchardp\font`g\relax]{luh-logo-rgb}}
     \savebox\@tempboxa{%
-      \ifundef{\sraLogoHeight}{}{\typeout{DEFINED}\show\sraLogoHeight%
+      \ifundef{\sraLogoHeight}{}{%
       \includegraphics[height=\sraLogoHeight]{beamertheme\beamer@bgstyle_logo}}{}}
 			% but only if it fits without a line break!
 			\ifdim\dimexpr\wd\beamerthemesra@box+\wd\@tempboxa+1em\relax<\textwidth
@@ -418,8 +418,6 @@
   \setbeamercolor{date}{fg=tuhhcyan}
   \setbeamerfont{date}{size=\fontsize{10}{12}\selectfont}
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
-  \let\sraLogoHeight\relax
-  \let\sraTitleHskip\relax
   \let\sraFootlineHskip\relax
   \setbeamersize{sidebar width left=1.07mm}
   \setbeamersize{text margin right=4.2mm}
@@ -430,6 +428,18 @@
 
 
   \usepackage[absolute,overlay]{textpos}
+
+  \setbeamertemplate{frametitle}{%
+    %\begin{textblock*}{10cm}(0.20cm,0.24cm)
+      \begin{beamercolorbox}{frametitle}
+        \usebeamerfont{frametitle}\insertframetitle%
+        \ifx\insertframesubtitle\@empty
+        \usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}
+        \hfill\insertframesubtitle\strut
+        \fi
+      \end{beamercolorbox}
+    %\end{textblock*}%
+  }
 
   \setbeamertemplate{title page}{
     \begin{textblock*}{8cm}(1cm,1.5cm)
