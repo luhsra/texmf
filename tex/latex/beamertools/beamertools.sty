@@ -1282,6 +1282,18 @@
     \onslide#3{\tikz[remember picture, every tikzpoint, #1, every coodinate/.style={every tikzpoint, #1}]\coordinate (#2);}%
   }
 
+  \tikzset{%
+    btPin/.style={%
+      every pin edge/.style={shorten <=2pt, shorten >=1pt, draw=black!25},%
+      every pin/.style={draw=#1, rounded corners=2pt, drop shadow={shadow xshift=.25ex, shadow yshift=-.25ex}, fill=#1, font=\tiny, text=black, inner sep=2pt, align=center},%
+    },%
+    btPin/.default={sraorange},%
+  }
+
+  \newcommand<>{\btPin}[2][]{%
+    \only#3{\tikz[overlay, btPin, #1]\node[pin={#2}]{};}%
+  }
+
   %**
   % \PutAt<overlay spec>[<box width>]{(<x>, <y>)}{<content>}
   %
