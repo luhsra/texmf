@@ -1240,7 +1240,7 @@
       every shadow/.append style={opacity=#1},
       every on layer/.append style={opacity=#1},
       every node/.append style={opacity=#1},
-      every label/.append style={opacity=#1},
+      prefix after command={\pgfextra{\tikzset{every label/.style={opacity=#1}}}},,
     },
     invisible/.style={global opacity=0},
     visible/.style={global opacity=1},
