@@ -17,13 +17,10 @@ example.pdf                     - The Example.
 example.tex
 luh-logo-cmyk.pdf               - Logos (we nevertheless include some of them manually).
 luh-logo-rgb.pdf
-pgfsys-luatex.def               - Necessary to make recent lualatex versions work with PGF 3.0. See below.
 
 
 Notes:
 
 LUH style guides prescribe Rotis as font, which, however, is only available as OTF. So we have to use lualatex to use it. The file example.tex shows a suitable setup: If compiled with lualatex, Rotis is loaded. Otherwise, we just load Helvetica. Note that this means that for lualatex Rotis OTF files need to be in the TEXFONTS path! 
-
-Recent lualatex versions do not work together with PGF 3.0 (see https://tex.stackexchange.com/questions/309140/after-miktex-update-when-using-lualatex-package-pgf-error-driver-file-pgfsys for all the glory details). The workaround is the above listed pgfsys-luatex.def driver (lualatex complains it as missing otherwise) *together* with loading the luatex85 package *early* in the document (even before the \documentclass{beamer}). See example.tex for a suitable setup.
 
 
