@@ -1,0 +1,30 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Id$
+%
+% Center stuff horizontally avoiding the annoying indentation caused by the
+% beamer sidebar
+%
+% Copyright 2022 by Illia Ostapyshyn (illia.ostapyshyn@stud.uni-hannover.de)
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ProvidesPackage{sra-center}[2022/10/12]
+
+\RequirePackage{tikz}
+
+\newcounter{sracenter@counter}
+\newsavebox{\sracenter@box}
+\newcommand{\sracenter}[1]{%
+  \pgfmark{sracenter@\thesracenter@counter}%
+  \savebox{\sracenter@box}{#1}%
+  \vspace{\ht\sracenter@box}%
+  \begin{tikzpicture}[overlay, remember picture]
+    \node[anchor=north,inner sep=0] at (current page.center |- {pic cs:sracenter@\thesracenter@counter}) {\usebox{\sracenter@box}};
+  \end{tikzpicture}
+  \stepcounter{sracenter@counter}
+}
