@@ -165,11 +165,12 @@
 
 \def\srabeamer@size@wide{
   \setbeamersize{sidebar width left=0.4cm}
-  \setbeamersize{text margin left=0.5em}
+  \setbeamersize{text margin left=1mm}
   \setbeamersize{text margin right=3.2mm}
-  \setlength{\leftmargini}{0.5em}
+  \beamer@frametopskip=0pt\relax%
+  \setlength{\leftmargini}{\dimexpr 5mm - 1ex\relax}
   \setlength{\leftmarginii}{0.5em}
-  \def\sraTitleHskip{\hskip 0.67cm}
+  \def\sraTitleHskip{\hskip 0.57cm}
 }
 \def\srabeamer@size@normal{
   \setbeamersize{sidebar width left=1.07cm}
