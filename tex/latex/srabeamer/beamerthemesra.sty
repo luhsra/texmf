@@ -104,25 +104,49 @@
   \beamertemplatenavigationsymbolsempty%
 }
 
+\pgfkeys{
+  /sra/background/.cd,
+  file/.estore in=\beamersra@background@file,
+  page/.estore in=\beamersra@background@page,
+  % Conditionals
+  on 16-to-9/.code 2 args={\ifthenelse{\lengthtest{\beamer@paperwidth=16cm}}{\pgfkeysalso{#1}}{\pgfkeysalso{#2}}},
+  on title/.code 2 args={\ifbeamer@titleframe\pgfkeysalso{#1}\else\pgfkeysalso{#2}\fi},
+  on plain/.code 2 args={\ifbeamer@plainframe\pgfkeysalso{#1}\else\pgfkeysalso{#2}\fi},
+  % Per Default, we use well known names for the background files. This applies to the background styles:
+  % sra, tuhh, tuhh_2022
+  .unknown/.style={
+    page=1,
+    on 16-to-9={
+      file=beamertheme\pgfkeyscurrentname 169_bg,
+      on plain={file=beamertheme\pgfkeyscurrentname 169_bgplain}{},
+      on title={file=beamertheme\pgfkeyscurrentname 169_bgtitle}{},
+    }{
+      file=beamertheme\pgfkeyscurrentname _bg, 
+      on plain={file=beamertheme\pgfkeyscurrentname _bgplain}{},
+      on title={file=beamertheme\pgfkeyscurrentname _bgtitle}{},
+    },
+  },
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Style: OSG
+  osg/.style={
+    on 16-to-9={file=FIXME}{file=beamerthemeosg_bg},
+    page=2, on plain={page=3}{}, on title={page=1}{},
+  },
+  % TUHH 2022 is an alias for TUHH style
+  tuhh/.style={tuhh_2022},
+}
+
+
 \usebackgroundtemplate{%
-    \ifthenelse{%
-      \lengthtest{\beamer@paperwidth=16cm}}% condition (16cm is the width of the frame with an aspect ratio = 16:9)
-          {\def\beamersra@prefix{beamertheme\beamer@bgstyle 169}}%
-          {\def\beamersra@prefix{beamertheme\beamer@bgstyle}}%
-    \ifbeamer@titleframe%
-      \includegraphics[width=\paperwidth]{\beamersra@prefix_bgtitle}%
-      \global\beamer@titleframefalse% Toggle the key again
-      \beamertemplatenavigationsymbolshorizontal%
-    \else\ifbeamer@plainframe%
-      \includegraphics[width=\paperwidth]{\beamersra@prefix_bgplain}%
-    \else%
-      \includegraphics[width=\paperwidth]{\beamersra@prefix_bg}%
-    \fi%
-    \fi%
-  }
+  \pgfkeys{/sra/background/.cd,\beamer@bgstyle}%
+  \includegraphics[width=\paperwidth,page=\beamersra@background@page]{\beamersra@background@file}%
+  \ifbeamer@titleframe
+    \global\beamer@titleframefalse% Toggle the key again
+    \beamertemplatenavigationsymbolshorizontal%
+  \fi
+}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % enumeration style and borders setup
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
