@@ -303,6 +303,7 @@
   \end{centering}
 }
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % footline definitions
 %
@@ -396,9 +397,15 @@
       \hfill\insertframesubtitle\strut
     }%
     \fi
-    \par\vskip2pt
+    \par\vskip2pt%
   }
 
+\define@key{beamerframe}{t}[true]{% top
+  \beamer@frametopskip=0pt\relax%
+  \beamer@framebottomskip=0pt plus 1fill\relax%
+  \beamer@frametopskipautobreak=\beamer@frametopskip\relax%
+  \beamer@framebottomskipautobreak=\beamer@framebottomskip\relax%
+}
 
 \ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
   \def\sraTitleHskip{\hskip -0.8cm\relax}
