@@ -134,6 +134,9 @@
   },
   % TUHH 2022 is an alias for TUHH style
   tuhh/.style={tuhh_2022},
+  lines/.style={
+    file=beamerthemelines_bg, page=1,
+  },
 }
 
 
@@ -163,14 +166,21 @@
   \setlength{\leftmarginii}{1em}
   \setlength{\leftmarginiii}{1em}
 
-\def\srabeamer@size@wide{
-  \setbeamersize{sidebar width left=0.4cm}
-  \setbeamersize{text margin left=1mm}
-  \setbeamersize{text margin right=3.2mm}
-  \beamer@frametopskip=0pt\relax%
-  \setlength{\leftmargini}{\dimexpr 5mm - 1ex\relax}
-  \setlength{\leftmarginii}{0.5em}
-  \def\sraTitleHskip{\hskip 0.57cm}
+  \def\srabeamer@size@wide{
+    % Usually beamercolumns occupy the whole page, which would ignore our sidebar and our textwidth adjustments.
+    % We set the therefore onlytextwidth= true per default for the wide style.
+    \beamer@onlytextwidthtrue%
+    % Sidebar is left of the log
+    \setbeamersize{sidebar width left=2.55mm}
+    % The text margin is exactly the width of the logo
+    \setbeamersize{text margin left=5.88mm}
+    \setbeamersize{text margin right=2.55mm}
+    % The Top-Level Dot is in the middle of the text-margin as it is 1ex wide
+    \setlength{\leftmargini}{0ex}
+    % The second-level dot is exactly right of the line
+    \setlength{\leftmarginii}{\dimexpr 2ex\relax}
+    % We leave exactly the same amount of space between logo and title
+    \def\sraTitleHskip{\hskip 2.55mm}
 }
 \def\srabeamer@size@normal{
   \setbeamersize{sidebar width left=1.07cm}
