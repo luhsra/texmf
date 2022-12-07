@@ -448,31 +448,32 @@
 }
 }{} % End of TUHH
 
-\ifthenelse{\equal{\beamer@bgstyle}{tuhh_2022}}{%
+\ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
   \def\sraTitleHskip{\hskip -0.8cm\relax}
   \def\sraFootlineVskip{2.5mm}
   \def\sraFootlineHskip{\hskip -8mm\relax}
   \setbeamercolor{footline}{fg=tuhhcyan}
-  \setbeamerfont{frametitle}{size=\fontsize{18}{20}\selectfont}
+  \setbeamerfont{frametitle}{size=\fontsize{16}{18}\selectfont}
   \setbeamercolor{frametitle}{fg=tuhhcyan}
   \setbeamercolor{title}{fg=tuhhcyan}
   \setbeamercolor{author}{fg=tuhhcyan}
   \setbeamercolor{date}{fg=tuhhcyan}
-  \setbeamerfont{date}{size=\fontsize{9}{11}\selectfont}
+  \setbeamerfont{title}{size=\fontsize{20}{22}\selectfont}
+  \setbeamerfont{date}{size=\fontsize{8}{10}\selectfont}
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
   \let\sraFootlineHskip\relax
-  \setbeamersize{sidebar width left=5.07mm}
+  \setbeamersize{sidebar width left=2mm}
   \setbeamersize{text margin right=4.2mm}
   \setlength{\leftmargini}{1.5em}
   \setlength{\leftmarginii}{0.5em}
   \setbeamercolor{itemize item}{fg=srared}
 
 
-
   \usepackage[absolute,overlay]{textpos}
 
   \setbeamertemplate{frametitle}{%
-    %\begin{textblock*}{10cm}(0.20cm,0.24cm)
+    % \begin{textblock*}{10cm}(0.20cm,0.24cm)
+    \vspace{2pt}
       \begin{beamercolorbox}{frametitle}
         \usebeamerfont{frametitle}\insertframetitle%
         \ifx\insertframesubtitle\@empty
