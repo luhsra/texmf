@@ -1154,6 +1154,11 @@
       {\pgfkeys {\pgfkeyscurrentpath /.code=\pgfkeysalso {#1}}}%
   }}
 
+  % Random usability styles
+  % shorten an arrow the same length on both sides with \draw[->, shorten=2pt] (foo) -- (bar);
+  % See https://github.com/pgf-tikz/pgf/issues/1184
+  \usetikzlibrary{arrows.meta}
+  \tikzset{shorten/.style={shorten <={#1},shorten >={#1}}}
 
   % Key to get "precise" pins to nodes that do not "jump around" with certain angle values
   % see also: http://tex.stackexchange.com/questions/43912/how-can-i-force-tikz-pin-angle
