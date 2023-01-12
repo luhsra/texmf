@@ -16,6 +16,7 @@
 \RequirePackage{pgfopts}	% we process options with pgfkeys
 \RequirePackage{iftex}
 \RequirePackage{ifthen}
+\RequirePackage{calc}
 
 \RequirePackage{sra-color}
 
@@ -210,6 +211,9 @@
 \let\sraFootlineHskip\relax
 \def\sraLogoHeight{16pt}
 
+% length of left margin. This does not fit 100% but near enough
+\newlength{\sraSidebarWidth}
+\setlength{\sraSidebarWidth}{\beamer@leftsidebar+\beamer@leftmargin+0.5pt}
 
 % the above looks nice on slides, but bad in block environments; hence we override
 % beamers original block envs to modify them
@@ -266,6 +270,33 @@
       \usebeamertemplate{block example end}%
     \end{actionenv}
   }
+
+\newlength{\sraRightLeftMargin}
+% Center something at the frame center (regardless of the predefined margins).
+% With realcenter, both margins are set to the rightmargin
+\newenvironment{realcenter}
+	{%
+		\begingroup%
+		\def\factor{1}%
+		\ifbeamer@dosecondmode%
+		  \def\factor{0.5}%
+		\fi%
+		\setlength{\sraRightLeftMargin}{2\sraSidebarWidth+\textwidth-\factor\pagewidth}%
+		\hspace*{-\sraRightLeftMargin}\begin{minipage}{\textwidth+\sraRightLeftMargin}\begin{center}%
+	}
+	{\end{center}\end{minipage}\endgroup}
+% With realrealcenter, both margins are dropped entirely: \textwidth == \pagewidth
+\newenvironment{realrealcenter}
+	{%
+		\begingroup%
+		\def\factor{1}%
+		\ifbeamer@dosecondmode%
+		  \def\factor{0.5}%
+		\fi%
+		\hspace*{-\sraSidebarWidth}%
+		\begin{minipage}{\factor\pagewidth}\begin{center}%
+	}
+	{\end{center}\end{minipage}\endgroup}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
