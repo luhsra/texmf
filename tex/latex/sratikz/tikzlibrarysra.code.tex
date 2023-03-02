@@ -162,3 +162,20 @@
   },
   size as/.style={width as={#1}, height as={#1}},
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Rectangle split is an horrible interface
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{
+  rs split/.style= {
+    rectangle split,
+    rectangle split ignore empty parts=false,
+    rectangle split parts=#1,
+    rectangle split every empty part={}
+  },
+  rs horizontal/.style={rectangle split horizontal},
+  rs height/.style={rectangle split empty part height=#1},
+  rs width/.style={rectangle split empty part width=#1},
+  rs depth/.style={rectangle split empty part depth=#1},
+  rs fill/.style={rectangle split part fill={#1}},
+}
