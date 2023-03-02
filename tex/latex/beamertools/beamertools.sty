@@ -28,6 +28,9 @@
   \newif\ifbtNoTikZ
     \newif\if@bttikzlibraryshadowsblurNotFound
   \newif\ifbtSRAColors
+	\newif\ifbtWide
+
+	\newcommand\btIfWide[2]{\ifbtWide #1 \else #2 \fi}
 
   \newcommand{\btset}[1]{\pgfqkeys{/bt}{#1}}
 
@@ -41,7 +44,9 @@
     noshortcuts/.is if=btNoShortcuts,                               % do not include shortcut macros (\bi \ii \ei and so on)
     woschblocks/.is if=btWoschBlocks,                               % define Wosch-style block envs (bearblock, codeblock, ...)
     notikz/.is if=btNoTikZ,                                         % do not include TikZ-support nor macros that depend on TikZ
-  	sracolors/.is if=btSRAColors																		% patch i4 colors to LUH/SRA colors
+  	sracolors/.is if=btSRAColors,																		% patch i4 colors to LUH/SRA colors
+		wide/.is if=btWide,																							% assume 16:9 (true) or 4:3 (false)
+		wide={\ifdim\beamer@paperwidth=16.00cm true\else false\fi},
 	}
 
 
@@ -716,6 +721,7 @@
   \let\bt@pdfframes@afterpagehook\relax%
   \let\bt@pdfframes@contenthook\relax%
   \let\bt@pdfframes@backgroundhook\relax%
+  \newlength\bt@pdfframes@paperwidth%
   \def\bt@clear@logocover{0pt}
   \let\bt@clear@logohook\relax%
 
@@ -801,7 +807,7 @@
 			clear/frame number color=luhlightgray,
 			clear/footline x offset=0mm,
       clear/footline width=105.2mm,
-      clear/footline height=5.4mm,
+			clear/footline height=\btIfWide{5.05mm}{5.4mm},
       clear/accent width=19.6mm,
       clear/accent height=1.2mm,
       clear/accent color={luhgreen},
@@ -870,8 +876,8 @@
       \global\let\bt@pdfframes@afterpagehook\relax%
       \aftergroup\bt@pdfframes@afterpagehook%
       \bt@pdfframes@onpagehook%
-      \usebackgroundtemplate{\includegraphics[width=\paperwidth,page=\p]{\bt@pdfframes@file}\bt@pdfframes@backgroundhook}
-      \frame{\bt@pdfframes@contenthook}
+      \usebackgroundtemplate{\includegraphics[height=1.001\pageheight,page=\p]{\bt@pdfframes@file}\bt@pdfframes@backgroundhook}
+			\frame{\bt@pdfframes@contenthook}
     }
     \egroup
   }
