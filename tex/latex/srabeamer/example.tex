@@ -13,7 +13,7 @@
 
 
 \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
 
 
 %*****************************************************************************
@@ -57,9 +57,9 @@
 	% nice blocs
 	\usecolortheme{rose}
 	% our theme
-	\usetheme{sra}
+	%\usetheme{sra}
 	% the same, but with top-level bullets in gray instead of SRA red
-%	\usetheme[graytoplevelitems]{sra}
+	\usetheme[wide,bgstyle=osg]{sra}
 
 	\setbeamertemplate{navigation symbols}{}
 	\beamersetuncovermixins{\opaqueness<1>{25}}{\opaqueness<2->{15}}
