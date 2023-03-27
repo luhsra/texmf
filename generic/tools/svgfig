@@ -40,6 +40,8 @@ class SVGFigExporter:
         layers = self.get_layers()
         max_layer = 0
         page_list = defaultdict(lambda : defaultdict(list))
+        ranges = []
+        max_page = 1
         for (g_id, desc) in layers:
             pages = set()
             file_out = None
@@ -51,11 +53,18 @@ class SVGFigExporter:
             for elem in desc.split(","):
                 if '-' in elem:
                     from_, till_ = elem.split("-")
-                    pages.update(range(int(from_.strip()), int(till_.strip())+1))
+                    from_, till_ = from_.strip(), till_.strip()
+                    if not from_: from_ = "1"
+                    if not till_: till_ = "-1"
+                    ranges.append([file_out, g_id, int(from_ or "1"), int(till_ or "-1")])
                 else:
-                    pages.add(int(elem.strip()))
-            for page in pages:
-                page_list[file_out][page].append(g_id)
+                    range.append([file_out,g_id, int(elem.strip()), int(elem.strip())])
+                max_page = max(max_page, *ranges[-1][2:])
+
+        for file_out, g_id, from_, till_ in ranges:
+            if till_ == -1: till_ = max_page
+            for p in range(from_, till_+1):
+                page_list[file_out][p].append(g_id)
         print(page_list)
         return page_list
 
@@ -84,7 +93,7 @@ class SVGFigExporter:
                              stderr=subprocess.PIPE)
         p.wait()
 
-    def export(self):
+    def export(self,outfn=None):
 
         file_page_list = self.calculate_views()
         actions =""
@@ -116,7 +125,9 @@ class SVGFigExporter:
                 if os.path.exists(pdf) and os.stat(pdf).st_size > 0:
                     pdftk.append(pdf)
 
-            if not fn:
+            if not fn and outfn:
+                fn = outfn
+            elif not fn:
                 base, _ = os.path.splitext(self.filename)
                 fn = base + ".pdf"
             if not fn.endswith(".pdf"):
@@ -126,10 +137,12 @@ class SVGFigExporter:
             print("Produced: ", fn)
 
 
-
 def main():
     f = SVGFigExporter(sys.argv[1])
-    f.export()
+    if len(sys.argv) > 2:
+        f.export(sys.argv[2])
+    else:
+        f.export()
 
 
 if __name__ == "__main__":
