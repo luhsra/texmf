@@ -1,4 +1,6 @@
 \RequirePackage{tikz}
+\RequirePackage{trimspaces}
+
 \usetikzlibrary{fit,arrows,positioning,calc}
 
 % Put node or scope onto a layer. By default, we have three layers,
@@ -178,4 +180,73 @@
   rs width/.style={rectangle split empty part width=#1},
   rs depth/.style={rectangle split empty part depth=#1},
   rs fill/.style={rectangle split part fill={#1}},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TiKz Style Table
+% Define a style by iterating over a table:
+% - Each row becomes a style
+% - all columns are concatenated (.append style)
+% - the (0,0) cell is as a transformer macro with
+%      #1=column header (trimmed)
+%      #2=cell content
+%
+% For example, the following can be used with
+% sratikzfig to define a complex animation.
+%     style table={
+%         onslide=#1{#2} & <1> & <2> & <3> & <4> & <5> \\
+%         st-0           & F   & F   & F   & F   & A   \\
+%         st-1           & F   & F   & F   & F   & A   \\
+%         st-2           & F   & A   & A   & A   & A   \\
+%     }
+%
+%  But also the following is possible:
+%  style table={
+%      #1=#2 & fill      & draw   & line width \\
+%      S0    & green     & orange & 1ex        \\
+%      S1    & srared!40 & black  & 2pt        \\
+%    }]
+
+\newcount\sra@tikz@st@Col
+\newcount\sra@tikz@st@Row
+\def\sra@tikz@st@ParseRow#1&#2\@nnil{%
+  \sra@tikz@st@Cell{#1}%
+  \advance\sra@tikz@st@Col by 1\relax%
+  \ifx#2&&\else%
+    \sra@tikz@st@ParseRow#2\@nnil%
+  \fi%
+}
+\def\sra@tikz@st@ParseTable#1\\#2\@nnil{%
+  \sra@tikz@st@Col=0%
+  \sra@tikz@st@ParseRow #1&\@nnil%
+  \advance\sra@tikz@st@Row by 1\relax%
+  \ifx#2&&\else%
+    \sra@tikz@st@ParseTable#2\@nnil%
+  \fi%
+}
+
+\def\sra@tikz@st@Cell#1{%
+  \ifnum\sra@tikz@st@Row=0\relax%
+    \ifnum\sra@tikz@st@Col>0\relax%
+      \csedef{sra@tikz@st@Col@\the\sra@tikz@st@Col}{\trim@spaces@noexp{#1}}%
+    \else
+      \def\sra@tikz@st@Format##1##2{#1}%
+    \fi
+  \else\relax%
+    \ifnum\sra@tikz@st@Col>0\relax%
+      \edef\sra@temp{\csuse{sra@tikz@st@Col@\the\sra@tikz@st@Col}}
+      \tikzset{
+        \sra@tikz@st@Name/.append style/.expanded={\expandafter\sra@tikz@st@Format\expandafter{\sra@temp}{#1}}%
+      }
+    \else%
+      \csedef{sra@tikz@st@Name}{\trim@spaces@noexp{#1}}
+    \fi%
+  \fi%
+}
+
+\tikzset{
+  style table/.code={
+    \sra@tikz@st@Row=0%
+    \sra@tikz@st@ParseTable#1\\\@nnil%
+  }
 }
