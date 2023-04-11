@@ -58,7 +58,7 @@ class SVGFigExporter:
                     if not till_: till_ = "-1"
                     ranges.append([file_out, g_id, int(from_ or "1"), int(till_ or "-1")])
                 else:
-                    range.append([file_out,g_id, int(elem.strip()), int(elem.strip())])
+                    ranges.append([file_out,g_id, int(elem.strip()), int(elem.strip())])
                 max_page = max(max_page, *ranges[-1][2:])
 
         for file_out, g_id, from_, till_ in ranges:
