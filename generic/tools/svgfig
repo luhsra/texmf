@@ -60,6 +60,8 @@ class SVGFigExporter:
                 else:
                     ranges.append([file_out,g_id, int(elem.strip()), int(elem.strip())])
                 max_page = max(max_page, *ranges[-1][2:])
+        if not layers:
+            ranges.append([None,"layer1",1,1])
 
         for file_out, g_id, from_, till_ in ranges:
             if till_ == -1: till_ = max_page
