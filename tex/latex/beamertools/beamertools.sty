@@ -1244,6 +1244,8 @@
   % would dim the "invisible" parts. Alternatively, the color might be set to white, if the
   % output driver does not support transparencies (e.g., PS)
   %
+  % WARNING: in sratikzfig the `visible on` key is taken from here, but the `invisible` key
+  % from tikzlibrarysra.code.tex
   \tikzset{
     global opacity/.style={
       opacity=#1,
@@ -1251,7 +1253,9 @@
       every shadow/.append style={opacity=#1},
       every on layer/.append style={opacity=#1},
       every node/.append style={opacity=#1},
-      prefix after command={\pgfextra{\tikzset{every label/.style={opacity=#1}}}},,
+      prefix after command={\pgfextra{\tikzset{every pin/.style={opacity=#1},
+                                               every pin edge/.style={opacity=#1},
+                                               every label/.style={opacity=#1}}}},
     },
     invisible/.style={global opacity=0},
     visible/.style={global opacity=1},
