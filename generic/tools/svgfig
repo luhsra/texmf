@@ -50,7 +50,7 @@ class SVGFigExporter:
                 desc = desc[desc.index("<")+1:desc.rindex(">")]
             if not desc:
                 continue
-            desc = ''.join([c for c in desc if c.isdigit() or c == ','])
+            desc = ''.join([c for c in desc if c.isdigit() or c in (',','-') ])
             for elem in desc.split(","):
                 if '-' in elem:
                     from_, till_ = elem.split("-")
