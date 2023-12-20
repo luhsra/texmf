@@ -742,6 +742,7 @@
     subtitle/.style={add content={\framesubtitle{#1}}},
     subsubsection/.style={execute={\subsubsection{#1}}},
     subsection/.style={execute={\subsection{#1}}},
+    frame/.store in=\bt@pdfpages@frameopts,
     section/.style={execute={\section{#1}}},
     insert agenda/.style={execute={\InsertAgenda}},%            FIXME \InsertAgenda not defined by beamertools!
     insert full agenda/.style={execute={\InsertFullAgenda}},%   FIXME \InsertFullAgenda not defined by beamertools!
@@ -877,7 +878,11 @@
       \aftergroup\bt@pdfframes@afterpagehook%
       \bt@pdfframes@onpagehook%
       \usebackgroundtemplate{\includegraphics[height=1.001\paperheight,page=\p]{\bt@pdfframes@file}\bt@pdfframes@backgroundhook}
-			\frame{\bt@pdfframes@contenthook}
+      \ifcsdef{bt@pdfpages@frameopts}{%
+          \expandafter\frame\expandafter[\bt@pdfpages@frameopts]%
+        }{%
+          \frame%
+        }{\bt@pdfframes@contenthook}
     }
     \egroup
   }
