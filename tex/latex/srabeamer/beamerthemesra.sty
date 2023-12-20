@@ -131,7 +131,7 @@
   % TU Braunschweig style
   tubs/.style={
     on 16-to-9={file=beamerthemetubs169_bg}{file=beamerthemetubs_bg},
-     page=2, on plain={page=3}{}, on title={page=1}{}
+    page=2, on plain={page=3}{}, on title={page=1}{},
   },
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Style: OSG
@@ -514,9 +514,6 @@
 
 
 \ifthenelse{\equal{\beamer@bgstyle}{tubs}}{%
-  \def\sraTitleHskip{\hskip 0.8cm\relax}
-  %\def\sraFootlineVskip{2.5mm}
-  %\def\sraFootlineHskip{\hskip -10mm\relax}
   \setbeamercolor{footline}{fg=black}
   \setbeamerfont{frametitle}{size=\fontsize{16}{18}\selectfont}
   \setbeamercolor{frametitle}{fg=black}
@@ -526,13 +523,7 @@
   \setbeamerfont{title}{size=\fontsize{20}{22}\selectfont}
   \setbeamerfont{date}{size=\fontsize{8}{10}\selectfont}
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
-  \let\sraFootlineHskip\relax
-  \setbeamersize{sidebar width left=2mm}
-  \setbeamersize{text margin right=4.2mm}
-  \setlength{\leftmargini}{1.5em}
-  \setlength{\leftmarginii}{0.5em}
   \setbeamercolor{itemize item}{fg=srared}
-
 
   \usepackage[absolute,overlay]{textpos}
   \setbeamertemplate{title page}{
