@@ -128,6 +128,12 @@
     },
   },
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % TU Braunschweig style
+  tubs/.style={
+    on 16-to-9={file=beamerthemetubs169_bg}{file=beamerthemetubs_bg},
+     page=2, on plain={page=3}{}, on title={page=1}{}
+  },
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Style: OSG
   osg/.style={
     on 16-to-9={file=beamerthemeosg169_bg}{file=beamerthemeosg_bg},
@@ -450,37 +456,6 @@
 
 \ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
   \def\sraTitleHskip{\hskip -0.8cm\relax}
-  \def\sraFootlineVskip{1mm}
-  \def\sraFootlineHskip{\hskip -8mm\relax}
-  \setbeamercolor{footline}{fg=white}
-  \setbeamerfont{frametitle}{size=\fontsize{20}{24}\selectfont}
-  \setbeamercolor{title}{fg=white}
-  \setbeamerfont{date}{size=\fontsize{12}{14}\selectfont}
-  \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
-  \def\sraLogoHeight{20pt}
-
-  \setbeamertemplate{title page}{
-    \vskip 6.8cm
- 		\begin{minipage}[l]{\dimexpr\columnwidth+1.0cm}%
-    	\begin{beamercolorbox}{title}
-      	\usebeamerfont{title}\inserttitle%
-      	\ifx\insertsubtitle\@empty\else%
-        	{\ --\ \usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}%
-        \fi\\[1ex]%
-        \ifx\insertauthor\@empty\else%
-           \usebeamerfont{author}\insertauthor\par
-        \fi%
-        \ifx\insertdate\@empty\else%
-    				\usebeamerfont{date}\insertdate
-        \fi
-			\end{beamercolorbox}
-  	\end{minipage}%
-    \vskip0pt plus 1fill\mbox{}
-}
-}{} % End of TUHH
-
-\ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
-  \def\sraTitleHskip{\hskip -0.8cm\relax}
   \def\sraFootlineVskip{2.5mm}
   \def\sraFootlineHskip{\hskip -8mm\relax}
   \setbeamercolor{footline}{fg=tuhhcyan}
@@ -536,6 +511,48 @@
     \end{textblock*}
 }
 }{} % End of TUHH
+
+
+\ifthenelse{\equal{\beamer@bgstyle}{tubs}}{%
+  \def\sraTitleHskip{\hskip 0.8cm\relax}
+  %\def\sraFootlineVskip{2.5mm}
+  %\def\sraFootlineHskip{\hskip -10mm\relax}
+  \setbeamercolor{footline}{fg=black}
+  \setbeamerfont{frametitle}{size=\fontsize{16}{18}\selectfont}
+  \setbeamercolor{frametitle}{fg=black}
+  \setbeamercolor{title}{fg=black}
+  \setbeamercolor{author}{fg=black}
+  \setbeamercolor{date}{fg=black}
+  \setbeamerfont{title}{size=\fontsize{20}{22}\selectfont}
+  \setbeamerfont{date}{size=\fontsize{8}{10}\selectfont}
+  \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
+  \let\sraFootlineHskip\relax
+  \setbeamersize{sidebar width left=2mm}
+  \setbeamersize{text margin right=4.2mm}
+  \setlength{\leftmargini}{1.5em}
+  \setlength{\leftmarginii}{0.5em}
+  \setbeamercolor{itemize item}{fg=srared}
+
+
+  \usepackage[absolute,overlay]{textpos}
+  \setbeamertemplate{title page}{
+    \begin{textblock*}{12cm}(0.8cm,6cm)%
+      \begin{beamercolorbox}{title}%
+        \usebeamerfont{title}\inserttitle%
+        \ifx\insertsubtitle\@empty\else%
+        {\\\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}%
+        \fi%
+      \end{beamercolorbox}
+      \vspace{1ex}
+      \begin{beamercolorbox}{author}%
+        \usebeamerfont{author}\insertauthor%
+      \end{beamercolorbox}
+      \begin{beamercolorbox}{date}%
+        \usebeamerfont{date}\insertdate
+      \end{beamercolorbox}
+    \end{textblock*}
+  }
+}{} % End of TU Braunschweig
 
   
 \mode
