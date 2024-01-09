@@ -58,19 +58,39 @@
         columns: (60pt, 100% - 230pt, 160pt),
         rows: (auto),
         gutter: 5pt,
-        sra-logo(height: 40pt),
+        sra-logo(height: 30pt),
         [
             #set align(left + horizon)
             = #title
         ],
-        align(horizon + right, luh-logo(height: 40pt))
+        align(horizon + right, luh-logo(height: 30pt))
     )
     #align(horizon + left, body)
 ])
 
+/// Create a block with a title and a body
+#let title-block(title: (), fill: luh.blue, body) = [
+    #set list(marker: (
+        move(dx: 3pt, dy: 3pt, square(size: 10pt, fill: fill)),
+        move(dx: 4pt, dy: 4pt, square(size: 8pt, fill: luh.gray))
+    ))
+    #stack(spacing: 0pt,
+        block(fill: color.lighten(fill, 70%), width: 100%, inset: 10pt)[
+            #text(size: 26pt, fill: fill, title)
+        ],
+        block(fill: color.lighten(fill, 90%), width: 100%, inset: 15pt)[
+            #body
+        ]
+    )
+]
+
 /// Initializes the theme
-#let theme(title: [], body) = {
-    set text(size: 23pt, font: "Rotis Sans Serif Std", weight: "thin")
+#let theme(title: [], footer-title: [], body) = {
+    set text(size: 22pt, font: "Rotis Sans Serif Std", weight: "thin")
+
+    if footer-title == [] {
+        footer-title = title
+    }
 
     let footer = footer-block(locate(loc => {
         let suffix = {
@@ -88,7 +108,7 @@
             grid(
                 columns: (100% - 100pt, 100pt),
                 rows: (30pt),
-                [#title #suffix],
+                [#footer-title #suffix],
                 align(right, [
                     #logic.logical-slide.display() //- #utils.last-slide-number
                 ])
@@ -104,15 +124,15 @@
     )
 
     show heading: set text(fill: luh.blue, weight: "thin")
-    show strong: set text(weight: 300)
+    show strong: set text(weight: 300, fill: luh.blue)
+    show emph: set text(fill: sra.red)
     show link: set text(fill: luh.blue)
-    show enum: set enum(numbering: n => text(fill: luh.gray, [#n.]))
+    set enum(numbering: n => text(fill: luh.gray, [#n.]))
 
-    show list.where(tight: true): set list(
-        marker: move(dx: 4pt, dy: 4pt, square(size: 8pt, fill: luh.gray)))
-    show list.where(tight: false): set list(
-        spacing: 30pt,
-        marker: move(dx: 3pt, dy: 3pt, square(size: 10pt, fill: sra.red)))
+    set list(marker: (
+        move(dx: 3pt, dy: 3pt, square(size: 10pt, fill: sra.red)),
+        move(dx: 4pt, dy: 4pt, square(size: 8pt, fill: luh.gray))
+    ))
 
     body
 }
