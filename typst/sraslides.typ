@@ -94,14 +94,11 @@
 
     let footer = footer-block(locate(loc => {
         let suffix = {
-            let elems = query(
-                selector(label("chapter")).before(loc),
-                loc
-            )
-            if elems == () {
+            let sections = utils.sections-state.at(loc)
+            if sections.len() == 0 {
                 []
             } else {
-                [-- #elems.last()]
+                [--- #sections.last().body]
             }
         }
         if logic.logical-slide.at(loc).at(0) > 1 {
