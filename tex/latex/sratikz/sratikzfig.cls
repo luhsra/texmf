@@ -60,4 +60,18 @@
 \colorlet{beamergreen}{luhgreen!80!black}
 \setbeamercolor{example text}{fg=beamergreen}
 
-\newenvironment<>{visible}[1][]{\begin{scope}[visible on=#2,#1]}{\end{scope}}
+\newenvironment<>{visible}[1][]{\begin{scope}[visible on={#2},#1]}{\end{scope}}
+
+\setbeamercolor{itemize item}{fg=srared}
+\setbeamercolor{itemize subitem}{fg=luhgray}
+\setbeamercolor{itemize subsubitem}{fg=luhgray}
+
+\setbeamertemplate{itemize item}{\raise.5pt\hbox{\vrule width 1ex height 1ex}}
+\setbeamertemplate{itemize subitem}{\raise.5pt\hbox{\vrule width 0.8ex height 0.8ex}}
+\setbeamertemplate{itemize subsubitem}{\raise.5ex\hbox{\vrule width 1ex height 0.2ex}}
+
+\setlength{\labelwidth}{2em}
+\setlength{\labelsep}{0.5em}
+\setlength{\leftmargini}{1em}
+\setlength{\leftmarginii}{1em}
+\setlength{\leftmarginiii}{1em}
