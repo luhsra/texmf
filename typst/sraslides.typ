@@ -107,7 +107,7 @@
                 rows: (30pt),
                 [#footer-title #suffix],
                 align(right, [
-                    #logic.logical-slide.display() //- #utils.last-slide-number
+                    #logic.logical-slide.display() -- #utils.last-slide-number
                 ])
             )
         }
@@ -116,6 +116,7 @@
     set page(
         paper: "presentation-16-9",
         margin: (top: 20pt, left: 20pt, right: 20pt, bottom: 30pt),
+        fill: white,
         footer-descent: 0pt,
         footer: footer,
     )
