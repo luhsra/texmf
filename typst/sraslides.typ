@@ -25,11 +25,12 @@
 #let chapter(body) = strong([#body <chapter>])
 
 #let footer-block(body) = block(
-    fill: luh.lightgray, width: 100%, height: 30pt,
+    fill: luh.lightgray, width: 100%, height: 25pt,
     outset: (left: 20pt, right: 20pt),
     [
         #set text(size: 14pt, fill: luh.gray)
         #set align(horizon)
+        #v(-2pt)
         #body
     ]
 )
@@ -115,7 +116,7 @@
 
     set page(
         paper: "presentation-16-9",
-        margin: (top: 20pt, left: 20pt, right: 20pt, bottom: 30pt),
+        margin: (top: 20pt, left: 20pt, right: 20pt, bottom: 25pt),
         fill: white,
         footer-descent: 0pt,
         footer: footer,
