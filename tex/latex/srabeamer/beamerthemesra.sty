@@ -114,7 +114,7 @@
   on title/.code 2 args={\ifbeamer@titleframe\pgfkeysalso{#1}\else\pgfkeysalso{#2}\fi},
   on plain/.code 2 args={\ifbeamer@plainframe\pgfkeysalso{#1}\else\pgfkeysalso{#2}\fi},
   % Per Default, we use well known names for the background files. This applies to the background styles:
-  % sra, tuhh, tuhh_2022
+  % sra, sra_ims, tuhh, tuhh_2022
   .unknown/.style={
     page=1,
     on 16-to-9={
@@ -419,7 +419,7 @@
 % The SRA layout does not really offer space for subtitles. We support them
 % anyway by printing them right-aligned. If no subtitle is given, we typeset
 % the LUH logo. However, as this constrains the space available for the title
-% we typeset the LUH logo only if the the remaining space permits it.
+% we typeset the LUH logo only if the remaining space permits it.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\newsavebox{\beamerthemesra@box}
@@ -453,6 +453,10 @@
   \beamer@frametopskipautobreak=\beamer@frametopskip\relax%
   \beamer@framebottomskipautobreak=\beamer@framebottomskip\relax%
 }
+
+\ifthenelse{\equal{\beamer@bgstyle}{sra_ims}}{%
+  \def\sraTitleHskip{\hskip 0.4cm\relax}
+}{} % End of SRA IMS
 
 \ifthenelse{\equal{\beamer@bgstyle}{tuhh}}{%
   \def\sraTitleHskip{\hskip -0.8cm\relax}
