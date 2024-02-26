@@ -130,7 +130,18 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % TU Braunschweig style
   tubs/.style={
-    on 16-to-9={file=beamerthemetubs169_bg}{file=beamerthemetubs_bg},
+    title x offset/.store in=\srabeamer@titlexoffset,
+    title width/.store in=\srabeamer@titlewidth,
+    on 16-to-9={
+      file=beamerthemetubs169_bg,
+      title x offset=5.5cm,
+      title width=15cm,
+    }{
+      file=beamerthemetubs_bg,
+      title x offset=6cm,
+      title width=11cm,
+    },
+    on 16-to-9={}{title x offset=6cm},
     page=2, on plain={page=3}{}, on title={page=1}{},
   },
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -528,10 +539,11 @@
   \setbeamerfont{date}{size=\fontsize{8}{10}\selectfont}
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
   \setbeamercolor{itemize item}{fg=srared}
-
+  \pgfkeys{/sra/background/.cd,\beamer@bgstyle}%
+  
   \usepackage[absolute,overlay]{textpos}
   \setbeamertemplate{title page}{
-    \begin{textblock*}{12cm}(0.8cm,6cm)%
+    \begin{textblock*}{\srabeamer@titlewidth}(0.8cm,\srabeamer@titlexoffset)%
       \begin{beamercolorbox}{title}%
         \usebeamerfont{title}\inserttitle%
         \ifx\insertsubtitle\@empty\else%
