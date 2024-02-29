@@ -657,7 +657,7 @@
 
   % shortcuts
   \newcommand{\ttt}{\texttt}
-  \newcommand{\bi}{\begin{itemize}}
+  \newcommand{\bi}[1][]{\begin{itemize}\if&#1&\else\itemsep=#1\relax\fi}
   \newcommand{\ei}{\end{itemize}}
   \newcommand{\be}{\begin{enumerate}}
   \newcommand{\ee}{\end{enumerate}}
