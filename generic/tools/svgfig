@@ -8,6 +8,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 import copy
+import shutil
 
 
 class SVGFigExporter:
@@ -118,7 +119,7 @@ class SVGFigExporter:
                 pdfs[fn].append(pdf.name)
 
         logging.info("Run inkscape on %s", self.filename)
-        subprocess.check_call(["inkscape", "--batch-process",
+        subprocess.check_call([shutil.which("inkscape"), "--batch-process",
                                "--actions", actions],
                               env={"DISPLAY":""})
 
