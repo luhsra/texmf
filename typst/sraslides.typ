@@ -10,7 +10,7 @@
     green: rgb(177, 201, 32),
     blue: rgb(0, 80, 155),
     gray: rgb(128, 128, 128),
-    lightgray: rgb(220, 220, 221),
+    lightgray: rgb(220, 222, 222),
 )
 
 // Images
@@ -22,32 +22,49 @@
 // Functions
 
 /// Display and set the current chapter that is shown in the footer
-#let chapter(body) = strong([#body <chapter>])
+#let chapter(name) = {
+    utils.register-section(name)
+    strong([#name <chapter>])
+}
 
-#let footer-block(body) = block(
-    fill: luh.lightgray, width: 100%, height: 25pt,
-    outset: (left: 20pt, right: 20pt),
+#let footer-block(numbering: true, body) = block(
+    fill: luh.lightgray, width: 100%, height: 0.5cm,
+    outset: (left: 10pt, right: 10pt),
     [
-        #set text(size: 14pt, fill: luh.gray)
+        #set text(size: 7pt, fill: luh.gray)
         #set align(horizon)
-        #v(-2pt)
-        #body
+        #{
+            if numbering {
+                place(top + right, dx: 10pt - 0.3cm, rect(fill: luh.green, width: 1.96cm, height: 0.1cm))
+            }
+        }
+        #grid(
+            columns: (39pt, 1fr, 39pt),
+            rows: (15pt),
+            [],
+            [#body],
+            align(right,
+                if numbering {
+                    [#logic.logical-slide.display() - #utils.last-slide-number]
+                }
+            )
+        )
     ]
 )
 
 /// Create a new title slide with an optional custom footer
 #let title-frame(body, footer: []) = {
     // Overwrite footer
-    set page(footer: footer-block(footer))
+    set page(footer: footer-block(numbering: false, footer))
 
     polylux-slide([
         #set align(top + center)
         #grid(
             columns: (50%, 50%),
-            rows: (80pt),
-            gutter: 5pt,
-            align(horizon + left, sra-logo(height: 80pt)),
-            align(horizon + right, luh-logo(height: 80pt)),
+            rows: (40pt),
+            gutter: 2.5pt,
+            align(horizon + left, sra-logo(height: 40pt)),
+            align(horizon + right, luh-logo(height: 40pt)),
         )
         #body
     ])
@@ -56,17 +73,17 @@
 /// Create a new slide with the given title
 #let frame(body, title: []) = polylux-slide([
     #grid(
-        columns: (60pt, 100% - 230pt, 160pt),
+        columns: (30pt, 1fr, 80pt),
         rows: (auto),
-        gutter: 5pt,
-        sra-logo(height: 30pt),
+        gutter: 2.5pt,
+        sra-logo(height: 16pt),
         [
             #set align(left + horizon)
             = #title
         ],
-        align(horizon + right, luh-logo(height: 30pt))
+        align(horizon + right, luh-logo(height: 16pt))
     )
-    #align(horizon + left, body)
+    #align(horizon + left, block(inset: (left: 12pt, right: 12pt), body))
 ])
 
 /// Create a block with a title and a body
@@ -86,14 +103,10 @@
 ]
 
 /// Initializes the theme
-#let theme(title: [], footer-title: [], body) = {
-    set text(size: 22pt, font: "Rotis Sans Serif Std", weight: "thin")
+#let theme(title: [], body) = {
+    set text(size: 12pt, font: "Rotis Sans Serif Std", weight: "light")
 
-    if footer-title == [] {
-        footer-title = title
-    }
-
-    let footer = footer-block(locate(loc => {
+    let footer = footer-block(numbering: true, locate(loc => {
         let suffix = {
             let sections = utils.sections-state.at(loc)
             if sections.len() == 0 {
@@ -102,35 +115,31 @@
                 [--- #sections.last().body]
             }
         }
-        if logic.logical-slide.at(loc).at(0) > 1 {
-            grid(
-                columns: (100% - 100pt, 100pt),
-                rows: (30pt),
-                [#footer-title #suffix],
-                align(right, [
-                    #logic.logical-slide.display() -- #utils.last-slide-number
-                ])
-            )
-        }
+        [#title #suffix]
     }))
 
     set page(
         paper: "presentation-16-9",
-        margin: (top: 20pt, left: 20pt, right: 20pt, bottom: 25pt),
-        fill: white,
+        width: 16cm,
+        height: 9cm,
+        margin: (top: 4.8pt, left: 8pt, right: 8pt, bottom: 0.5cm),
         footer-descent: 0pt,
         footer: footer,
     )
 
-    show heading: set text(fill: luh.blue, weight: "thin")
-    show strong: set text(weight: 300, fill: luh.blue)
+    show heading: set text(fill: luh.blue, weight: "light")
+    show heading.where(level: 1): set text(size: 16pt)
+
+    show strong: set text(fill: luh.blue, weight: 300)
     show emph: set text(fill: sra.red)
     show link: set text(fill: luh.blue)
     set enum(numbering: n => text(fill: luh.gray, [#n.]))
+    set table.cell(inset: 5pt)
+    set table(stroke: 0.5pt + black)
 
     set list(marker: (
-        move(dx: 3pt, dy: 3pt, square(size: 10pt, fill: sra.red)),
-        move(dx: 4pt, dy: 4pt, square(size: 8pt, fill: luh.gray))
+        move(dx: 1.5pt, dy: 1.5pt, square(size: 5pt, fill: sra.red)),
+        move(dx: 2pt, dy: 2pt, square(size: 4pt, fill: luh.gray))
     ))
 
     body
