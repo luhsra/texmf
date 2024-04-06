@@ -74,16 +74,13 @@
 #let frame(body, title: []) = polylux-slide([
     #grid(
         columns: (30pt, 1fr, 80pt),
-        rows: (auto),
+        rows: (auto, 1fr),
         gutter: 2.5pt,
         sra-logo(height: 16pt),
-        [
-            #set align(left + horizon)
-            = #title
-        ],
-        align(horizon + right, luh-logo(height: 16pt))
+        align(left + horizon, heading(title)),
+        align(horizon + right, luh-logo(height: 16pt)),
+        grid.cell(colspan: 3, align(horizon + left, block(inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body)))
     )
-    #align(horizon + left, block(inset: (left: 12pt, right: 12pt), body))
 ])
 
 /// Create a block with a title and a body
@@ -137,10 +134,13 @@
     set table.cell(inset: 5pt)
     set table(stroke: 0.5pt + black)
 
-    set list(marker: (
-        move(dx: 1.5pt, dy: 1.5pt, square(size: 5pt, fill: sra.red)),
-        move(dx: 2pt, dy: 2pt, square(size: 4pt, fill: luh.gray))
-    ))
+    set list(marker: depth => {
+        if depth == 0 {
+            move(dx: 2pt, dy: 2pt, square(size: 5pt, fill: sra.red))
+        } else {
+            move(dx: 2.5pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
+        }
+    })
 
     body
 }
