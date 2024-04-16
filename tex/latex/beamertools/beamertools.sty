@@ -1582,4 +1582,49 @@
       \endpgfpicture
     }
   \fi% \if@bttikzlibraryshadowsblurNotFound
+
+  % TikZ-Marker
+  %
+  % Example:
+  % ```
+  % \tikzmark{start}This is a text.\tikzmark{end}
+  % \begin{tikzpicture}[remember picture, overlay]
+  %     \marker{start}
+  %     \marker{end}
+  %     % draw box around text
+  %     \node[draw, fit=(start asc)(end desc)] {};
+  % \end{tikzpicture}
+  % ```
+  %
+  % The marker positions are oriented at the common lines in typesetting
+  %
+  %
+  %                .---.      --- ascending line
+  % (`) (`)       / .--´      ``` cap line
+  % | |/'/'      | (__  _ _   ___ mean line (x line)
+  % | , <  (`\/')| ,__)( '_`\
+  % | |\`\  >  < | |   | (_) )--- mid line (this is made up)
+  % (_) (_)(_/\_)(_)   | ,__/'___ base line
+  %                    | |
+  %                    (_)    ___ descending line
+  %%
+
+  \newlength{\xheight}
+  \settoheight{\xheight}{\hbox{x}}
+  \newlength{\fheight}
+  \settoheight{\fheight}{\hbox{f}}
+  \newlength{\Kheight}
+  \settoheight{\Kheight}{\hbox{K}}
+  \newlength{\pdepth}
+  \settodepth{\pdepth}{\hbox{p}}
+
+  \newcommand{\marker}[1]{%
+    \coordinate (#1) at (pic cs:#1);%
+    \coordinate (#1 base) at (pic cs:#1);%
+    \coordinate (#1 mid) at ([yshift=0.5\xheight]pic cs:#1);%
+    \coordinate (#1 mean) at ([yshift=\xheight]pic cs:#1);%
+    \coordinate (#1 cap) at ([yshift=\Kheight]pic cs:#1);%
+    \coordinate (#1 asc) at ([yshift=\fheight]pic cs:#1);%
+    \coordinate (#1 desc) at ([yshift=-\pdepth]pic cs:#1);%
+  }
 \fi% else \ifbtNoTikZ
