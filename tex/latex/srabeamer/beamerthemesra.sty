@@ -37,7 +37,12 @@
   bgstyle/.store in=\beamer@bgstyle,
   bgstyle=sra,
   graytoplevelitems/.is if=sraGrayTopLevelItems,
-  wide/.is if=sraWide,
+	wide/.is choice,   																							% assume 16:9 (true) or 4:3 (false)
+		wide/true/.code={\sraWidetrue},
+		wide/false/.code={\sraWidefalse},
+		wide/auto/.code={\ifdim\beamer@paperwidth=16.00cm \sraWidetrue\else \sraWidefalse\fi},
+		wide/.initial=auto,
+		wide/.default=true,
 }
 
 \ProcessPgfPackageOptions{/sra}

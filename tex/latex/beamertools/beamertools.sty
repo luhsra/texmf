@@ -45,8 +45,12 @@
     woschblocks/.is if=btWoschBlocks,                               % define Wosch-style block envs (bearblock, codeblock, ...)
     notikz/.is if=btNoTikZ,                                         % do not include TikZ-support nor macros that depend on TikZ
   	sracolors/.is if=btSRAColors,																		% patch i4 colors to LUH/SRA colors
-		wide/.is if=btWide,																							% assume 16:9 (true) or 4:3 (false)
-		wide={\ifdim\beamer@paperwidth=16.00cm true\else false\fi},
+		wide/.is choice,   																							% assume 16:9 (true) or 4:3 (false)
+			wide/true/.code={\btWidetrue},
+			wide/false/.code={\btWidefalse},
+			wide/auto/.code={\ifdim\beamer@paperwidth=16.00cm \btWidetrue\else \btWidefalse\fi},
+			wide/.initial=auto,
+			wide/.default=true,
 	}
 
 
