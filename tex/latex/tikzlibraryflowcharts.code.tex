@@ -1,0 +1,48 @@
+\usetikzlibrary{positioning}
+
+
+\tikzset{flow item/.style={
+	on chain,
+	inner sep=0.3em,
+	align=center,
+	minimum height=1.8em,
+	join
+}}
+\tikzset{flow box/.style={
+	flow item,
+	draw,
+	minimum width=\pgfkeysvalueof{/tikz/flow box width}
+}}
+\tikzset{flow box width/.initial=12em}
+\tikzset{flow branch/.style={
+	flow item,
+	diamond, aspect=2.5,
+	draw,
+	inner sep=0.1em
+}}
+\newcommand{\keeptikzlastnodeImportedFromOldExam}[1]{\pgfextra{\let\savetikzlastnode=\tikzlastnode}#1\pgfextra{\let\tikzlastnode=\savetikzlastnode}}
+\tikzset{flow chart/.default=chart} % Name of the chain
+\tikzset{flow chart/.style={
+	start chain=#1 going below,
+	every join/.style=->,
+	node distance=1.3em,
+	auto,
+	>=latex,
+	%line width=.08em,
+	angled/.style={to path={#1 (\tikztotarget) \tikztonodes}},
+	angled/.default=|-,
+	label south/.style={append after command={\keeptikzlastnodeImportedFromOldExam{(\tikzlastnode.south) node[below right, inner ysep=0.1em] {##1}}}},
+	label north/.style={append after command={\keeptikzlastnodeImportedFromOldExam{(\tikzlastnode.north) node[above right, inner ysep=0.1em] {##1}}}},
+	label east/.style={append after command={\keeptikzlastnodeImportedFromOldExam{(\tikzlastnode.east) node[above right, inner xsep=0.1em] {##1}}}},
+	label west/.style={append after command={\keeptikzlastnodeImportedFromOldExam{(\tikzlastnode.west) node[above left, inner xsep=0.1em] {##1}}}},
+	%flow label/.store in=\tikzflowchartslabel,
+	flow label/.initial={},
+	to path={(\tikztostart) --  (\tikztotarget) \pgfkeysvalueof{/tikz/flow label}},
+	back up/.style={to path={(\tikztostart.south) |-  ++(##1,-1em) \pgfkeysvalueof{/tikz/flow label} |- (\tikztotarget)}},
+}}
+
+\newcommand{\blocktextImportedFromOldExam}[1]{{\def\arraystretch{0.9}\begin{tabular}{@{}c@{}}#1\end{tabular}}}
+
+%\tikzset{flow label/.code=\tikzset{after node path={%
+%\ifx\tikzchainprevious\pgfutil@empty\else(\tikzchainprevious)%
+%edge[every join]#1(\tikzchaincurrent)\fi}}}
