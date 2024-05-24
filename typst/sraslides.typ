@@ -71,17 +71,39 @@
 }
 
 /// Create a new slide with the given title
-#let frame(body, title: []) = polylux-slide([
-    #grid(
-        columns: (30pt, 1fr, 80pt),
-        rows: (auto, 1fr),
-        gutter: 2.5pt,
-        sra-logo(height: 16pt),
-        align(left + horizon, heading(title)),
-        align(horizon + right, luh-logo(height: 16pt)),
-        grid.cell(colspan: 3, align(horizon + left, block(inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body)))
-    )
-])
+///
+/// `title`: The title of this slide (type: content)
+/// `new-section`: If set, this slide will create a new section named `title`
+///                if `new-section` is `true`, otherwise the value of
+///                `new-section` is used.
+///                `none` or `false` do nothing(default).
+#let frame(
+    body,
+    title: [],
+    new-section: none,
+) = {
+    polylux-slide({
+        // register new section here, so it doesn't leak into the previous slide
+        if new-section != none and new-section != false {
+            let section-name = if new-section == true {
+                title
+            } else {
+                new-section
+            }
+            utils.register-section(section-name)
+        }
+
+        grid(
+            columns: (30pt, 1fr, 80pt),
+            rows: (auto, 1fr),
+            gutter: 2.5pt,
+            sra-logo(height: 16pt),
+            align(left + horizon, heading(title)),
+            align(horizon + right, luh-logo(height: 16pt)),
+            grid.cell(colspan: 3, align(horizon + left, block(inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body)))
+        )
+    })
+}
 
 /// Create a block with a title and a body
 #let title-block(title: (), fill: luh.blue, body) = [
