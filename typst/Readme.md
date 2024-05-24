@@ -2,10 +2,15 @@
 
 Just add the following to your typst file:
 
-```typ
+````typ
 #import "texmf/typst/sraslides.typ": *
 
-#let title = [ Making a Good Presentation ]
+#let title = "Making a Good Presentation"
+#let author = "Max Mustermann"
+#let date = datetime.today()
+
+// Sets metadata for the document
+#set document(title: title, author: author, date: date)
 
 #show: theme.with(title: title)
 
@@ -17,16 +22,24 @@ Just add the following to your typst file:
 
     = #title
 
-    #v(45pt)
-
-    *Max Mustermann*
+    *#author*
 
     Institute for Systems Engineering
 
-    #datetime.today().display("[day]. [month repr:short] [year]")
+    #date.display("[day]. [month repr:short] [year]")
 ]
 
-#frame(title: [The Rust Programming Language])[
+// This aggregates all sections
+#frame(title: "Outline")[
+  #utils.polylux-outline()
+]
+
+#frame(
+  title: [The Rust Programming Language],
+  // This creates a new section visible in the footer and the outline.
+  // You can also pass a custom name here
+  new-section: true,
+)[
     #side-by-side[
         - Developed by Mozilla in 2015
             - Independent Rust Foundation
@@ -46,4 +59,20 @@ Just add the following to your typst file:
         - ...
     ]
 ]
-```
+
+// This slide is part of the previous section
+#frame(title: "Hello World")[
+    #box(
+      inset: 1em,
+      fill: luma(240),
+      stroke: luma(200) + 1pt,
+      radius: 0.5em
+    )[```rust
+      fn main() {
+        println!("Hello, World!");
+      }
+      ```]
+]
+````
+
+For more documentation, take a look at the [Polylux book](https://polylux.dev/book/polylux.html).
