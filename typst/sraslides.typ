@@ -19,14 +19,7 @@
 #let luh-logo = image.with(
     texmf + "/tex/latex/srabeamer/sra.bg/luh-logo-rgb.svg")
 
-// Functions
-
-/// Display and set the current chapter that is shown in the footer
-#let chapter(name) = {
-    utils.register-section(name)
-    strong([#name <chapter>])
-}
-
+/// Create a footer block
 #let footer-block(numbering: true, body) = block(
     fill: luh.lightgray, width: 100%, height: 0.5cm,
     outset: (left: 10pt, right: 10pt),
@@ -53,7 +46,10 @@
 )
 
 /// Create a new title slide with an optional custom footer
-#let title-frame(body, footer: []) = {
+///
+/// - footer (content): Custom footer content
+/// - body (content): Frame content
+#let title-frame(footer: [], body) = {
     // Overwrite footer
     set page(footer: footer-block(numbering: false, footer))
 
@@ -72,50 +68,95 @@
 
 /// Create a new slide with the given title
 ///
-/// `title`: The title of this slide (type: content)
-/// `new-section`: If set, this slide will create a new section named `title`
-///                if `new-section` is `true`, otherwise the value of
-///                `new-section` is used.
-///                `none` or `false` do nothing(default).
-#let frame(
-    body,
-    title: [],
-    new-section: none,
-) = {
-    polylux-slide({
-        // register new section here, so it doesn't leak into the previous slide
-        if new-section != none and new-section != false {
-            let section-name = if new-section == true {
-                title
-            } else {
-                new-section
-            }
-            utils.register-section(section-name)
-        }
+/// - title (content): The title of this slide
+/// - section (bool, content): Create a new section, if `true` use the `title`
+#let frame(title: [], section: false, body) = polylux-slide({
+    // register new section here, so it doesn't leak into the previous slide
+    if section == true {
+        utils.register-section(title)
+    } else if type(section) == content {
+        utils.register-section(section)
+    }
 
-        grid(
-            columns: (30pt, 1fr, 80pt),
-            rows: (auto, 1fr),
-            gutter: 2.5pt,
-            sra-logo(height: 16pt),
-            align(left + horizon, heading(title)),
-            align(horizon + right, luh-logo(height: 16pt)),
-            grid.cell(colspan: 3, align(horizon + left, block(inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body)))
+    grid(
+        columns: (30pt, 1fr, 80pt),
+        rows: (auto, 1fr),
+        gutter: 2.5pt,
+        sra-logo(height: 16pt),
+        align(left + horizon, heading(title)),
+        align(horizon + right, luh-logo(height: 16pt)),
+        grid.cell(colspan: 3, align(horizon + left, block(
+            inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body
+        )))
+    )
+})
+
+/// Generate a chapter outline, which (optionally) highlights the
+/// current section
+#let sections-outline(enum-args: (:), highlight: true) = locate(loc => {
+    let sections = utils.sections-state.final(loc)
+    let current-i = utils.sections-state.at(loc).len() - 1
+    enum(
+        ..enum-args,
+        ..sections.enumerate().map(((i, section)) =>
+            link(section.loc,
+                if not highlight {
+                    section.body
+                } else if i == current-i {
+                    strong(section.body)
+                } else {
+                    text(section.body, fill: luh.gray)
+                }
+            )
         )
-    })
+    )
+})
+
+/// Show a list of all chapters and optionally create a new one
+///
+/// - title (content): The title of this slide
+/// - new (bool, content): Create a new section and highlight it
+/// - body (content): Add this to the bottom of the frame
+#let sections-frame(
+    title: [Agenda],
+    new: false,
+    spacing: 20pt,
+    body: []
+) = frame(
+    title: title,
+    section: new
+)[
+    #sections-outline(
+        enum-args: (tight: false, spacing: spacing),
+        highlight: new == true or type(new) == content,
+    )
+    #body
+]
+
+#let list-marker(fill: sra.red, depth) = {
+    if depth == 0 {
+        move(dx: 2pt, dy: 2pt, square(size: 5pt, fill: fill))
+    } else {
+        move(dx: 2.5pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
+    }
+}
+#let enum-numbering(fill: luh.gray, ..numbers) = {
+    text(fill: fill, [#numbers.pos().map(n => [#n]).join[.].])
 }
 
 /// Create a block with a title and a body
-#let title-block(title: (), fill: luh.blue, body) = [
-    #set list(marker: (
-        move(dx: 3pt, dy: 3pt, square(size: 10pt, fill: fill)),
-        move(dx: 4pt, dy: 4pt, square(size: 8pt, fill: luh.gray))
-    ))
+#let title-block(title: none, fill: luh.blue, body) = [
+    // Change color of list and enum markers
+    #set list(marker: list-marker.with(fill: fill))
+    #set enum(numbering: enum-numbering.with(fill: fill))
+
     #stack(spacing: 0pt,
-        block(fill: color.lighten(fill, 70%), width: 100%, inset: 10pt)[
-            #text(size: 26pt, fill: fill, title)
-        ],
-        block(fill: color.lighten(fill, 90%), width: 100%, inset: 15pt)[
+        if title != none {
+            block(fill: color.lighten(fill, 80%), width: 100%, inset: 4pt)[
+                #text(fill: fill, title)
+            ]
+        },
+        block(fill: color.lighten(fill, 90%), width: 100%, inset: 8pt)[
             #body
         ]
     )
@@ -138,7 +179,6 @@
     }))
 
     set page(
-        paper: "presentation-16-9",
         width: 16cm,
         height: 9cm,
         margin: (top: 4.8pt, left: 8pt, right: 8pt, bottom: 0.5cm),
@@ -152,17 +192,17 @@
     show strong: set text(fill: luh.blue, weight: 300)
     show emph: set text(fill: sra.red)
     show link: set text(fill: luh.blue)
-    set enum(numbering: n => text(fill: luh.gray, [#n.]))
     set table.cell(inset: 5pt)
     set table(stroke: 0.5pt + black)
 
-    set list(marker: depth => {
-        if depth == 0 {
-            move(dx: 2pt, dy: 2pt, square(size: 5pt, fill: sra.red))
-        } else {
-            move(dx: 2.5pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
-        }
-    })
+    // set list and enum styles
+    set list(marker: list-marker.with(fill: sra.red))
+    set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
+
+    // Convert note block into pdfpc notes
+    show raw.where(lang: "note"): it => pdfpc.speaker-note(
+        raw(it.text, lang: "md", block: true)
+    )
 
     body
 }
