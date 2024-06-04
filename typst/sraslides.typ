@@ -72,10 +72,14 @@
 /// - section (bool, content): Create a new section, if `true` use the `title`
 #let frame(title: [], section: false, body) = polylux-slide({
     // register new section here, so it doesn't leak into the previous slide
-    if section == true {
-        utils.register-section(title)
-    } else if type(section) == content {
-        utils.register-section(section)
+    context {
+        if logic.subslide.get().at(0) == 1 {
+            if section == true {
+                utils.register-section(title)
+            } else if type(section) == content {
+                utils.register-section(section)
+            }
+        }
     }
 
     grid(
