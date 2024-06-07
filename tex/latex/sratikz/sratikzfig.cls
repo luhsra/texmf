@@ -1,5 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{sratikzfig}[2020/10/01 The SRA TikZ/Beamer Figure Class]  % YYYY/MM/DD
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{beamer}}
+\ProcessOptions\relax
 
 \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
 \LoadClass{beamer}
