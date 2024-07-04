@@ -550,12 +550,13 @@
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
   \setbeamercolor{itemize item}{fg=srared}
   \pgfkeys{/sra/background/.cd,\beamer@bgstyle}%
-  
+
+  \usepackage[light,condensed]{roboto}
   \usepackage[absolute,overlay]{textpos}
   \setbeamertemplate{title page}{
     \begin{textblock*}{\srabeamer@titlewidth}(0.8cm,\srabeamer@titlexoffset)%
       \begin{beamercolorbox}{title}%
-        \usebeamerfont{title}\inserttitle%
+        {\usebeamerfont{title}\inserttitle}%
         \ifx\insertsubtitle\@empty\else%
         {\\\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}%
         \fi%

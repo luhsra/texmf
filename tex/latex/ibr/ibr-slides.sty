@@ -1,0 +1,82 @@
+\ProvidesPackage{ibr-slides}[2024/07/03 v1.0 Custom Beamer slides]
+
+% Load necessary packages
+\RequirePackage{beamertools}
+
+\newcommand{\InsertRecordingSlide}{
+  \begin{frame}[t]{\alert{Aufnahme} der Veranstaltung}{\alert{Achtung Aufnahme!}}
+    \PutAt{(10cm,1cm)}{
+      \includegraphics[width=2cm]{ibrslides_microphone}
+    }
+
+  \btUseExtraItemSep
+  \bi
+  \ii \textbf{Veranstaltung wird aufgezeichnet!}{
+    \bi
+    \ii Wir nehmen auf: {
+      \bi 
+      \ii Folien, Dozent, Live-Audio sowie BBB-Audio
+      \ii \alert{Ihre Stimme} beim Fragen und Sprechen
+      \ii \textbf{Durch aktive Teilnahme erklären Sie sich einverstanden!} 
+      \ei
+    }
+    \ii Aufzeichnungen sind später über Stud.IP zugänglich.
+    \ei
+  }
+  \ei
+  \vspace{1em}
+  \begin{columns}[t]
+    \begin{column}[t]{0.49\textwidth}
+      \begin{center}
+        \textbf{\color{green!50!black} Pro-Aufzeichnung}
+      \end{center}
+      \bi
+      \iiad Zeitflexibles Lernen
+      \iiad Wiederholung und Überprüfung
+      \iiad Inklusion für Studierende
+      \ei
+    \end{column}\hfill
+    \begin{column}[t]{0.49\textwidth}
+      \begin{center}
+        \textbf{\color{srared} Contra-Aufzeichnung}
+      \end{center}
+      \bi
+      \iida Keine Interaktion im Hörsaal
+      \iida Prokrastinations-Booster
+      \iida Technische Probleme sind möglich
+      \ei
+    \end{column}
+  \end{columns}
+  \vspace{1em}
+  {\large \ALERT{$\rightarrow$ Kommen Sie zur Vorlesung, wenn es irgendwie geht!}}
+\end{frame}
+}
+
+\newcommand{\InsertEngelSlide}{
+  \begin{frame}{\alert{Gesucht}: Hybrid-Engel}
+    \bi\itemsep=2em
+    \ii Veranstaltung findet (auch) Hybrid statt {
+      \bi
+      \ii BBB Session im Stud.IP (Meetings Tab)
+      \ii Verhinderte Student:innen können dennoch teilnehmen
+      \ii \ALERT{Problem:} Eingeschränkte Interaktion und ``fade out''-Gefahr
+      \ei
+    }
+    \ii Der \textbf{\large Hybrid-Engel} hilft allen! {
+      \begin{columns}[t]
+        \begin{column}{0.7\textwidth}
+          \bi\itemsep=0em
+          \ii Fragen-Proxy für den BBB-Chat
+          \ii Aktive Dozenten-Bremse
+          \ii Fetzt und bringt Anerkennung in der Gruppe!
+          \ei
+        \end{column}\hfill
+        \begin{column}{0.28\textwidth}
+          \raisebox{-\height}{\includegraphics[page=1,width=\linewidth]{ibrslides_engel}}
+        \end{column}
+      \end{columns}
+    }
+    \ei
+    {\large \ALERT{$\rightarrow$ Melde dich JETZT als Engel für heute!}}
+  \end{frame}
+}
