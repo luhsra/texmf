@@ -29,6 +29,7 @@
     shapes,
     shapes.misc,
     shapes.geometric,
+    patterns,
     positioning,
     tikzmark,
     matrix,
