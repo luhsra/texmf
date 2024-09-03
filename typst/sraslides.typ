@@ -49,7 +49,7 @@
 ///
 /// - footer (content): Custom footer content
 /// - body (content): Frame content
-#let title-frame(footer: [], body) = {
+#let title-frame(footer: [], left-logo: sra-logo(), right-logo: luh-logo(), body) = {
     // Overwrite footer
     set page(footer: footer-block(numbering: false, footer))
 
@@ -59,8 +59,8 @@
             columns: (50%, 50%),
             rows: (40pt),
             gutter: 2.5pt,
-            align(horizon + left, sra-logo(height: 40pt)),
-            align(horizon + right, luh-logo(height: 40pt)),
+            align(horizon + left, left-logo),
+            align(horizon + right, right-logo),
         )
         #body
     ])
