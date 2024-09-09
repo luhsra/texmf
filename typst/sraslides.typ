@@ -9,6 +9,8 @@
 #let luh = (
     green: rgb(177, 201, 32),
     blue: rgb(0, 80, 155),
+    lightblue: rgb(204, 220, 235),
+    lighterblue: rgb(230, 238, 245),
     gray: rgb(128, 128, 128),
     lightgray: rgb(220, 222, 222),
 )
