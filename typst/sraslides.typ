@@ -68,6 +68,14 @@
     ])
 }
 
+#let frame-header(title: []) = grid(
+    columns: (30pt, 1fr, 80pt),
+    gutter: 2.5pt,
+    sra-logo(height: 16pt),
+    align(left + horizon, heading(title)),
+    align(horizon + right, luh-logo(height: 16pt)),
+)
+
 /// Create a new slide with the given title
 ///
 /// - title (content): The title of this slide
@@ -85,15 +93,13 @@
     }
 
     grid(
-        columns: (30pt, 1fr, 80pt),
+        columns: (1fr),
         rows: (auto, 1fr),
         gutter: 2.5pt,
-        sra-logo(height: 16pt),
-        align(left + horizon, heading(title)),
-        align(horizon + right, luh-logo(height: 16pt)),
-        grid.cell(colspan: 3, align(horizon + left, block(
+        frame-header(title: title),
+        align(horizon + left, block(
             inset: (left: 12pt, right: 12pt), width: 100%, height: 100%, body
-        )))
+        ))
     )
 })
 
