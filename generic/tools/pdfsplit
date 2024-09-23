@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# walk to table of contents and print titles and pages
+
+import sys
+import gi
+import re
+import argparse
+from pathlib import Path
+import subprocess
+import fitz_old as fitz
+
+import pandas as pd
+
+def extract_toc(doc):
+    toc = pd.DataFrame(data=doc.get_toc(),
+                       columns=['depth', 'title', 'page_pdf'])
+    toc['depth'] -= 1
+    toc = toc.reset_index(names='chapter_id')
+    pages = len(doc)
+    for depth in sorted(toc.depth.unique()):
+        df = toc[toc.depth <= depth].copy()
+        next_chapter = df.page_pdf.shift(-1, axis=0, fill_value=pages)
+        df['pages'] = -1 * (df.page_pdf - next_chapter)
+        df = df[df.depth == depth]
+        df['parent'] = None
+
+        # Top-Level has no parents
+        if depth > 0:
+            parent = toc[toc.depth == (depth - 1)]
+            df = pd.merge_asof(df, parent[['page_pdf', 'chapter_id']],
+                               suffixes=('', '_y'),
+                               on='page_pdf')
+            df['parent'] = df.chapter_id_y
+
+        df = df[['chapter_id', 'pages', 'parent']]
+        toc = toc.set_index('chapter_id')\
+                  .combine_first(
+                      df.set_index('chapter_id'))\
+                  .reset_index()
+
+    return toc
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Split a PDF based on the Table of Contents (TOC).")
+
+    parser.add_argument('pdf', type=Path,
+                        help="Path to the input PDF file.")
+
+    parser.add_argument('--prefix', type=Path,
+                        help="PDF file to prefix before each output file")
+
+    parser.add_argument('--split-level', "-s", type=int, required=True,
+                        help="Depth of the TOC where the PDF should be split.")
+
+    parser.add_argument('--output-prefix', "-o", type=str, default='output_',
+                        help="Prefix for the split PDF files (default: 'output_')."
+    )
+    parser.add_argument('--dry-run', "-d", action='store_true',
+                        help="Produce no files"
+    )
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Check if the provided PDF file exists
+    if not args.pdf.is_file():
+        parser.error(f"The file {args.pdf} does not exist.")
+
+    return args
+
+
+def normalize_title(title):
+    title = title.lower()
+    title = re.sub('[^0-9a-zäöüß]', '_', title)
+    title = re.sub('_+', '_', title)
+    title = title.strip("_")
+    return title
+
+
+if __name__ == '__main__':
+    args = parse_arguments()
+
+    inp = fitz.open(args.pdf)
+    toc = extract_toc(inp)
+
+    df = toc[toc.depth == args.split_level].copy()
+    df['filename'] = args.output_prefix + df.title.apply(normalize_title) + ".pdf"
+
+    prefix = None
+    if args.prefix:
+        prefix = fitz.open(args.prefix)
+
+    for _, row in df.iterrows():
+        output = fitz.open()
+
+        if prefix:
+            output.insert_pdf(prefix)
+
+        output.insert_pdf(inp,
+                          from_page=int(row.page_pdf-1),
+                          to_page=int(row.page_pdf+row.pages-2))
+
+        print(f"pages {row.page_pdf} -- {int(row.page_pdf+row.pages-1)} -> {row.filename}")
+        if not args.dry_run:
+            output.save(row.filename)
