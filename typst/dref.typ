@@ -4,7 +4,7 @@
 
 /// Import a dref file
 ///
-/// `#dref-import(read("my/data.dref"))`
+/// ```typ #dref-import(read("my/data.dref"))```
 #let dref-import(data) = dref-values.update(dref-values => {
   for line in data.split("\n") {
     let match = line.trim().match(dref-re)
