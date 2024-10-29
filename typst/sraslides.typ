@@ -238,5 +238,8 @@
         raw(it.text, lang: "md", block: true)
     )
 
+    // collect the metadata for pdfpc
+    context pdfpc.pdfpc-file(here())
+
     body
 }

@@ -1,3 +1,6 @@
+/// Create a new speaker note.
+///
+/// - text (string, raw): The note.
 #let speaker-note(text) = {
   let text = if type(text) == "string" {
     text + "\n"
@@ -21,6 +24,15 @@
   #metadata((t: "HiddenSlide")) <pdfpc>
 ]
 
+/// Pdfpc configuration
+///
+/// - duration-minutes (int, none): Duration of the presentation, in minutes
+/// - start-time (datetime, string, none): Intended start time, in the HH:MM format
+/// - end-time (datetime, string, none): Intended end time, in the HH:MM format
+/// - last-minutes (int, none): Number of last minutes when the timer color changes
+/// - note-font-size (int, none): Font size used to display slide notes
+/// - disable-markdown (bool, none): Interpret notes as plain text
+/// - default-transition (string, none): Default slide transition
 #let config(
   duration-minutes: none,
   start-time: none,
@@ -93,6 +105,11 @@
   }
 }
 
+/// Collects the entire metadata for pdfpc, to be exportable with typst query.
+///
+/// ```sh
+/// typst query --root . ./slides.typ --field value --one "<pdfpc-file>" > ./slides.pdfpc
+/// ```
 #let pdfpc-file(loc) = {
   let arr = query(<pdfpc>).map(it => it.value)
   let (config, ..slides) = arr.split((t: "NewSlide"))
