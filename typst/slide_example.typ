@@ -36,7 +36,7 @@
 
     ```note
     - Here you can add your speeker notes
-    - They can be exported with polylux2pdfpc
+    - They can be exported with typst query
     ```
 ]
 
