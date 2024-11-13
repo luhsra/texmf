@@ -160,9 +160,9 @@
 
 #let list-marker(fill: sra.red, depth) = {
     if depth == 0 {
-        move(dx: 2pt, dy: 2pt, square(size: 5pt, fill: fill))
+        move(dx: 0pt, dy: 2pt, square(size: 5pt, fill: fill))
     } else {
-        move(dx: 2.5pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
+        move(dx: 0pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
     }
 }
 #let enum-numbering(fill: luh.gray, ..numbers) = {
