@@ -29,10 +29,21 @@
 #let luh-logo = image.with(
     texmf + "/tex/latex/srabeamer/sra.bg/luh-logo-rgb.svg")
 
+
+#let frame-header(title: []) = box(inset: (x: -12pt, y: 4.8pt), grid(
+    columns: (30pt, 1fr, 80pt),
+    rows: (16pt),
+    gutter: 2.5pt,
+    sra-logo(height: 16pt),
+    grid.cell(align: left + horizon, heading(title)),
+    grid.cell(align: horizon + right, luh-logo(height: 16pt)),
+))
+
+
 /// Create a footer block
-#let footer-block(numbering: true, body) = block(
+#let frame-footer(numbering: true, body) = align(left+bottom, block(
     fill: luh.lightgray, width: 100%, height: 0.5cm,
-    outset: (x: 20pt), inset: (x: -12pt),
+    outset: (x: 20pt), inset: (left: 18pt, right: -12pt),
     {
         set text(size: 7pt, fill: luh.gray)
         set align(horizon)
@@ -40,9 +51,8 @@
             place(top + right, dx: 10pt - 0.3cm, rect(fill: luh.green, width: 1.96cm, height: 0.1cm))
         }
         grid(
-            columns: (39pt, 1fr, 39pt),
+            columns: (1fr, 39pt),
             rows: (15pt),
-            [],
             [#body],
             align(right,
                 if numbering {
@@ -51,7 +61,7 @@
             )
         )
     }
-)
+))
 
 /// Create a new title slide with an optional custom footer
 ///
@@ -65,7 +75,7 @@
     right-logo: luh-logo(),
     body
 ) = polylux-slide(
-    footer: footer-block(numbering: false, footer),
+    footer: frame-footer(numbering: false, footer),
     header: block(inset: (top: 4.8pt, x: -12pt), grid(
         columns: (50%, 50%),
         rows: (40pt),
@@ -77,23 +87,16 @@
     align(center + horizon, body)
 )
 
-#let frame-header(title: []) = box(inset: (x: -12pt, y: 4.8pt), grid(
-    columns: (30pt, 1fr, 80pt),
-    rows: (16pt),
-    gutter: 2.5pt,
-    sra-logo(height: 16pt),
-    align(left + horizon, heading(title)),
-    align(horizon + right, luh-logo(height: 16pt)),
-))
 
 /// Create a new slide with the given title
 ///
 /// - title (content): The title of this slide
 /// - section (bool, content): Create a new section, if `true` use the `title`
-#let frame(title: [], section: false, body) = {
+#let frame(title: [], section: false, body, footer: auto) = {
     polylux-slide(
         margin: (top: 16pt + 2*4.8pt),
         header: frame-header(title: title),
+        footer: footer,
     {
         // register new section here, so it doesn't leak into the previous slide
         context {
@@ -160,9 +163,15 @@
 
 #let list-marker(fill: sra.red, depth) = {
     if depth == 0 {
-        move(dx: 0pt, dy: 2pt, square(size: 5pt, fill: fill))
+        block(
+            inset: (right: 1em), height: 0.8em,
+            align(horizon, square(size: 0.5em, fill: fill))
+        )
     } else {
-        move(dx: 0pt, dy: 2.5pt, square(size: 4pt, fill: luh.gray))
+        block(
+            inset: (right: 0.5em), height: 0.8em,
+            align(horizon, square(size: 0.4em, fill: luh.gray))
+        )
     }
 }
 #let enum-numbering(fill: luh.gray, ..numbers) = {
@@ -198,7 +207,7 @@
 #let theme(title: [], body) = {
     set text(size: 12pt, font: "Rotis Sans Serif Std", weight: "light")
 
-    let footer = footer-block(numbering: true, {
+    let footer = frame-footer(numbering: true, {
         let suffix = context {
             let sections = utils.sections-state.get()
             if sections.len() == 0 {
@@ -230,7 +239,7 @@
     set table(stroke: 0.5pt + black)
 
     // set list and enum styles
-    set list(marker: list-marker.with(fill: sra.red))
+    set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
     set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
 
     // Convert note block into pdfpc notes
