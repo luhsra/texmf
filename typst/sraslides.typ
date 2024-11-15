@@ -29,34 +29,35 @@
 #let luh-logo = image.with(
     texmf + "/tex/latex/srabeamer/sra.bg/luh-logo-rgb.svg")
 
-
-#let frame-header(title: []) = box(inset: (x: -12pt, y: 4.8pt), grid(
-    columns: (30pt, 1fr, 80pt),
-    rows: (16pt),
-    gutter: 2.5pt,
-    sra-logo(height: 16pt),
-    grid.cell(align: left + horizon, heading(title)),
-    grid.cell(align: horizon + right, luh-logo(height: 16pt)),
+/// Create the header block
+///
+/// - title (content): Title
+/// - left-logo (image): Left logo
+/// - right-logo (image): Right logo
+#let frame-header(title: [], left-logo: sra-logo, right-logo: luh-logo) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
+    columns: (auto, 1fr, auto),
+    column-gutter: 5mm,
+    grid.cell(align: top + left, left-logo(height: 5.5mm)),
+    grid.cell(align: horizon + left, heading(title)),
+    grid.cell(align: top + right, right-logo(height: 5.5mm)),
 ))
 
 
 /// Create a footer block
 #let frame-footer(numbering: true, body) = align(left+bottom, block(
-    fill: luh.lightgray, width: 100%, height: 0.5cm,
-    outset: (x: 20pt), inset: (left: 18pt, right: -12pt),
+    fill: luh.lightgray, width: 100%, height: 5mm, outset: (x: 7mm),
+    inset: (left: -7mm + 3mm + 5.5mm + 5mm, right: -7mm + 3mm),
     {
         set text(size: 7pt, fill: luh.gray)
         set align(horizon)
-        if numbering {
-            place(top + right, dx: 10pt - 0.3cm, rect(fill: luh.green, width: 1.96cm, height: 0.1cm))
-        }
         grid(
             columns: (1fr, 39pt),
             rows: (15pt),
             [#body],
             align(right,
                 if numbering {
-                    [#context {logic.logical-slide.display()} - #utils.last-slide-number]
+                    place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
+                    [#context {logic.logical-slide.display()} - #utils.last-slide-number#h(2mm)]
                 }
             )
         )
@@ -222,10 +223,10 @@
     set page(
         width: 16cm,
         height: 9cm,
-        margin: (top: 16pt + 2*4.8pt, x: 20pt, bottom: 0.5cm),
+        margin: (top: 5.5mm + 2*1.7mm, x: 7mm, bottom: 5mm),
         header: [],
-        header-ascent: 0pt,
-        footer-descent: 0pt,
+        header-ascent: 0mm,
+        footer-descent: 0mm,
         footer: footer,
     )
 
