@@ -43,3 +43,23 @@ The pdfpc config and notes can be exported with:
 ```sh
 typst query --root . ./slides.typ --field value --one "<pdfpc-file>" > ./slides.pdfpc
 ```
+
+## Example Makefile
+
+```Makefile
+F=slides
+TYPST = typst
+
+all: $(F).pdf $(F).pdfpc
+.PHONY: all clean
+.DEFAULT: all
+
+$(F).pdf: $(F).typ
+	$(TYPST) compile $(F).typ
+
+$(F).pdfpc: $(F).typ
+	$(TYPST) query --root . $(F).typ --field value --one "<pdfpc-file>" > $(F).pdfpc
+
+clean:
+	rm -f $(F).pdf $(F).pdfpc
+```

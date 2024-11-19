@@ -94,25 +94,31 @@
 /// - title (content): The title of this slide
 /// - section (bool, content): Create a new section, if `true` use the `title`
 #let frame(title: [], section: false, body, footer: auto) = {
+    if section == true {
+        utils.register-section(title)
+    } else if type(section) == content {
+        utils.register-section(section)
+    }
     polylux-slide(
         margin: (top: 16pt + 2*4.8pt),
         header: frame-header(title: title),
         footer: footer,
-    {
-        // register new section here, so it doesn't leak into the previous slide
-        context {
-            if logic.subslide.get().at(0) == 1 {
-                if section == true {
-                    utils.register-section(title)
-                } else if type(section) == content {
-                    utils.register-section(section)
-                }
-            }
+        {
+            // register new section here, so it doesn't leak into the previous slide
+            // context {
+            //     if logic.subslide.get().at(0) == 1 {
+            //         if section == true {
+            //             utils.register-section(title)
+            //         } else if type(section) == content {
+            //             utils.register-section(section)
+            //         }
+            //     }
+            // }
+            align(horizon + left, block(
+                width: 100%, height: 100%, body
+            ))
         }
-        align(horizon + left, block(
-            width: 100%, height: 100%, body
-        ))
-    })
+    )
 }
 
 /// Generate a chapter outline, which (optionally) highlights the
