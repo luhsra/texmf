@@ -20,14 +20,16 @@
 /// - key: Name of the value (or multipe)
 /// - map: Function to transform the value(s), required of multiple values
 /// - precision: Maximum number of digits
-#let dref(..keys, map: x => x, precision: 2) = context {
-  let values = dref-values.get()
-  let vals = keys.pos().map(k => values.at(k))
-  let val = map(..vals)
-  if type(val) == float {
-    val = calc.round(digits: precision, val)
+#let dref(..keys, map: x => x, precision: 2) = {
+  context {
+    let values = dref-values.get()
+    let vals = keys.pos().map(k => values.at(k))
+    let val = map(..vals)
+    if type(val) == float {
+      val = calc.round(digits: precision, val)
+    }
+    [#val<dref>]
   }
-  [#val<dref>]
 }
 
 #let dref-rel-raw(first, rel) = {
@@ -35,7 +37,7 @@
     return first
   }
   if type(rel) == array {
-    let (rel, second) = rel;
+    let (rel, second) = rel
     if rel == "scale by" {
       return first * second
     } else if rel == "divide by" {
@@ -88,15 +90,17 @@
 /// - `("decrease factor from", "Another key")`
 /// - `("increase percent from", "Another key")`
 /// - `("decrease percent from", "Another key")`
-#let dref-rel(key, rel, precision: 2) = context {
-  let values = dref-values.get()
-  let first = values.at(key)
-  let rel = rel;
-  if type(rel) == array {
-    let (op, key) = rel;
-    rel = (op, values.at(key))
+#let dref-rel(key, rel, precision: 2) = {
+  context {
+    let values = dref-values.get()
+    let first = values.at(key)
+    let rel = rel
+    if type(rel) == array {
+      let (op, key) = rel
+      rel = (op, values.at(key))
+    }
+    let val = dref-rel-raw(first, rel)
+    val = calc.round(digits: precision, val)
+    [#val<dref>]
   }
-  let val = dref-rel-raw(first, rel)
-  val = calc.round(digits: precision, val)
-  [#val<dref>]
 }

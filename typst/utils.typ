@@ -4,12 +4,14 @@
 // SECTIONS
 
 #let sections-state = state("polylux-sections", ())
-#let register-section(name) = context {
-  let loc = here()
-  sections-state.update(sections => {
-    sections.push((body: name, loc: loc))
-    sections
-  })
+#let register-section(name) = {
+  context {
+    let loc = here()
+    sections-state.update(sections => {
+      sections.push((body: name, loc: loc))
+      sections
+    })
+  }
 }
 
 #let current-section = context {
@@ -21,23 +23,35 @@
   }
 }
 
-#let polylux-outline(enum-args: (:), padding: 0pt) = context {
-  let sections = sections-state.final()
-  pad(padding, enum(
-    ..enum-args,
-    ..sections.map(section => link(section.loc, section.body))
-  ))
+#let polylux-outline(enum-args: (:), padding: 0pt) = {
+  context {
+    let sections = sections-state.final()
+    pad(
+      padding,
+      enum(
+        ..enum-args,
+        ..sections.map(section => link(section.loc, section.body)),
+      ),
+    )
+  }
 }
 
 
 // PROGRESS
 
-#let polylux-progress(ratio-to-content) = context {
-  let ratio = logic.logical-slide.get().first() / logic.logical-slide.final().first()
-  ratio-to-content(ratio)
+#let polylux-progress(ratio-to-content) = {
+  context {
+    let ratio = logic.logical-slide.get().first() / logic
+      .logical-slide
+      .final()
+      .first()
+    ratio-to-content(ratio)
+  }
 }
 
-#let last-slide-number = context { logic.logical-slide.final().first() }
+#let last-slide-number = context {
+  logic.logical-slide.final().first()
+}
 
 
 // HEIGHT FITTING
@@ -65,7 +79,11 @@
 // Put elements next to each other in a row
 #let side-by-side(columns: none, gutter: 1em, ..bodies) = {
   let bodies = bodies.pos()
-  let columns = if columns ==  none { (1fr,) * bodies.len() } else { columns }
+  let columns = if columns == none {
+    (1fr,) * bodies.len()
+  } else {
+    columns
+  }
   if columns.len() != bodies.len() {
     panic("number of columns must match number of content arguments")
   }

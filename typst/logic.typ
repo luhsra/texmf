@@ -20,14 +20,14 @@
     let match-single = part.match(regex("^([[:digit:]]+)$"))
     if match-until != none {
       let parsed = int(match-until.captures.first())
-      ( until: parsed )
+      (until: parsed)
     } else if match-beginning != none {
       let parsed = int(match-beginning.captures.first())
-      ( beginning: parsed )
+      (beginning: parsed)
     } else if match-range != none {
       let parsed-first = int(match-range.captures.first())
       let parsed-last = int(match-range.captures.last())
-      ( beginning: parsed-first, until: parsed-last )
+      (beginning: parsed-first, until: parsed-last)
     } else if match-single != none {
       let parsed = int(match-single.captures.first())
       parsed
@@ -104,14 +104,16 @@
 #let _conditional-display(
   visible-subslides,
   reserve-space,
-  body
-) = context {
-  let vs = visible-subslides;
-  repetitions.update(rep => calc.max(rep, _last-required-subslide(vs)))
-  if _check-visible(subslide.get().first(), vs) {
-    body
-  } else if reserve-space {
-    hide(body)
+  body,
+) = {
+  context {
+    let vs = visible-subslides
+    repetitions.update(rep => calc.max(rep, _last-required-subslide(vs)))
+    if _check-visible(subslide.get().first(), vs) {
+      body
+    } else if reserve-space {
+      hide(body)
+    }
   }
 }
 
@@ -155,11 +157,14 @@
     let max-width = calc.max(..sizes.map(sz => sz.width))
     let max-height = calc.max(..sizes.map(sz => sz.height))
     for (subslides, content) in subslides-contents {
-      only(subslides, box(
-        width: max-width,
-        height: max-height,
-        align(position, content)
-      ))
+      only(
+        subslides,
+        box(
+          width: max-width,
+          height: max-height,
+          align(position, content),
+        ),
+      )
     }
   }
 }
@@ -167,7 +172,7 @@
 #let alternatives(
   start: 1,
   repeat-last: false,
-  ..args
+  ..args,
 ) = {
   let contents = args.pos()
   let kwargs = args.named()
@@ -183,7 +188,7 @@
   end: none,
   count: none,
   ..kwargs,
-  fn
+  fn,
 ) = {
   let end = if end == none {
     if count == none {
@@ -210,7 +215,7 @@
   let items = if repr(body.func()) == "sequence" {
     body.children
   } else {
-    ( body, )
+    (body,)
   }
 
   let idx = start
@@ -228,12 +233,13 @@
 #let _items-one-by-one(fn, start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
-  let covered-items = items.enumerate().map(
-    ((idx, item)) => uncover((beginning: idx + start), item)
-  )
+  let covered-items = items.enumerate().map(((idx, item)) => uncover(
+    (beginning: idx + start),
+    item,
+  ))
   fn(
     ..kwargs,
-    ..covered-items
+    ..covered-items,
   )
 }
 
@@ -248,24 +254,24 @@
 #let terms-one-by-one(start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
-  let covered-items = items.enumerate().map(
-    ((idx, item)) => terms.item(
-      item.term,
-      uncover((beginning: idx + start), item.description)
-    )
-  )
+  let covered-items = items.enumerate().map(((idx, item)) => terms.item(
+    item.term,
+    uncover((beginning: idx + start), item.description),
+  ))
   terms(
     ..kwargs,
-    ..covered-items
+    ..covered-items,
   )
 }
 
 /// Hides/shows content based on `pause` state.
-#let paused-content(body) = context {
-  if subslide.get().first() >= pause-counter.get().first() {
-    body
-  } else {
-    hide(body)
+#let paused-content(body) = {
+  context {
+    if subslide.get().first() >= pause-counter.get().first() {
+      body
+    } else {
+      hide(body)
+    }
   }
 }
 
@@ -280,23 +286,25 @@
 #let polylux-slide(body, margin: (:), header: auto, footer: auto) = {
   // Having this here is a bit unfortunate concerning separation of concerns
   // but I'm not comfortable with logic depending on pdfpc...
-  let pdfpc-slide-markers(curr-subslide) = context [
-    #metadata((t: "NewSlide")) <pdfpc>
-    #metadata((t: "Idx", v: counter(page).get().first() - 1)) <pdfpc>
-    #metadata((t: "Overlay", v: curr-subslide - 1)) <pdfpc>
-    #metadata((t: "LogicalSlide", v: logical-slide.get().first())) <pdfpc>
-  ]
+  let pdfpc-slide-markers(curr-subslide) = {
+    context [
+      #metadata((t: "NewSlide")) <pdfpc>
+      #metadata((t: "Idx", v: counter(page).get().first() - 1)) <pdfpc>
+      #metadata((t: "Overlay", v: curr-subslide - 1)) <pdfpc>
+      #metadata((t: "LogicalSlide", v: logical-slide.get().first())) <pdfpc>
+    ]
+  }
 
   // Optional header/footer overwrites
   let page-header-footer = if header != auto and footer != auto {
-    page.with(header: header, footer: footer)
+    page.with(margin: margin, header: header, footer: footer)
   } else if header != auto {
-    page.with(header: header)
+    page.with(margin: margin, header: header)
   } else if footer != auto {
-    page.with(footer: footer)
+    page.with(margin: margin, footer: footer)
   } else {
-    page
-  };
+    page.with(margin: margin)
+  }
 
   let body = {
     show par: paused-content
@@ -312,12 +320,14 @@
     show polygon: paused-content
     show image: paused-content
     show list: paused-content
+    show list.item: paused-content
     show enum: paused-content
+    show enum.item: paused-content
 
     body
   }
 
-  page-header-footer(margin: margin, {
+  page-header-footer({
     logical-slide.step()
     subslide.update(1)
     repetitions.update(1)
@@ -336,7 +346,7 @@
     let pauses = pause-counter.get().first()
     let total-reps = calc.max(reps, pauses)
     for curr-subslide in range(2, total-reps + 1) {
-      page-header-footer(margin: margin, {
+      page-header-footer({
         pause-counter.update(1)
         subslide.step()
 

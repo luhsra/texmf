@@ -61,15 +61,12 @@
   if start-time != none {
     _time-config(start-time, "Start time", "StartTime")
   }
-
   if end-time != none {
     _time-config(end-time, "End time", "EndTime")
   }
-
   if last-minutes != none {
     [ #metadata((t: "LastMinutes", v: last-minutes)) <pdfpc> ]
   }
-
   if note-font-size != none {
     [ #metadata((t: "NoteFontSize", v: note-font-size)) <pdfpc> ]
   }
@@ -90,16 +87,12 @@
     }
 
     let transition-str = (
-      default-transition.at("type", default: "replace")
-      + ":" +
-      str(default-transition.at("duration-seconds", default: 1))
-      + ":" +
-      dir-to-angle(default-transition.at("angle", default: rtl))
-      + ":" +
-      default-transition.at("alignment", default: "horizontal")
-      + ":" +
-      default-transition.at("direction", default: "outward")
-    )
+      default-transition.at("type", default: "replace"),
+      str(default-transition.at("duration-seconds", default: 1)),
+      dir-to-angle(default-transition.at("angle", default: rtl)),
+      default-transition.at("alignment", default: "horizontal"),
+      default-transition.at("direction", default: "outward"),
+    ).join(":")
 
     [ #metadata((t: "DefaultTransition", v: transition-str)) <pdfpc> ]
   }
