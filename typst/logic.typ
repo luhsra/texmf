@@ -7,16 +7,6 @@
 /// The maximal number of sublides
 #let repetitions = counter("repetitions")
 
-#let _slides-cover(mode, body) = {
-  if mode == "invisible" {
-    hide(body)
-  } else if mode == "transparent" {
-    text(gray.lighten(50%), body)
-  } else {
-    panic("Illegal cover mode: " + mode)
-  }
-}
-
 /// Parse the subslide expression.
 ///
 /// - s (string): The subslides
@@ -109,13 +99,11 @@
 ///
 /// - visible-subslides (int, array, dictionary, string): The subslides
 /// - reserve-space (bool): Preserve space of hidden element
-/// - mode (str): Make element "invisible" or "transparent"
 /// - body (content): Content
 /// -> content
 #let _conditional-display(
   visible-subslides,
   reserve-space,
-  mode,
   body
 ) = context {
   let vs = visible-subslides;
@@ -123,17 +111,16 @@
   if _check-visible(subslide.get().first(), vs) {
     body
   } else if reserve-space {
-    _slides-cover(mode, body)
+    hide(body)
   }
 }
 
 /// Show the content on the given subslides, but reserve space anyway.
 ///
-/// - mode (str): Make element "invisible" or "transparent"
 /// - visible-subslides (int, array, dictionary, string): The subslides
 /// - body (content): Content
-#let uncover(visible-subslides, mode: "invisible", body) = {
-  _conditional-display(visible-subslides, true, mode, body)
+#let uncover(visible-subslides, body) = {
+  _conditional-display(visible-subslides, true, body)
 }
 
 /// Put the content only on the given subslide, not reserving any space when hidden.
@@ -141,17 +128,16 @@
 /// - visible-subslides (int, array, dictionary, string): The subslides
 /// - body (content): Content
 #let only(visible-subslides, body) = {
-  _conditional-display(visible-subslides, false, "doesn't even matter", body)
+  _conditional-display(visible-subslides, false, body)
 }
 
 /// Show the children on separate subslides one after another.
 ///
 /// - start (int): Start with this subslide
-/// - mode (str): Make element "invisible" or "transparent"
 /// - children (content): The children
-#let one-by-one(start: 1, mode: "invisible", ..children) = {
+#let one-by-one(start: 1, ..children) = {
   for (idx, child) in children.pos().enumerate() {
-    uncover((beginning: start + idx), mode: mode, child)
+    uncover((beginning: start + idx), child)
   }
 }
 
@@ -220,7 +206,7 @@
   alternatives-match(cases.zip(contents), ..kwargs.named())
 }
 
-#let line-by-line(start: 1, mode: "invisible", body) = {
+#let line-by-line(start: 1, body) = {
   let items = if repr(body.func()) == "sequence" {
     body.children
   } else {
@@ -230,7 +216,7 @@
   let idx = start
   for item in items {
     if repr(item.func()) != "space" {
-      uncover((beginning: idx), mode: mode, item)
+      uncover((beginning: idx), item)
       idx += 1
     } else {
       item
@@ -239,11 +225,11 @@
 }
 
 
-#let _items-one-by-one(fn, start: 1, mode: "invisible", ..args) = {
+#let _items-one-by-one(fn, start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
   let covered-items = items.enumerate().map(
-    ((idx, item)) => uncover((beginning: idx + start), mode: mode, item)
+    ((idx, item)) => uncover((beginning: idx + start), item)
   )
   fn(
     ..kwargs,
@@ -251,21 +237,21 @@
   )
 }
 
-#let list-one-by-one(start: 1, mode: "invisible", ..args) = {
-  _items-one-by-one(list, start: start, mode: mode, ..args)
+#let list-one-by-one(start: 1, ..args) = {
+  _items-one-by-one(list, start: start, ..args)
 }
 
-#let enum-one-by-one(start: 1, mode: "invisible", ..args) = {
-  _items-one-by-one(enum, start: start, mode: mode, ..args)
+#let enum-one-by-one(start: 1, ..args) = {
+  _items-one-by-one(enum, start: start, ..args)
 }
 
-#let terms-one-by-one(start: 1, mode: "invisible", ..args) = {
+#let terms-one-by-one(start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
   let covered-items = items.enumerate().map(
     ((idx, item)) => terms.item(
       item.term,
-      uncover((beginning: idx + start), mode: mode, item.description)
+      uncover((beginning: idx + start), item.description)
     )
   )
   terms(
@@ -276,20 +262,14 @@
 
 /// Hides/shows content based on `pause` state.
 #let paused-content(body) = context {
-  if subslide.get().first() > pause-counter.get().first() {
+  if subslide.get().first() >= pause-counter.get().first() {
     body
   } else {
     hide(body)
   }
 }
 
-#let pause = context {
-  pause-counter.step()
-  context {
-    let p = pause-counter.get().first()
-    repetitions.update(rep => calc.max(rep, p + 1))
-  }
-}
+#let pause = pause-counter.step()
 
 /// Create a new polylux slide.
 ///
@@ -341,34 +321,31 @@
     logical-slide.step()
     subslide.update(1)
     repetitions.update(1)
-    pause-counter.update(0)
+    pause-counter.update(1)
 
     pdfpc-slide-markers(1)
-
 
     body
 
     // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
-    // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#repetitions.display()])
-
-    subslide.step()
+    // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#calc.max(repetitions.get().first(), pause-counter.get().first())])
   })
 
   context {
     let reps = repetitions.get().first()
-    for curr-subslide in range(2, reps + 1) {
+    let pauses = pause-counter.get().first()
+    let total-reps = calc.max(reps, pauses)
+    for curr-subslide in range(2, total-reps + 1) {
       page-header-footer(margin: margin, {
-
-        pause-counter.update(0)
+        pause-counter.update(1)
+        subslide.step()
 
         pdfpc-slide-markers(curr-subslide)
 
         body
 
-        // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#repetitions.display()])
         // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
-
-        subslide.step()
+        // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#total-reps])
       })
     }
   }
