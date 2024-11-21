@@ -205,7 +205,7 @@
 /// - title (none, content): The title of the block
 /// - fill (color): The block color
 /// - body (content): The block content
-#let title-block(title: none, fill: luh.blue, body) = {
+#let title-block(title: none, fill: luh.blue, width: 100%, body) = {
   // Change color of list and enum markers
   set list(marker: list-marker.with(fill: fill))
   set enum(numbering: enum-numbering.with(fill: fill))
@@ -213,11 +213,21 @@
   stack(
     spacing: 0pt,
     if title != none {
-      block(fill: color.lighten(fill, 80%), width: 100%, inset: 4pt)[
+      block(
+        fill: color.lighten(fill, 80%),
+        stroke: 0.5pt + color.lighten(fill, 80%),
+        width: width,
+        inset: 4pt,
+      )[
         #text(fill: fill, title)
       ]
     },
-    block(fill: color.lighten(fill, 90%), width: 100%, inset: 8pt)[
+    block(
+      fill: color.lighten(fill, 90%),
+      stroke: 0.5pt + color.lighten(fill, 80%),
+      width: width,
+      inset: 8pt,
+    )[
       #body
     ],
   )
