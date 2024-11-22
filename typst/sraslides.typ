@@ -47,13 +47,29 @@
 /// - title (content): Title
 /// - left-logo (image): Left logo
 /// - right-logo (image): Right logo
-#let frame-header(title: [], left-logo: sra-logo, right-logo: luh-logo) = box(
+#let frame-header(
+  title: [],
+  left-logo: sra-logo,
+  right-logo: luh-logo,
+  first-subslide: true,
+) = box(
   inset: (x: -7mm + 3mm, y: 1.7mm),
   grid(
     columns: (auto, 1fr, auto),
     column-gutter: 5mm,
     grid.cell(align: top + left, left-logo(height: 5.5mm)),
-    grid.cell(align: top + left, block(inset: (top: 0.7mm), heading(title))),
+    grid.cell(
+      align: top + left,
+      block(
+        inset: (top: 0.7mm),
+        // only register a heading for the first logical slide
+        if first-subslide {
+          heading(depth: 2, text(fill: luh.blue, size: 16pt, title))
+        } else {
+          text(fill: luh.blue, size: 16pt, title)
+        },
+      ),
+    ),
     grid.cell(align: top + right, right-logo(height: 5.5mm)),
   ),
 )
@@ -97,7 +113,7 @@
   body,
 ) = polylux-slide(
   footer: frame-footer(numbering: false, footer),
-  header: block(
+  header: (first-subslide: bool) => block(
     inset: (top: 4.8pt, x: -12pt),
     grid(
       columns: (50%, 50%),
@@ -122,8 +138,8 @@
     utils.register-section(section)
   }
   polylux-slide(
-    margin: (top: 16pt + 2 * 4.8pt),
-    header: frame-header(title: title),
+    margin: (top: 5.5mm + 2 * 1.7mm),
+    header: frame-header.with(title: title),
     footer: footer,
     align(
       horizon + left,
@@ -153,7 +169,7 @@
         if not highlight {
           section.body
         } else if i == current-i {
-          strong(section.body)
+          heading(text(section.body, size: 12pt, weight: "bold"))
         } else {
           text(section.body, fill: luh.gray)
         },

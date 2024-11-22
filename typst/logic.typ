@@ -281,9 +281,14 @@
 ///
 /// - body (content): Slide body
 /// - margin (:): Additional margins
-/// - header (auto, content): Custom header for this slide
+/// - header (content): Custom header for this slide
 /// - footer (auto, content): Custom footer for this slide
-#let polylux-slide(body, margin: (:), header: auto, footer: auto) = {
+#let polylux-slide(
+  body,
+  margin: (:),
+  header: (first-subslide: bool) => content,
+  footer: auto,
+) = {
   // Having this here is a bit unfortunate concerning separation of concerns
   // but I'm not comfortable with logic depending on pdfpc...
   let pdfpc-slide-markers(curr-subslide) = {
@@ -296,11 +301,7 @@
   }
 
   // Optional header/footer overwrites
-  let page-header-footer = if header != auto and footer != auto {
-    page.with(margin: margin, header: header, footer: footer)
-  } else if header != auto {
-    page.with(margin: margin, header: header)
-  } else if footer != auto {
+  let page-with-footer = if footer != auto {
     page.with(margin: margin, footer: footer)
   } else {
     page.with(margin: margin)
@@ -327,36 +328,42 @@
     body
   }
 
-  page-header-footer({
-    logical-slide.step()
-    subslide.update(1)
-    repetitions.update(1)
-    pause-counter.update(1)
+  page-with-footer(
+    header: header(first-subslide: true),
+    {
+      logical-slide.step()
+      subslide.update(1)
+      repetitions.update(1)
+      pause-counter.update(1)
 
-    pdfpc-slide-markers(1)
+      pdfpc-slide-markers(1)
 
-    body
+      body
 
-    // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
-    // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#calc.max(repetitions.get().first(), pause-counter.get().first())])
-  })
+      // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
+      // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#calc.max(repetitions.get().first(), pause-counter.get().first())])
+    },
+  )
 
   context {
     let reps = repetitions.get().first()
     let pauses = pause-counter.get().first()
     let total-reps = calc.max(reps, pauses)
     for curr-subslide in range(2, total-reps + 1) {
-      page-header-footer({
-        pause-counter.update(1)
-        subslide.step()
+      page-with-footer(
+        header: header(first-subslide: false),
+        {
+          pause-counter.update(1)
+          subslide.step()
 
-        pdfpc-slide-markers(curr-subslide)
+          pdfpc-slide-markers(curr-subslide)
 
-        body
+          body
 
-        // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
-        // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#total-reps])
-      })
+          // place(dx: -10pt, dy: -25pt, context text(size: 8pt)[P #pause-counter.get().first()])
+          // place(dx: -10pt, dy: -15pt, context text(size: 8pt)[S #subslide.display()/#total-reps])
+        },
+      )
     }
   }
 }
