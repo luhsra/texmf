@@ -76,26 +76,59 @@
 
 
 /// Create a footer block
-#let frame-footer(numbering: true, body) = align(
+///
+/// - numbering (bool): Show frame number
+/// - section (bool): Show current section
+/// - authors (content, none): Show the given authors in the footer
+#let frame-footer(
+  numbering: true,
+  section: false,
+  authors: none,
+  body,
+) = align(
   left + bottom,
   block(
     fill: luh.lightgray,
     width: 100%,
     height: 5mm,
     outset: (x: 7mm),
-    inset: (left: -7mm + 3mm + 5.5mm + 5mm, right: -7mm + 3mm),
+    inset: (
+      left: -7mm + 3mm + 5.5mm + 5mm,
+      right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
+    ),
     {
       set text(size: 7pt, fill: luh.gray)
       set align(horizon)
-      grid(
-        columns: (1fr, 39pt),
-        rows: (15pt),
-        [#body],
-        if numbering {
-          place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
-          align(right)[#context {logic.logical-slide.display()} - #utils.last-slide-number#h(2mm)]
-        },
-      )
+
+      if authors != none {
+        body = [#authors #h(2em) #body]
+      }
+      if section {
+        let suffix = context {
+          let sections = utils.sections-state.get()
+          if sections.len() > 0 {
+            [--- #sections.last().body]
+          }
+        }
+        body = [#body #suffix]
+      }
+
+      if numbering {
+        grid(
+          columns: (1fr, auto),
+          rows: (100%),
+          body,
+          [
+            #let curr = context {
+              logic.logical-slide.display()
+            }
+            #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
+            #align(right)[#curr - #utils.last-slide-number #h(2mm)]
+          ],
+        )
+      } else {
+        body
+      }
     },
   ),
 )
@@ -107,12 +140,12 @@
 /// - right-logo (content): Logo for the header
 /// - body (content): Frame content
 #let title-frame(
-  footer: [],
+  footer: frame-footer(numbering: false, []),
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   body,
 ) = polylux-slide(
-  footer: frame-footer(numbering: false, footer),
+  footer: footer,
   header: (first-subslide: bool) => block(
     inset: (top: 4.8pt, x: -12pt),
     grid(
@@ -234,41 +267,32 @@
         stroke: 0.5pt + color.lighten(fill, 80%),
         width: width,
         inset: 4pt,
-      )[
-        #text(fill: fill, title)
-      ]
+        text(fill: fill, title),
+      )
     },
     block(
       fill: color.lighten(fill, 90%),
       stroke: 0.5pt + color.lighten(fill, 80%),
       width: width,
       inset: 8pt,
-    )[
-      #body
-    ],
+      body,
+    ),
   )
 }
 
 /// Initializes the theme
 ///
 /// - title (content): Title of the presentation (for the footer)
+/// - footer-authors (none, content): If authors should be added to the footer
 /// - body (content): The rest of the presentation
-#let theme(title: [], body) = {
+#let theme(title: [], footer-authors: none, body) = {
   set text(size: 12pt, font: "Rotis Sans Serif Std", weight: "light")
 
   let footer = frame-footer(
     numbering: true,
-    {
-      let suffix = context {
-        let sections = utils.sections-state.get()
-        if sections.len() == 0 {
-          []
-        } else {
-          [--- #sections.last().body]
-        }
-      }
-      [#title #suffix]
-    },
+    section: true,
+    authors: footer-authors,
+    title,
   )
 
   set page(
@@ -293,6 +317,9 @@
   // set list and enum styles
   set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
   set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
+
+  set figure(numbering: none, gap: 5pt)
+  show figure.caption: it => text(10pt, it)
 
   // Convert note block into pdfpc notes
   show raw.where(lang: "note"): it => pdfpc.speaker-note(

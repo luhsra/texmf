@@ -5,6 +5,8 @@
 /// Import a dref file
 ///
 /// ```typ #dref-import(read("my/data.dref"))```
+///
+/// - data (str): Input string
 #let dref-import(data) = dref-values.update(dref-values => {
   for line in data.split("\n") {
     let match = line.trim().match(dref-re)
@@ -17,9 +19,9 @@
 
 /// Embed a previously imported value.
 ///
-/// - key: Name of the value (or multipe)
-/// - map: Function to transform the value(s), required of multiple values
-/// - precision: Maximum number of digits
+/// - keys (str): Name of the value (or multiple)
+/// - map ((num) => num): Function to transform the value(s), required of multiple values
+/// - precision (int): Maximum number of digits
 #let dref(..keys, map: x => x, precision: 2) = {
   context {
     let values = dref-values.get()
@@ -71,9 +73,9 @@
 
 /// Embed a previously imported value after applying an operation.
 ///
-/// - key: Name of the value
-/// - rel: Put this value in relation to another one (increase, decrease, factor, percent...)
-/// - precision: Number of digits
+/// - key (str): Name of the value
+/// - rel (str, array): Put this value in relation to another one (increase, decrease, factor, percent...)
+/// - precision (number): Number of digits
 ///
 /// The rel parameter accepts the following values:
 /// - `none`: Do not change the value
