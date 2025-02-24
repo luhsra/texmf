@@ -326,6 +326,7 @@
     body
   }
 
+
   page-with-footer(
     header: header(first-subslide: true),
     {
@@ -344,6 +345,9 @@
   )
 
   context {
+
+    let footnote-start = counter(footnote).at(query(selector(heading).before(here())).first().location())
+
     let reps = repetitions.get().first()
     let pauses = pause-counter.get().first()
     let total-reps = calc.max(reps, pauses)
@@ -353,6 +357,7 @@
         {
           pause-counter.update(1)
           subslide.step()
+          counter(footnote).update(footnote-start)
 
           pdfpc-slide-markers(curr-subslide)
 

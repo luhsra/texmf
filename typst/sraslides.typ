@@ -178,7 +178,7 @@
       horizon + left,
       block(
         width: 100%,
-        height: 100%,
+        height: 1fr,
         body,
       ),
     ),
@@ -298,7 +298,7 @@
   set page(
     width: 16cm,
     height: 9cm,
-    margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 5mm),
+    margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
     header: [],
     header-ascent: 0mm,
     footer-descent: 0mm,
@@ -317,6 +317,8 @@
   // set list and enum styles
   set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
   set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
+  set footnote.entry(separator: line(stroke: 0.5pt + luh.gray, length: 45mm))
+  show footnote.entry: set text(size: 0.9em)
 
   set figure(numbering: none, gap: 5pt)
   show figure.caption: it => text(10pt, it)
