@@ -2,9 +2,9 @@
 ///
 /// - text (string, raw): The note.
 #let speaker-note(text) = {
-  let text = if type(text) == "string" {
+  let text = if type(text) == str {
     text + "\n"
-  } else if type(text) == "content" and text.func() == raw {
+  } else if type(text) == content and text.func() == raw {
     text.text.trim() + "\n"
   } else {
     panic("A note must either be a string or a raw block")
@@ -126,7 +126,7 @@
       if item.t == "Idx" {
         page.idx = item.v
       } else if item.t == "LogicalSlide" {
-        page.label = str(item.v)
+        page.label = "Page " + str(item.v)
       } else if item.t == "Overlay" {
         page.overlay = item.v
         page.forcedOverlay = item.v > 0
