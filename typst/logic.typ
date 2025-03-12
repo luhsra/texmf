@@ -98,6 +98,31 @@
 /// Conditionally show content on subslides
 ///
 /// - visible-subslides (int, array, dictionary, string): The subslides
+/// - visible-fn ((content) => content): Function to render visible content
+/// - hidden-fn ((content) => content): Function to render hidden content
+/// - body (content): Content
+/// -> content
+#let conditional-display(
+  visible-subslides,
+  visible-fn: it => it,
+  hidden-fn: hide,
+  body,
+) = {
+  context {
+    let vs = visible-subslides
+    repetitions.update(rep => calc.max(rep, _last-required-subslide(vs)))
+    if _check-visible(subslide.get().first(), vs) {
+      visible-fn(body)
+    } else {
+      hidden-fn(body)
+    }
+  }
+}
+
+
+/// Conditionally show content on subslides
+///
+/// - visible-subslides (int, array, dictionary, string): The subslides
 /// - reserve-space (bool): Preserve space of hidden element
 /// - body (content): Content
 /// -> content
@@ -106,15 +131,15 @@
   reserve-space,
   body,
 ) = {
-  context {
-    let vs = visible-subslides
-    repetitions.update(rep => calc.max(rep, _last-required-subslide(vs)))
-    if _check-visible(subslide.get().first(), vs) {
-      body
-    } else if reserve-space {
-      hide(body)
-    }
-  }
+  conditional-display(
+    visible-subslides,
+    hidden-fn: if reserve-space {
+      hide
+    } else {
+      it => none
+    },
+    body,
+  )
 }
 
 /// Show the content on the given subslides, but reserve space anyway.
@@ -233,10 +258,12 @@
 #let _items-one-by-one(fn, start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
-  let covered-items = items.enumerate().map(((idx, item)) => uncover(
-    (beginning: idx + start),
-    item,
-  ))
+  let covered-items = items
+    .enumerate()
+    .map(((idx, item)) => uncover(
+      (beginning: idx + start),
+      item,
+    ))
   fn(
     ..kwargs,
     ..covered-items,
@@ -254,10 +281,12 @@
 #let terms-one-by-one(start: 1, ..args) = {
   let kwargs = args.named()
   let items = args.pos()
-  let covered-items = items.enumerate().map(((idx, item)) => terms.item(
-    item.term,
-    uncover((beginning: idx + start), item.description),
-  ))
+  let covered-items = items
+    .enumerate()
+    .map(((idx, item)) => terms.item(
+      item.term,
+      uncover((beginning: idx + start), item.description),
+    ))
   terms(
     ..kwargs,
     ..covered-items,
@@ -345,8 +374,9 @@
   )
 
   context {
-
-    let footnote-start = counter(footnote).at(query(selector(heading).before(here())).first().location())
+    let footnote-start = counter(footnote).at(
+      query(selector(heading).before(here())).first().location(),
+    )
 
     let reps = repetitions.get().first()
     let pauses = pause-counter.get().first()
