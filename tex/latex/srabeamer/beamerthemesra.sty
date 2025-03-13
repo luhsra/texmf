@@ -20,7 +20,6 @@
 
 \RequirePackage{sra-color}
 
-
 \def\sra@message#1{\message{beamerthemesra: #1}}
 
 
@@ -30,22 +29,81 @@
 
 \newif\ifsraGrayTopLevelItems
 \newif\ifsraWide
-
+\newif\ifsraHandleFonts
 
 \pgfset{
   /sra/.cd,
   bgstyle/.store in=\beamer@bgstyle,
   bgstyle=sra,
   graytoplevelitems/.is if=sraGrayTopLevelItems,
-	wide/.is choice,   																							% assume 16:9 (true) or 4:3 (false)
-		wide/true/.code={\sraWidetrue},
-		wide/false/.code={\sraWidefalse},
-		wide/auto/.code={\ifdim\beamer@paperwidth=16.00cm \sraWidetrue\else \sraWidefalse\fi},
-		wide/.initial=auto,
-		wide/.default=true,
+  wide/.is choice,  % assume 16:9 (true) or 4:3 (false)
+  wide/true/.code={\sraWidetrue},
+  wide/false/.code={\sraWidefalse},
+  wide/auto/.code={\ifdim\beamer@paperwidth=16.00cm \sraWidetrue\else \sraWidefalse\fi},
+  wide/.initial=auto,
+  wide/.default=true,
+  font/.is choice,  % take care about font setting (requires LuaTeX)
+  font/rotis/.code={\sraHandleFontstrue\def\sraFont{rotis}},  % require Rotis font (LUH default)
+  font/universalis/.code={\sraHandleFontstrue\def\sraFont{universalis}},  % require Rotis font (LUH default)
+  font/auto/.code={\sraHandleFontstrue\def\sraFont{auto}},  % check, if Rotis is available, use Universalis otherwise
+  font/no/.code={\sraHandleFontsfalse},  % do not take care about font loading
+  font=auto,
 }
 
 \ProcessPgfPackageOptions{/sra}
+
+\newcommand*{\luaif}[1]{\ifnum1=\directlua{tex.sprint((#1) and "1" or "0")}\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
+\ifsraHandleFonts
+  \ifLuaTeX\else\PackageError{beamerthemessra}{LuaTeX required for font loading, deactivate with font=no when not on LuaTeX.}\fi
+  \typeout{Taking care of fonts \sraFont}
+  \RequirePackage{fontspec}
+  \RequirePackage{luacode}
+  \begin{luacode}
+    function get_font(mode)
+      texio.write_nl("Requested font mode: " .. mode)
+      current_file = lfs.currentdir() .. "/" .. status.filename
+      current_folder = string.match(current_file, "^(.+/).+$")
+      -- Rotis specific data
+      rotis_name = "RotisSansSerifStd"
+      rotis_folder = current_folder .. '../../../fonts/opentype/'
+      rotis_file = rotis_folder .. "/" .. rotis_name .. "-Regular.otf"
+      -- Universalis specific data
+      universalis_name = "UniversalisADFStd"
+      universalis_folder = current_folder .. '../../../fonts/opentype/'
+      universalis_file = universalis_folder .. "/" .. universalis_name .. "-Regular.otf"
+      -- Actual logic (get font according to mode)
+      if mode == "auto" then
+        if lfs.attributes(rotis_file, "mode") ~= nil then
+          return rotis_name, rotis_folder
+        end
+        return "UniversalisADFStd", rotis_folder
+      elseif mode == "rotis" then
+          return rotis_name, rotis_folder
+      else
+        return "UniversalisADFStd", rotis_folder
+      end
+    end
+
+    function get_fontname(mode)
+      name, _ = get_font(mode)
+      texio.write_nl("Loading fonts with name " .. name)
+      return name
+    end
+
+    function get_fontpath(mode)
+      _, path = get_font(mode)
+      texio.write_nl("Loading fonts from " .. path)
+      return path
+    end
+  \end{luacode}
+  \setsansfont{\luadirect{tex.write(get_fontname(\luastring{\sraFont}))}}[
+    Path = \luadirect{tex.write(get_fontpath(\luastring{\sraFont}))},
+    Extension  = .otf,
+    UprightFont = *-Regular,
+    BoldFont = *-Bold,
+    ItalicFont = *-Italic,
+  ]
+\fi
 
 \mode<presentation>
 
