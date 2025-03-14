@@ -350,7 +350,9 @@
     show polygon: paused-content
     show image: paused-content
     show list: paused-content
+    show list.item: paused-content
     show enum: paused-content
+    show enum.item: paused-content
 
     body
   }
