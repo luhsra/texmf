@@ -255,13 +255,13 @@
   if depth == 0 {
     block(
       inset: (right: 1em),
-      height: 0.8em,
+      height: 2em/3,
       align(horizon, square(size: 0.5em, fill: fill)),
     )
   } else {
     block(
       inset: (right: 0.5em),
-      height: 0.8em,
+      height: 2em/3,
       align(horizon, square(size: 0.4em, fill: luh.gray)),
     )
   }
