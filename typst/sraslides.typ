@@ -163,6 +163,7 @@
 #let title-frame(
   footer: frame-footer(numbering: false, []),
   left-logo: sra-logo(),
+  center-logo: [],
   right-logo: luh-logo(),
   body,
 ) = polylux-slide(
@@ -170,10 +171,12 @@
   header: (first-subslide: bool) => block(
     inset: (top: 4.8pt, x: -12pt),
     grid(
-      columns: (50%, 50%),
+      columns: (1fr, auto, 1fr),
       rows: (40pt),
       gutter: 2.5pt,
-      align(horizon + left, left-logo), align(horizon + right, right-logo),
+      align(horizon + left, left-logo),
+      center-logo,
+      align(horizon + right, right-logo),
     ),
   ),
   margin: (top: 40pt + 2 * 4.8pt),
