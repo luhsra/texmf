@@ -63,3 +63,12 @@ $(F).pdfpc: $(F).typ
 clean:
 	rm -f $(F).pdf $(F).pdfpc
 ```
+
+## [Slidepilot](https://slidepilot.gitbook.io/slidepilot)
+
+You can also export the pdfpc speaker notes to slidepilot.
+This presenter runs a bit better on macos.
+
+```sh
+typst query --root . ./slides.typ --field value --one "<slidepilot-file>" | xargs printf '%b' > ./slides-notes.rtf
+```
