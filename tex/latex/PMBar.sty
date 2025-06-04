@@ -1,0 +1,50 @@
+\RequirePackage{collcell}
+\RequirePackage{pgfkeys}
+
+% Define a new action code
+\def\PMBarDefCode#1{%
+  \@namedef{PMBarDoCode\detokenize{#1}\expandafter}%
+}
+
+% \PMBar{<string>}
+% 
+% parses <string> character by character and exectutes code
+% defined for the respective character with \PMBarDefCode
+% 
+% 
+\newcommand\PMBar[1]{%
+  \pgfkeys{PMBar/format={#1}}
+}
+
+\def\PMBarNext#1{%
+  \ifx\@nnil#1\relax\else%
+    \@nameuse{PMBarDoCode\detokenize{#1}\expandafter}%
+  \fi%
+}
+% With modern array.sty versions, we get a spurious \textonly@unskip, we just forward it
+\@namedef{PMBarDoCode\detokenize{\textonly@unskip}}{\textonly@unskip\PMBarNext}
+
+\newbool{PMBar}
+\def\PMBarOn{\global\booltrue{PMBar}}
+\def\PMBarOff{\global\boolfalse{PMBar}}
+\def\PMBarCell#1{%
+  \ifPMBar%
+    \PMBar{#1}%
+  \else%
+    #1%
+  \fi
+}%
+\pgfkeys{
+  PMBar/.cd,
+  @format/.code={\PMBarNext#1\@nnil},
+  format/.style={PMBar/.cd,pre/.try,@format={#1},post/.try},
+}
+\PMBarOn
+
+\newcommand\PMBarColumntype[1]{
+  \newcolumntype{#1}[1]{%
+    >{\collectcell\PMBarCell}##1<{\endcollectcell}
+  }
+}
+
+
