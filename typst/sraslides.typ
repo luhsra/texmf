@@ -308,9 +308,15 @@
 ///
 /// - title (content): Title of the presentation (for the footer)
 /// - footer-authors (none, content): If authors should be added to the footer
+/// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
 /// - body (content): The rest of the presentation
-#let theme(title: [], footer-authors: none, body) = {
-  set text(size: 12pt, font: "Rotis Sans Serif Std", weight: "light")
+#let theme(title: [], footer-authors: none, oss-font: false, body) = {
+  let (font, stretch) = if not oss-font {
+    ("Rotis Sans Serif Std", 100%)
+  } else {
+    ("Universalis ADF Std", 80%)
+  }
+  set text(size: 12pt, font: font, stretch: stretch, weight: "light")
 
   let footer = frame-footer(
     numbering: true,
