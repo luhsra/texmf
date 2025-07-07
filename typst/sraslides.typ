@@ -45,6 +45,8 @@
 #let beamergreen = luh.green.darken(20%)
 #let badbee = rgb("#cbb750")
 
+#let list-depth = counter("list-depth")
+
 /// Black'n White Safe colorbrewer colors
 #let safe = (
   yellow: rgb("#ffffbf"),
@@ -309,8 +311,14 @@
 /// - title (content): Title of the presentation (for the footer)
 /// - footer-authors (none, content): If authors should be added to the footer
 /// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
+/// - list-shrink (bool): Shrink the text in inner lists
 /// - body (content): The rest of the presentation
-#let theme(title: [], footer-authors: none, oss-font: false, body) = {
+#let theme(title: [],
+  footer-authors: none,
+  oss-font: false,
+  list-shrink: true,
+  body
+) = {
   let (font, stretch) = if not oss-font {
     ("Rotis Sans Serif Std", 100%)
   } else {
@@ -347,6 +355,34 @@
   // set list and enum styles
   set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
   set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
+
+
+  // Shrinking text for inner lists
+  show list: it => {
+    if list-shrink {
+      list-depth.step()
+      context {
+        set text(size: 0.9em) if list-depth.get().at(0) > 1
+        it
+      }
+      list-depth.update(it => it - 1)
+    } else {
+      it
+    }
+  }
+  show enum: it => {
+    if list-shrink {
+      list-depth.step()
+      context {
+        set text(size: 0.9em) if list-depth.get().at(0) > 1
+        it
+      }
+      list-depth.update(it => it - 1)
+    } else {
+      it
+    }
+  }
+
   set footnote.entry(separator: line(stroke: 0.5pt + luh.gray, length: 45mm))
   show footnote.entry: set text(size: 0.9em)
 
