@@ -1,28 +1,15 @@
 #import "logic.typ" as logic
 
 #import "logic.typ": (
-  polylux-slide,
-  uncover,
-  only,
-  alternatives,
-  alternatives-match,
-  alternatives-fn,
-  alternatives-cases,
-  one-by-one,
-  line-by-line,
-  list-one-by-one,
-  enum-one-by-one,
-  terms-one-by-one,
-  paused-content,
-  pause,
+  alternatives, alternatives-cases, alternatives-fn, alternatives-match,
+  enum-one-by-one, line-by-line, list-one-by-one, one-by-one, only, pause,
+  paused-content, polylux-slide, terms-one-by-one, uncover,
 )
 
 #import "utils.typ" as utils
 #import "utils.typ": polylux-outline, side-by-side
 
 #import "pdfpc.typ" as pdfpc
-
-#let texmf = ".."
 
 /// SRA Colors
 #let sra = (
@@ -45,8 +32,6 @@
 #let beamergreen = luh.green.darken(20%)
 #let badbee = rgb("#cbb750")
 
-#let list-depth = counter("list-depth")
-
 /// Black'n White Safe colorbrewer colors
 #let safe = (
   yellow: rgb("#ffffbf"),
@@ -62,8 +47,11 @@
 )
 
 // Images
-#let sra-logo = image.with(texmf + "/tex/latex/srabeamer/sra.bg/sra-logo.svg")
-#let luh-logo = image.with(texmf + "/tex/latex/srabeamer/sra.bg/luh-logo-rgb.svg")
+#let sra-logo = image.with("../tex/latex/srabeamer/sra.bg/sra-logo.svg")
+#let luh-logo = image.with("../tex/latex/srabeamer/sra.bg/luh-logo-rgb.svg")
+
+// Counter for the list depth
+#let list-depth = counter("list-depth")
 
 /// Create the header block
 ///
@@ -75,27 +63,21 @@
   left-logo: sra-logo,
   right-logo: luh-logo,
   first-subslide: true,
-) = box(
-  inset: (x: -7mm + 3mm, y: 1.7mm),
-  grid(
-    columns: (auto, 1fr, auto),
-    column-gutter: 5mm,
-    grid.cell(align: top + left, left-logo(height: 5.5mm)),
-    grid.cell(
-      align: top + left,
-      block(
-        inset: (top: 0.7mm),
-        // only register a heading for the first logical slide
-        if first-subslide {
-          heading(depth: 2, text(fill: luh.blue, size: 16pt, title))
-        } else {
-          text(fill: luh.blue, size: 16pt, title)
-        },
-      ),
-    ),
-    grid.cell(align: top + right, right-logo(height: 5.5mm)),
-  ),
-)
+) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
+  columns: (auto, 1fr, auto),
+  column-gutter: 5mm,
+  grid.cell(align: top + left, left-logo(height: 5.5mm)),
+  grid.cell(align: top + left, block(
+    inset: (top: 0.7mm),
+    // only register a heading for the first logical slide
+    if first-subslide {
+      heading(depth: 2, text(fill: luh.blue, size: 16pt, title))
+    } else {
+      text(fill: luh.blue, size: 16pt, title)
+    },
+  )),
+  grid.cell(align: top + right, right-logo(height: 5.5mm)),
+))
 
 
 /// Create a footer block
@@ -108,53 +90,50 @@
   section: false,
   authors: none,
   body,
-) = align(
-  left + bottom,
-  block(
-    fill: luh.lightgray,
-    width: 100%,
-    height: 5mm,
-    outset: (x: 7mm),
-    inset: (
-      left: -7mm + 3mm + 5.5mm + 5mm,
-      right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
-    ),
-    {
-      set text(size: 7pt, fill: luh.gray)
-      set align(horizon)
-
-      if authors != none {
-        body = [#authors #h(2em) #body]
-      }
-      if section {
-        let suffix = context {
-          let sections = utils.sections-state.get()
-          if sections.len() > 0 {
-            [--- #sections.last().body]
-          }
-        }
-        body = [#body #suffix]
-      }
-
-      if numbering {
-        grid(
-          columns: (1fr, auto),
-          rows: (100%),
-          body,
-          [
-            #let curr = context {
-              logic.logical-slide.display()
-            }
-            #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
-            #align(right)[#curr - #utils.last-slide-number #h(2mm)]
-          ],
-        )
-      } else {
-        body
-      }
-    },
+) = align(left + bottom, block(
+  fill: luh.lightgray,
+  width: 100%,
+  height: 5mm,
+  outset: (x: 7mm),
+  inset: (
+    left: -7mm + 3mm + 5.5mm + 5mm,
+    right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
   ),
-)
+  {
+    set text(size: 7pt, fill: luh.gray)
+    set align(horizon)
+
+    if authors != none {
+      body = [#authors #h(2em) #body]
+    }
+    if section {
+      let suffix = context {
+        let sections = utils.sections-state.get()
+        if sections.len() > 0 {
+          [--- #sections.last().body]
+        }
+      }
+      body = [#body #suffix]
+    }
+
+    if numbering {
+      grid(
+        columns: (1fr, auto),
+        rows: 100%,
+        body,
+        [
+          #let curr = context {
+            logic.logical-slide.display()
+          }
+          #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
+          #align(right)[#curr - #utils.last-slide-number #h(2mm)]
+        ],
+      )
+    } else {
+      body
+    }
+  },
+))
 
 /// Create a new title slide with an optional custom footer
 ///
@@ -170,17 +149,14 @@
   body,
 ) = polylux-slide(
   footer: footer,
-  header: (first-subslide: bool) => block(
-    inset: (top: 4.8pt, x: -12pt),
-    grid(
-      columns: (1fr, auto, 1fr),
-      rows: (40pt),
-      gutter: 2.5pt,
-      align(horizon + left, left-logo),
-      center-logo,
-      align(horizon + right, right-logo),
-    ),
-  ),
+  header: (first-subslide: bool) => block(inset: (top: 4.8pt, x: -12pt), grid(
+    columns: (1fr, auto, 1fr),
+    rows: 40pt,
+    gutter: 2.5pt,
+    align(horizon + left, left-logo),
+    center-logo,
+    align(horizon + right, right-logo),
+  )),
   margin: (top: 40pt + 2 * 4.8pt),
   align(center + horizon, body),
 )
@@ -200,14 +176,11 @@
     margin: (top: 5.5mm + 2 * 1.7mm),
     header: frame-header.with(title: title),
     footer: footer,
-    align(
-      horizon + left,
-      block(
-        width: 100%,
-        height: 1fr,
-        body,
-      ),
-    ),
+    align(horizon + left, block(
+      width: 100%,
+      height: 1fr,
+      body,
+    )),
   )
 }
 
@@ -221,19 +194,15 @@
     let sections = utils.sections-state.final()
     let current-i = utils.sections-state.get().len() - 1
 
-    enum(
-      ..enum-args,
-      ..sections.enumerate().map(((i, section)) => link(
-        section.loc,
-        if not highlight {
-          section.body
-        } else if i == current-i {
-          heading(text(section.body, size: 12pt, weight: "bold"))
-        } else {
-          text(section.body, fill: luh.gray)
-        },
-      )),
-    )
+    enum(..enum-args, ..sections
+      .enumerate()
+      .map(((i, section)) => link(section.loc, if not highlight {
+        section.body
+      } else if i == current-i {
+        heading(text(section.body, size: 12pt, weight: "bold"))
+      } else {
+        text(section.body, fill: luh.gray)
+      })))
   }
 )
 
@@ -258,17 +227,15 @@
 
 #let list-marker(fill: sra.red, depth) = {
   if depth == 0 {
-    block(
-      inset: (right: 1em),
-      height: 2em/3,
-      align(horizon, square(size: 0.5em, fill: fill)),
-    )
+    block(inset: (right: 1em), height: 2em / 3, align(horizon, square(
+      size: 0.5em,
+      fill: fill,
+    )))
   } else {
-    block(
-      inset: (right: 0.5em),
-      height: 2em/3,
-      align(horizon, square(size: 0.4em, fill: luh.gray)),
-    )
+    block(inset: (right: 0.5em), height: 2em / 3, align(horizon, square(
+      size: 0.4em,
+      fill: luh.gray,
+    )))
   }
 }
 #let enum-numbering(fill: luh.gray, ..numbers) = {
@@ -313,11 +280,12 @@
 /// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
 /// - list-shrink (bool): Shrink the text in inner lists
 /// - body (content): The rest of the presentation
-#let theme(title: [],
+#let theme(
+  title: [],
   footer-authors: none,
   oss-font: false,
   list-shrink: true,
-  body
+  body,
 ) = {
   let (font, stretch) = if not oss-font {
     ("Rotis Sans Serif Std", 100%)
@@ -390,9 +358,11 @@
   show figure.caption: it => text(10pt, it)
 
   // Convert note block into pdfpc notes
-  show raw.where(lang: "note"): it => pdfpc.speaker-note(
-    raw(it.text, lang: "md", block: true),
-  )
+  show raw.where(lang: "note"): it => pdfpc.speaker-note(raw(
+    it.text,
+    lang: "md",
+    block: true,
+  ))
 
   // collect the metadata for pdfpc
   context pdfpc.pdfpc-file(here())
