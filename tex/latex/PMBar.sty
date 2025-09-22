@@ -17,6 +17,7 @@
 }
 
 \def\PMBarNext#1{%
+% \typeout{\detokenize{>>> #1}}%
   \ifx\@nnil#1\relax\else%
     \@nameuse{PMBarDoCode\detokenize{#1}\expandafter}%
   \fi%
@@ -39,7 +40,7 @@
   @format/.code={\PMBarNext#1\@nnil},
   format/.style={PMBar/.cd,pre/.try,@format={#1},post/.try},
 }
-\PMBarOn
+\PMBarOff
 
 \newcommand\PMBarColumntype[1]{
   \newcolumntype{#1}[1]{%
