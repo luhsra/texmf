@@ -8,7 +8,7 @@ import re
 import argparse
 from pathlib import Path
 import subprocess
-import fitz_old as fitz
+import fitz
 
 import pandas as pd
 
