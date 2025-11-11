@@ -1346,13 +1346,13 @@
   % draws a helpful grid on the current slide to figure <x> and <y> parameters for \PutAt
   %
   \newcommand{\ShowPutAtGrid}{
-    \begin{textblock*}{128mm}(0cm,0cm)
-    \tikz[color=red!20!white]\draw[very thin, step=5mm] (0mm,0mm) grid (130mm,100mm);
+    \begin{textblock*}{\beamer@paperwidth}(0cm,0cm)
+    \tikz[color=red!20!white]\draw[very thin, step=5mm] (0mm,0mm) grid (\beamer@paperwidth,100mm);
     \end{textblock*}
-    \begin{textblock*}{128mm}(0cm,0cm)
+    \begin{textblock*}{\beamer@paperwidth}(0cm,0cm)
     \begin{tikzpicture}[color=red]
-      \draw[step=1cm] (0,0mm) grid (130mm,100mm);
-      \foreach \n in {0,...,12}
+      \draw[step=1cm] (0,0mm) grid (\beamer@paperwidth,100mm);
+      \foreach \n in {0,...,20}
         \draw[xshift=.5mm,yshift=-1.5mm, inner sep=0pt, anchor=west] (\n,10) node {\scriptsize{\textbf{\n}}};
       \foreach \n in {1,...,9}
         \draw[xshift=.5mm,yshift=-1.5mm, inner sep=0pt, anchor=west] (0,10-\n) node {\scriptsize{\textbf{\n}}};
