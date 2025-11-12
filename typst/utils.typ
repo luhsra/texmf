@@ -58,7 +58,7 @@
 
 #let _size-to-pt(size, styles, container-dimension) = {
   let to-convert = size
-  if type(size) == "ratio" {
+  if type(size) == ratio {
     to-convert = container-dimension * size
   }
   measure(v(to-convert), styles).height

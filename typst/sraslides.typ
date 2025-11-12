@@ -273,43 +273,14 @@
   )
 }
 
-/// Initializes the theme
-///
-/// - title (content): Title of the presentation (for the footer)
-/// - footer-authors (none, content): If authors should be added to the footer
-/// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
-/// - list-shrink (bool): Shrink the text in inner lists
-/// - body (content): The rest of the presentation
-#let theme(
-  title: [],
-  footer-authors: none,
-  oss-font: false,
-  list-shrink: true,
-  body,
-) = {
+/// Apply basic theming for non-slide content, e.g., figures
+#let basic-theme(oss-font: false, list-shrink: true, body) = {
   let (font, stretch) = if not oss-font {
     ("Rotis Sans Serif Std", 100%)
   } else {
     ("Universalis ADF Std", 80%)
   }
   set text(size: 12pt, font: font, stretch: stretch, weight: "light")
-
-  let footer = frame-footer(
-    numbering: true,
-    section: true,
-    authors: footer-authors,
-    title,
-  )
-
-  set page(
-    width: 16cm,
-    height: 9cm,
-    margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
-    header: [],
-    header-ascent: 0mm,
-    footer-descent: 0mm,
-    footer: footer,
-  )
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
@@ -323,7 +294,6 @@
   // set list and enum styles
   set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
   set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
-
 
   // Shrinking text for inner lists
   show list: it => {
@@ -363,6 +333,42 @@
     lang: "md",
     block: true,
   ))
+
+  body
+}
+
+/// Initializes the theme
+///
+/// - title (content): Title of the presentation (for the footer)
+/// - footer-authors (none, content): If authors should be added to the footer
+/// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
+/// - list-shrink (bool): Shrink the text in inner lists
+/// - body (content): The rest of the presentation
+#let theme(
+  title: [],
+  footer-authors: none,
+  oss-font: false,
+  list-shrink: true,
+  body,
+) = {
+  show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
+
+  let footer = frame-footer(
+    numbering: true,
+    section: true,
+    authors: footer-authors,
+    title,
+  )
+
+  set page(
+    width: 16cm,
+    height: 9cm,
+    margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
+    header: [],
+    header-ascent: 0mm,
+    footer-descent: 0mm,
+    footer: footer,
+  )
 
   // collect the metadata for pdfpc
   context pdfpc.pdfpc-file(here())
