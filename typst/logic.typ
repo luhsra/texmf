@@ -257,17 +257,24 @@
 
 #let _items-one-by-one(fn, start: 1, ..args) = {
   let kwargs = args.named()
-  let items = args.pos()
-  let covered-items = items
-    .enumerate()
-    .map(((idx, item)) => uncover(
+  let items = args.pos().enumerate()
+  for (idx,item) in items {
+    uncover(
       (beginning: idx + start),
-      item,
-    ))
-  fn(
-    ..kwargs,
-    ..covered-items,
-  )
+      fn(..kwargs, item)
+    )
+  }
+
+  // let covered-items = items
+  //   .enumerate()
+  //   .map(((idx, item)) => uncover(
+  //     (beginning: idx + start),
+  //     item,
+  //   ))
+  // fn(
+  //   ..kwargs,
+  //   ..covered-items,
+  // )
 }
 
 #let list-one-by-one(start: 1, ..args) = {
