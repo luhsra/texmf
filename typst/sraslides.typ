@@ -1,15 +1,7 @@
-#import "logic.typ" as logic
-
-#import "logic.typ": (
-  alternatives, alternatives-cases, alternatives-fn, alternatives-match,
-  enum-one-by-one, line-by-line, list-one-by-one, one-by-one, only, pause,
-  paused-content, polylux-slide, terms-one-by-one, uncover,
-)
-
-#import "utils.typ" as utils
-#import "utils.typ": polylux-outline, side-by-side
-
-#import "pdfpc.typ" as pdfpc
+#import "@preview/touying:0.6.1": *
+#import "slidepilot.typ"
+// Backward compatibility
+#import components: side-by-side
 
 /// SRA Colors
 #let sra = (
@@ -53,177 +45,6 @@
 // Counter for the list depth
 #let list-depth = counter("list-depth")
 
-/// Create the header block
-///
-/// - title (content): Title
-/// - left-logo (image): Left logo
-/// - right-logo (image): Right logo
-#let frame-header(
-  title: [],
-  left-logo: sra-logo,
-  right-logo: luh-logo,
-  first-subslide: true,
-) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
-  columns: (auto, 1fr, auto),
-  column-gutter: 5mm,
-  grid.cell(align: top + left, left-logo(height: 5.5mm)),
-  grid.cell(align: top + left, block(
-    inset: (top: 0.7mm),
-    // only register a heading for the first logical slide
-    if first-subslide {
-      heading(depth: 2, text(fill: luh.blue, size: 16pt, title))
-    } else {
-      text(fill: luh.blue, size: 16pt, title)
-    },
-  )),
-  grid.cell(align: top + right, right-logo(height: 5.5mm)),
-))
-
-
-/// Create a footer block
-///
-/// - numbering (bool): Show frame number
-/// - section (bool): Show current section
-/// - authors (content, none): Show the given authors in the footer
-#let frame-footer(
-  numbering: true,
-  section: false,
-  authors: none,
-  body,
-) = align(left + bottom, block(
-  fill: luh.lightgray,
-  width: 100%,
-  height: 5mm,
-  outset: (x: 7mm),
-  inset: (
-    left: -7mm + 3mm + 5.5mm + 5mm,
-    right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
-  ),
-  {
-    set text(size: 7pt, fill: luh.gray)
-    set align(horizon)
-
-    if authors != none {
-      body = [#authors #h(2em) #body]
-    }
-    if section {
-      let suffix = context {
-        let sections = utils.sections-state.get()
-        if sections.len() > 0 {
-          [--- #sections.last().body]
-        }
-      }
-      body = [#body #suffix]
-    }
-
-    if numbering {
-      grid(
-        columns: (1fr, auto),
-        rows: 100%,
-        body,
-        [
-          #let curr = context {
-            logic.logical-slide.display()
-          }
-          #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
-          #align(right)[#curr - #utils.last-slide-number #h(2mm)]
-        ],
-      )
-    } else {
-      body
-    }
-  },
-))
-
-/// Create a new title slide with an optional custom footer
-///
-/// - footer (content): Custom footer content
-/// - left-logo (content): Logo for the header
-/// - right-logo (content): Logo for the header
-/// - body (content): Frame content
-#let title-frame(
-  footer: frame-footer(numbering: false, []),
-  left-logo: sra-logo(),
-  center-logo: [],
-  right-logo: luh-logo(),
-  body,
-) = polylux-slide(
-  footer: footer,
-  header: (first-subslide: bool) => block(inset: (top: 4.8pt, x: -12pt), grid(
-    columns: (1fr, auto, 1fr),
-    rows: 40pt,
-    gutter: 2.5pt,
-    align(horizon + left, left-logo),
-    center-logo,
-    align(horizon + right, right-logo),
-  )),
-  margin: (top: 40pt + 2 * 4.8pt),
-  align(center + horizon, body),
-)
-
-
-/// Create a new slide with the given title
-///
-/// - title (content): The title of this slide
-/// - section (bool, content): Create a new section, if `true` use the `title`
-#let frame(title: [], section: false, body, footer: auto) = {
-  if section == true {
-    utils.register-section(title)
-  } else if type(section) == content {
-    utils.register-section(section)
-  }
-  polylux-slide(
-    margin: (top: 5.5mm + 2 * 1.7mm),
-    header: frame-header.with(title: title),
-    footer: footer,
-    align(horizon + left, block(
-      width: 100%,
-      height: 1fr,
-      body,
-    )),
-  )
-}
-
-/// Generate a chapter outline, which (optionally) highlights the
-/// current section
-///
-/// - enum-args (dictionary): Extra parameters for the underlying enum
-/// - highlight (bool): Highlight the current section
-#let sections-outline(enum-args: (:), highlight: true) = (
-  context {
-    let sections = utils.sections-state.final()
-    let current-i = utils.sections-state.get().len() - 1
-
-    enum(..enum-args, ..sections
-      .enumerate()
-      .map(((i, section)) => link(section.loc, if not highlight {
-        section.body
-      } else if i == current-i {
-        heading(text(section.body, size: 12pt, weight: "bold"))
-      } else {
-        text(section.body, fill: luh.gray)
-      })))
-  }
-)
-
-/// Show a list of all chapters and optionally create a new one
-///
-/// - title (content): The title of this slide
-/// - new (bool, content): Create a new section and highlight it
-/// - spacing (length, fraction): Spacing between items
-/// - body (content): Add this to the bottom of the frame
-#let sections-frame(
-  title: [Agenda],
-  new: false,
-  spacing: 20pt,
-  body: [],
-) = frame(title: title, section: new)[
-  #sections-outline(
-    enum-args: (tight: false, spacing: spacing),
-    highlight: new == true or type(new) == content,
-  )
-  #body
-]
 
 #let list-marker(fill: sra.red, depth) = {
   if depth == 0 {
@@ -241,6 +62,7 @@
 #let enum-numbering(fill: luh.gray, ..numbers) = {
   text(fill: fill, [#numbers.pos().map(n => [#n]).join[.].])
 }
+
 
 /// Create a block with a title and a body
 ///
@@ -273,7 +95,274 @@
   )
 }
 
+/// Create the header block
+///
+/// - title (content): Title
+/// - left-logo (image): Left logo
+/// - right-logo (image): Right logo
+#let slide-header(
+  title: [],
+  left-logo: sra-logo(),
+  right-logo: luh-logo(),
+  first-subslide: true,
+) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
+  columns: (auto, 1fr, auto),
+  rows: 5.5mm,
+  column-gutter: 5mm,
+  grid.cell(align: top + left, left-logo),
+  grid.cell(align: top + left, block(
+    inset: (top: 0.7mm),
+    text(fill: luh.blue, size: 16pt, title),
+  )),
+  grid.cell(align: top + right, right-logo),
+))
+
+
+/// Create a footer block
+///
+/// - numbering (bool): Show frame number
+/// - section (bool): Show current section
+/// - author (content, none): Show the given author in the footer
+#let slide-footer(
+  numbering: true,
+  section: none,
+  author: none,
+  body,
+) = align(left + bottom, block(
+  fill: luh.lightgray,
+  width: 100%,
+  height: 5mm,
+  outset: (x: 7mm),
+  inset: (
+    left: -7mm + 3mm + 5.5mm + 5mm,
+    right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
+  ),
+  {
+    set text(size: 7pt, fill: luh.gray)
+    set align(horizon)
+
+    if author != none {
+      body = [#author #h(2em) #body]
+    }
+    if section != none and section != [] {
+      body += section
+    }
+
+    if numbering {
+      grid(
+        columns: (1fr, auto),
+        rows: 100%,
+        body,
+        [
+          #let curr = context utils.slide-counter.display()
+          #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
+          #align(right)[#curr - #utils.last-slide-number #h(2mm)]
+        ],
+      )
+    } else {
+      body
+    }
+  },
+))
+
+/// Default slide function for the presentation.
+///
+/// - config (dictionary): The configuration of the slide.
+///
+///   You can use `config-xxx` to set the configuration of the slide.
+///   For more several configurations, you can use `utils.merge-dicts`
+///   to merge them.
+///
+/// - repeat (int, auto): The number of subslides. Default is `auto`,
+///   which means touying will automatically calculate the number of subslides.
+///
+///   The `repeat` argument is necessary when you use
+///   `#slide(repeat: 3, self => [ .. ])` style code to create a slide.
+///   The callback-style `uncover` and `only` cannot be detected by
+///   touying automatically.
+///
+/// - setting (function): The setting of the slide.
+///   You can use it to add some set/show rules for the slide.
+///
+/// - composer (function): The composer of the slide.
+///   You can use it to set the layout of the slide.
+///
+///   For example, `#slide(composer: (1fr, 2fr, 1fr))[A][B][C]` to split the
+///   slide into three parts. The first and the last parts will take 1/4 of the
+///   slide, and the second part will take 1/2 of the slide.
+///
+///   If you pass a non-function value like `(1fr, 2fr, 1fr)`,
+///   it will be assumed to be the first argument of the
+///   `components.side-by-side` function.
+///
+///   For example, `#slide(composer: 2)[A][B][#grid.cell(colspan: 2)[Footer]]`
+///   will make the `Footer` cell take 2 columns.
+///
+///   If you want to customize the composer, you can pass a function to the
+///   `composer` argument. The function should receive the contents of the
+///   slide and return the content of the slide, like
+///   `#slide(composer: grid.with(columns: 2))[A][B]`.
+///
+/// - bodies (array): The contents of the slide.
+///   You can call the `slide` function with syntax like `#slide[A][B][C]`
+///   to create a slide.
+#let slide(
+  config: (:),
+  repeat: auto,
+  setting: body => body,
+  composer: auto,
+  ..bodies,
+) = touying-slide-wrapper(self => {
+  set align(horizon)
+  let header(self) = utils.call-or-display(self, self.store.header)
+  let footer(self) = utils.call-or-display(self, self.store.footer)
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: header,
+      footer: footer,
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    repeat: repeat,
+    setting: setting,
+    composer: composer,
+    ..bodies,
+  )
+})
+
+
+/// Title slide for the presentation.
+///
+/// - config (dictionary): The configuration of the slide.
+///   You can use `config-xxx` to set the configuration of the slide.
+///   For more several configurations, you can use `utils.merge-dicts`
+///   to merge them.
+/// - footer (content): Custom footer content
+/// - left-logo (content): Logo for the header
+/// - center-logo (content): Logo for the header
+/// - right-logo (content): Logo for the header
+/// - body (content): Frame content
+#let title-slide(
+  config: (:),
+  footer: none,
+  left-logo: auto,
+  center-logo: [],
+  right-logo: auto,
+  body,
+) = touying-slide-wrapper(self => {
+  let l-logo = if left-logo == auto { self.info.logo } else { left-logo }
+  let r-logo = if right-logo == auto { self.store.right-logo } else {
+    right-logo
+  }
+
+  let self = utils.merge-dicts(
+    self,
+    config-common(freeze-slide-counter: true),
+    config-page(
+      header: block(inset: (top: 4.8pt, x: -12pt), grid(
+        columns: (1fr, auto, 1fr),
+        rows: 40pt,
+        gutter: 2.5pt,
+        align(horizon + left, l-logo),
+        center-logo,
+        align(horizon + right, r-logo),
+      )),
+      footer: slide-footer(numbering: false, align(center, footer)),
+      margin: (top: 40pt + 2 * 4.8pt),
+    ),
+  )
+  touying-slide(self: self, config: config, align(
+    center + horizon,
+    body,
+  ))
+})
+
+
+/// New section slide for the presentation.
+///
+/// - config (dictionary): The configuration of the slide.
+///   You can use `config-xxx` to set the configuration of the slide.
+///   For more several configurations, you can use `utils.merge-dicts`
+///   to merge them.
+#let new-section-slide(
+  config: (:),
+  repeat: auto,
+  setting: body => body,
+  composer: auto,
+  ..bodies,
+) = touying-slide-wrapper(self => {
+  set align(horizon)
+  let header = slide-header(
+    title: utils.display-current-heading(self: self, level: 1),
+    left-logo: self.info.logo,
+    right-logo: self.store.right-logo,
+  )
+  let footer = slide-footer(author: self.info.author, self.info.title)
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: header,
+      footer: footer,
+    ),
+  )
+  // Ensure at least one body
+  // let bodies = bodies.pos()
+  // if bodies.len() == 0 or bodies.at(0) == none or bodies.at(0) == [] {
+  //   bodies = (outline(depth: 1, title: none),)
+  // }
+  touying-slide(
+    self: self,
+    config: config,
+    repeat: repeat,
+    setting: setting,
+    composer: composer,
+    ..bodies,
+  )
+})
+
+
+/// Focus on some content.
+///
+/// Example: `#focus-slide[Wake up!]`
+///
+/// - config (dictionary): The configuration of the slide.
+///   You can use `config-xxx` to set the configuration of the slide.
+///   For more several configurations, you can use `utils.merge-dicts`
+///   to merge them.
+///
+/// - background (color, auto): The background color of the slide.
+///   Default is `auto`, which means the primary color of the slides.
+///
+/// - foreground (color): The foreground color of the slide.
+#let focus-slide(
+  config: (:),
+  background: auto,
+  foreground: white,
+  body,
+) = touying-slide-wrapper(self => {
+  self = utils.merge-dicts(
+    self,
+    config-common(freeze-slide-counter: true),
+    config-page(fill: if background == auto {
+      self.colors.primary
+    } else {
+      background
+    }),
+  )
+  set text(fill: foreground, size: 1.5em)
+  touying-slide(self: self, config: config, align(center + horizon, body))
+})
+
+
+
 /// Apply basic theming for non-slide content, e.g., figures
+///
+/// - oss-font (boolean): Use Open Source Software fonts
+/// - list-shrink (boolean): Enable list shrinking
+/// - body (content): Document body
 #let basic-theme(oss-font: false, list-shrink: true, body) = {
   let (font, stretch) = if not oss-font {
     ("Rotis Sans Serif Std", 100%)
@@ -340,38 +429,96 @@
 /// Initializes the theme
 ///
 /// - title (content): Title of the presentation (for the footer)
-/// - footer-authors (none, content): If authors should be added to the footer
-/// - oss-font (bool): Use an open-source font instead of LUH's proprietary one
-/// - list-shrink (bool): Shrink the text in inner lists
-/// - body (content): The rest of the presentation
-#let theme(
+/// - author (content): Author of the presentation (for the footer)
+/// - oss-font (boolean): Use Open Source Software fonts
+/// - list-shrink (boolean): Enable list shrinking
+/// - enable-pdfpc (boolean): Enable pdfpc export
+/// - enable-slidepilot (boolean): Enable SlidePilot export
+/// - body (content): Body of the presentation
+#let sra-theme(
   title: [],
-  footer-authors: none,
+  author: none,
+  date: datetime.today(),
   oss-font: false,
   list-shrink: true,
+  enable-pdfpc: true,
+  enable-slidepilot: false,
+  left-logo: sra-logo(),
+  right-logo: luh-logo(),
   body,
 ) = {
+  set document(title: title, author: author, date: date)
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
 
-  let footer = frame-footer(
-    numbering: true,
-    section: true,
-    authors: footer-authors,
-    title,
+  // Style for outlines
+  show outline.entry: it => list(block(inset: (bottom: 0.2cm), link(
+    it.element.location(),
+    {
+      if it.element.location().page() == here().page() {
+        strong(it.body())
+      } else {
+        it.body()
+      }
+    },
+  )))
+
+  let header = self => slide-header(
+    title: utils.display-current-heading(self: self, level: 2),
+    left-logo: self.info.logo,
+    right-logo: self.store.right-logo,
+  )
+  let footer = self => slide-footer(
+    author: author,
+    section: utils.display-current-heading(
+      self: self,
+      level: 1,
+      style: it => [~---~#it.body],
+    ),
+    self.info.title,
   )
 
-  set page(
-    width: 16cm,
-    height: 9cm,
-    margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
-    header: [],
-    header-ascent: 0mm,
-    footer-descent: 0mm,
-    footer: footer,
+  show: touying-slides.with(
+    config-page(
+      width: 16cm,
+      height: 9cm,
+      margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
+      header-ascent: 0mm,
+      footer-descent: 0mm,
+      footer: footer,
+    ),
+    config-common(
+      slide-fn: slide,
+      new-section-slide-fn: new-section-slide,
+      zero-margin-header: false,
+      zero-margin-footer: false,
+      enable-pdfpc: enable-pdfpc or enable-slidepilot,
+    ),
+    config-colors(
+      neutral-light: gray,
+      neutral-lightest: rgb("#ffffff"),
+      neutral-darkest: rgb("#000000"),
+      primary: luh.blue,
+      secondary: sra.red,
+    ),
+    // save the variables for later use
+    config-store(
+      header: header,
+      footer: footer,
+      right-logo: right-logo,
+    ),
+    config-info(
+      title: title,
+      // subtitle: [Subtitle],
+      author: author,
+      date: date,
+      institution: [Leibniz Universität Hannover],
+      logo: left-logo,
+    ),
   )
 
-  // collect the metadata for pdfpc
-  context pdfpc.pdfpc-file(here())
+  if enable-slidepilot {
+    context slidepilot.slidepilot-file(here())
+  }
 
   body
 }
