@@ -2,9 +2,9 @@
 ///
 /// - text (string, raw): The note.
 #let speaker-note(text) = {
-  let text = if type(text) == "string" {
+  let text = if type(text) == str {
     text + "\n"
-  } else if type(text) == "content" and text.func() == raw {
+  } else if type(text) == content and text.func() == raw {
     text.text.trim() + "\n"
   } else {
     panic("A note must either be a string or a raw block")
@@ -47,9 +47,9 @@
   }
 
   let _time-config(time, msg-name, tag-name) = {
-    let time = if type(time) == "datetime" {
+    let time = if type(time) == datetime {
       time.display("[hour padding:zero repr:24]:[minute padding:zero]")
-    } else if type(time) == "string" {
+    } else if type(time) == str {
       time
     } else {
       panic(msg-name + " must be either a datetime or a string in the HH:MM format.")
@@ -61,15 +61,12 @@
   if start-time != none {
     _time-config(start-time, "Start time", "StartTime")
   }
-
   if end-time != none {
     _time-config(end-time, "End time", "EndTime")
   }
-
   if last-minutes != none {
     [ #metadata((t: "LastMinutes", v: last-minutes)) <pdfpc> ]
   }
-
   if note-font-size != none {
     [ #metadata((t: "NoteFontSize", v: note-font-size)) <pdfpc> ]
   }
@@ -90,16 +87,12 @@
     }
 
     let transition-str = (
-      default-transition.at("type", default: "replace")
-      + ":" +
-      str(default-transition.at("duration-seconds", default: 1))
-      + ":" +
-      dir-to-angle(default-transition.at("angle", default: rtl))
-      + ":" +
-      default-transition.at("alignment", default: "horizontal")
-      + ":" +
-      default-transition.at("direction", default: "outward")
-    )
+      default-transition.at("type", default: "replace"),
+      str(default-transition.at("duration-seconds", default: 1)),
+      dir-to-angle(default-transition.at("angle", default: rtl)),
+      default-transition.at("alignment", default: "horizontal"),
+      default-transition.at("direction", default: "outward"),
+    ).join(":")
 
     [ #metadata((t: "DefaultTransition", v: transition-str)) <pdfpc> ]
   }
@@ -133,7 +126,7 @@
       if item.t == "Idx" {
         page.idx = item.v
       } else if item.t == "LogicalSlide" {
-        page.label = str(item.v)
+        page.label = "Page " + str(item.v)
       } else if item.t == "Overlay" {
         page.overlay = item.v
         page.forcedOverlay = item.v > 0

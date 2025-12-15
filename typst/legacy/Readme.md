@@ -9,15 +9,7 @@ Just remember to change the first line (the import) to the following:
 + #import "texmf/typst/sraslides.typ": *
 ```
 
-This theme is based on [touying](https://touying-typ.github.io/), so take a look into their documentation.
-
-
-## Migration from our [Legacy](legacy) Polylux Fork
-
-- Touying uses the `#slide` function (instead of `#frame`) and level 2 headings to create slides
-- Sections are created with level 1 headings
-- Section outlines can be created with `#outline(title: none, depth: 1)`
-
+As this is a fork of Polylux, most of its documentation is still helpful ([Polylux book](https://polylux.dev/book/polylux.html)).
 
 ## PDFPC
 

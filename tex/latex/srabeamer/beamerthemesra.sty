@@ -308,7 +308,7 @@
 		\ifbeamer@dosecondmode%
 		  \def\factor{0.5}%
 		\fi%
-		\setlength{\sraRightLeftMargin}{2\sraSidebarWidth+\textwidth-\factor\pagewidth}%
+		\setlength{\sraRightLeftMargin}{2\sraSidebarWidth+\textwidth-\factor\pdfpagewidth}%
 		\hspace*{-\sraRightLeftMargin}\begin{minipage}{\textwidth+\sraRightLeftMargin}\begin{center}%
 	}
 	{\end{center}\end{minipage}\endgroup}
@@ -550,8 +550,6 @@
   \setbeamerfont{author}{size=\fontsize{12}{14}\selectfont}
   \setbeamercolor{itemize item}{fg=srared}
   \pgfkeys{/sra/background/.cd,\beamer@bgstyle}%
-
-  \usepackage[light,condensed]{roboto}
   \usepackage[absolute,overlay]{textpos}
   \setbeamertemplate{title page}{
     \begin{textblock*}{\srabeamer@titlewidth}(0.8cm,\srabeamer@titlexoffset)%
