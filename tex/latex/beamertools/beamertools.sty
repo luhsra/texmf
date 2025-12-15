@@ -1632,3 +1632,15 @@
     \coordinate (#1 desc) at ([yshift=-\pdepth]pic cs:#1);%
   }
 \fi% else \ifbtNoTikZ
+
+\newif\ifbtShowSlideNumbers
+\btShowSlideNumberstrue
+\define@key{beamerframe}{second}[false]{
+  \ifbeamer@twoscreenstext%
+    \pgfpagescurrentpagewillbelogicalpage{2}%
+    \addtocounter{framenumber}{-1}%
+    \csname btShowSlideNumbers#1\endcsname%
+  \else%
+    \PutAt[5cm]{(14cm,8.5cm)}{{\color{red}\textbf{SECOND}}}
+  \fi
+}
