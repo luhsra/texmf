@@ -445,6 +445,7 @@
   enable-slidepilot: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
+  ..args,
   body,
 ) = {
   set document(title: title, author: author, date: date)
@@ -516,6 +517,7 @@
       institution: [Leibniz Universität Hannover],
       logo: left-logo,
     ),
+      ..args,
   )
 
   if enable-slidepilot {
