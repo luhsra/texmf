@@ -462,6 +462,8 @@
     },
   )))
 
+  show std.title: set text(fill: luh.blue, size: 24pt)
+
   let header = self => slide-header(
     title: utils.display-current-heading(self: self, level: 2),
     left-logo: self.info.logo,
