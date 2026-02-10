@@ -260,7 +260,6 @@
 
   let self = utils.merge-dicts(
     self,
-    config-common(freeze-slide-counter: true),
     config-page(
       header: block(inset: (top: 4.8pt, x: -12pt), grid(
         columns: (1fr, auto, 1fr),
