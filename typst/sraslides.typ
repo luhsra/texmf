@@ -355,6 +355,18 @@
   touying-slide(self: self, config: config, align(center + horizon, body))
 })
 
+#let structure=  text.with(fill: luh.blue)
+#let Structure=  text.with(fill: luh.blue, style:"italic")
+#let STRUCTURE=  text.with(fill: luh.blue, weight: "bold")
+
+#let alert= it => text(fill: sra.red, it)
+#let Alert= it => emph(alert(it))
+#let ALERT= it => strong(alert(it))
+
+#let sample= it => text(fill: luh.green, it)
+#let Sample= it => emph(sample(it))
+#let SAMPLE= it => strong(sample(it))
+
 
 
 /// Apply basic theming for non-slide content, e.g., figures
@@ -373,8 +385,8 @@
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
 
-  show strong: set text(fill: luh.blue, weight: 300)
-  show emph: set text(fill: sra.red)
+  show strong: set text(weight: 300)
+
   show link: set text(fill: luh.blue)
   set table.cell(inset: 5pt)
   set table(stroke: 0.5pt + black)
