@@ -69,30 +69,57 @@
 /// - title (none, content): The title of the block
 /// - fill (color): The block color
 /// - body (content): The block content
-#let title-block(title: none, fill: luh.blue, width: 100%, body) = {
+#let title-block(title: none,
+  fill: luh.blue,
+  width: 100%,
+  alignment: top + left,
+  title-alignment: none,
+  body-alignment: none,
+  place-alignment: none,
+  float: false,
+  body) = {
   // Change color of list and enum markers
   set list(marker: list-marker.with(fill: fill))
   set enum(numbering: enum-numbering.with(fill: fill))
-  show strong: text.with(fill: fill)
-  stack(
-    spacing: 0pt,
-    if title != none {
-      block(
-        fill: color.lighten(fill, 80%),
-        stroke: 0.5pt + color.lighten(fill, 80%),
-        width: width,
-        inset: 4pt,
-        text(fill: fill, title),
-      )
-    },
-    block(
-      fill: color.lighten(fill, 90%),
-      stroke: 0.5pt + color.lighten(fill, 80%),
-      width: width,
-      inset: 8pt,
-      body,
-    ),
-  )
+
+  if body-alignment == none {body-alignment = alignment}
+  if title-alignment == none {title-alignment = alignment}
+  if place-alignment == none {place-alignment = alignment}
+
+  context {
+    let in_width = width
+    let width = width
+    if in_width == auto {
+      width = calc.max(measure(title).width + 8pt, measure(body).width + 16pt)
+    }
+
+    show strong: text.with(fill: fill)
+    place(place-alignment, float: float,
+      stack(
+        spacing: 0pt,
+        if title != none {
+          block(
+            fill: color.lighten(fill, 80%),
+            stroke: 0.5pt + color.lighten(fill, 80%),
+            width: width,
+            inset: 4pt,
+            {
+              set align(title-alignment)
+              text(fill: fill, title)
+            },
+          )
+        },
+        block(
+          fill: color.lighten(fill, 90%),
+          stroke: 0.5pt + color.lighten(fill, 80%),
+          width: width,
+          inset: 8pt,
+          {
+            set align(body-alignment)
+            body
+          }),
+      ))
+  }
 }
 
 /// Create the header block
