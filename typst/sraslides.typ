@@ -24,6 +24,10 @@
 #let beamergreen = luh.green.darken(20%)
 #let badbee = rgb("#cbb750")
 
+// numbering-by-chapter
+#let chapter-count = counter("chapter counter")
+
+
 /// Black'n White Safe colorbrewer colors
 #let safe = (
   yellow: rgb("#ffffbf"),
@@ -147,13 +151,15 @@
 
 /// Create a footer block
 ///
-/// - numbering (bool): Show frame number
-/// - section (bool): Show current section
+/// - numbering (auto, content): Show frame number
+/// - section (auto, content): Show current section
 /// - author (content, none): Show the given author in the footer
 #let slide-footer(
-  numbering: true,
-  section: none,
+  self: none,
+  numbering: auto,
+  section: auto,
   author: none,
+  green-box: true,
   body,
 ) = align(left + bottom, block(
   fill: luh.lightgray,
@@ -162,33 +168,60 @@
   outset: (x: 7mm),
   inset: (
     left: -7mm + 3mm + 5.5mm + 5mm,
-    right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
+    right: -7mm + 3mm,
   ),
   {
     set text(size: 7pt, fill: luh.gray)
+    show link: set text(size: 7pt, fill: luh.gray)
+    show heading: set text(size: 7pt, fill: luh.gray)
     set align(horizon)
 
     if author != none {
       body = [#author #h(2em) #body]
     }
+    if section == auto {
+      section =  context (if self.slide-level > 2 {
+          if utils.current-heading(level: self.slide-level - 2) != none {
+            link(
+              utils.current-heading(level: self.slide-level -2).location(),
+              utils.display-current-heading(level: self.slide-level -2)
+            )
+          }
+        },
+        if utils.current-heading(level: self.slide-level -1) != none {
+        link(
+          utils.current-heading(level: self.slide-level -1).location(),
+          utils.display-current-heading(
+            level: self.slide-level - 1,
+          )
+        )
+        }).filter(it => it != none).join(" | ")
+
+    }
     if section != none and section != [] {
       body += section
     }
 
-    if numbering {
-      grid(
-        columns: (1fr, auto),
-        rows: 100%,
-        body,
-        [
-          #let curr = context utils.slide-counter.display()
-          #place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
-          #align(right)[#curr - #utils.last-slide-number #h(2mm)]
-        ],
-      )
-    } else {
-      body
+    if numbering in (none, false) {
+      numbering = []
     }
+    if numbering == auto {
+      if self.store.numbering-by-chapter {
+        numbering = [#context chapter-count.get().at(0) - #context utils.slide-counter.display()]
+      } else {
+        numbering = {
+          let curr = context utils.slide-counter.display()
+          [#curr - #utils.last-slide-number]
+        }
+      }
+    }
+    grid(
+      columns: (1fr, auto),
+      rows: 100%,
+      body,
+      align(right)[#numbering #h(2mm)],
+    )
+    if green-box {place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))}
   },
 ))
 
@@ -296,7 +329,7 @@
         center-logo,
         align(horizon + right, r-logo),
       )),
-      footer: slide-footer(numbering: false, align(center, footer)),
+      footer: slide-footer(self: self, numbering: false, green-box: false, align(center, footer)),
       margin: (top: 40pt + 2 * 4.8pt),
     ),
   )
@@ -326,7 +359,7 @@
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
-  let footer = slide-footer(author: self.info.author, self.info.title)
+  let footer(self) = utils.call-or-display(self, self.store.footer)
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -507,14 +540,40 @@
         )
     )
 
+  // chapter-numbering
+  show heading.where(level: 2): it => {
+    if numbering-by-chapter {
+      chapter-count.step()
+      utils.slide-counter.update(1)
+      let cha = counter(heading).get()
+      [#cha\ #chapter-count.get()\ ]
+      cha.at(1) = chapter-count.get().first() + 1
+      [#cha]
+      // counter(heading).update(cha)
+    }
+    it
+  }
+  // show heading.where(level: 1):
+  set heading(numbering: (..nums) => {
+    if nums.pos().len() == 1{
+      numbering("A", ..nums)
+    } else if nums.pos().len() == 2 {
+      numbering("1.", chapter-count.get().first() + 1)
+    } else {
+      numbering("1.", ..chapter-count.get(), ..nums.pos().slice(2))
+    }
+  })
+
+
   show std.title: set text(fill: luh.blue, size: 24pt)
 
   let header = self => slide-header(
-    title: utils.display-current-heading(self: self, level: self.slide-level),
+    title: utils.display-current-heading(self: self, level: self.slide-level, numbered: false),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
   let footer = self => slide-footer(
+    self: self,
     author: author,
     section: utils.display-current-heading(
       self: self,
@@ -539,6 +598,7 @@
       zero-margin-header: false,
       zero-margin-footer: false,
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
+      reset-page-counter-to-slide-counter: not numbering-by-chapter
     ),
     config-colors(
       neutral-light: gray,
