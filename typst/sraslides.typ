@@ -524,21 +524,32 @@
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
 
   // Style for outlines
-    show outline.entry: it => list(
-        block(inset: (bottom: 0.2cm),
-            link(
-                it.element.location(),
-                it.indented(it.prefix(),
-                    {
-                        if it.element.location().page() == here().page() {
-                            strong(it.body())
-                        } else {
-                            it.body()
-                        }
-                    }),
-            )
+  show outline.entry: it => {
+    let styled(it) = {
+      list(
+        block(inset: (bottom: 0.5em),
+          link(
+            it.element.location(),
+            if it.element.location().page() == here().page() {
+              strong(it.body())
+            } else {
+              it.body()
+            },
+          )
         )
-    )
+      )
+    }
+    let wrap(it, level) = {
+      if level == 1 {
+        styled(it)
+      } else {
+        list(marker:[#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak], wrap(it, level - 1))
+      }
+    }
+    wrap(it, it.level)
+
+  }
+
 
   // chapter-numbering
   show heading.where(level: 2): it => {
