@@ -427,6 +427,7 @@
 #let Sample= it => emph(sample(it))
 #let SAMPLE= it => strong(sample(it))
 
+#let texttt = text.with(font: "DeJaVu Sans Mono", stretch: 80%)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
