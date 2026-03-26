@@ -24,10 +24,6 @@
 #let beamergreen = luh.green.darken(20%)
 #let badbee = rgb("#cbb750")
 
-// numbering-by-chapter
-#let chapter-count = counter("chapter counter")
-
-
 /// Black'n White Safe colorbrewer colors
 #let safe = (
   yellow: rgb("#ffffbf"),
@@ -73,7 +69,8 @@
 /// - title (none, content): The title of the block
 /// - fill (color): The block color
 /// - body (content): The block content
-#let title-block(title: none,
+#let title-block(
+  title: none,
   fill: luh.blue,
   width: 100%,
   alignment: top + left,
@@ -81,14 +78,15 @@
   body-alignment: none,
   place-alignment: none,
   float: false,
-  body) = {
+  body,
+) = {
   // Change color of list and enum markers
   set list(marker: list-marker.with(fill: fill))
   set enum(numbering: enum-numbering.with(fill: fill))
 
-  if body-alignment == none {body-alignment = alignment}
-  if title-alignment == none {title-alignment = alignment}
-  if place-alignment == none {place-alignment = alignment}
+  if body-alignment == none { body-alignment = alignment }
+  if title-alignment == none { title-alignment = alignment }
+  if place-alignment == none { place-alignment = alignment }
 
   context {
     let in_width = width
@@ -98,31 +96,31 @@
     }
 
     show strong: text.with(fill: fill)
-    place(place-alignment, float: float,
-      stack(
-        spacing: 0pt,
-        if title != none {
-          block(
-            fill: color.lighten(fill, 80%),
-            stroke: 0.5pt + color.lighten(fill, 80%),
-            width: width,
-            inset: 4pt,
-            {
-              set align(title-alignment)
-              text(fill: fill, title)
-            },
-          )
-        },
+    place(place-alignment, float: float, stack(
+      spacing: 0pt,
+      if title != none {
         block(
-          fill: color.lighten(fill, 90%),
+          fill: color.lighten(fill, 80%),
           stroke: 0.5pt + color.lighten(fill, 80%),
           width: width,
-          inset: 8pt,
+          inset: 4pt,
           {
-            set align(body-alignment)
-            body
-          }),
-      ))
+            set align(title-alignment)
+            text(fill: fill, title)
+          },
+        )
+      },
+      block(
+        fill: color.lighten(fill, 90%),
+        stroke: 0.5pt + color.lighten(fill, 80%),
+        width: width,
+        inset: 8pt,
+        {
+          set align(body-alignment)
+          body
+        },
+      ),
+    ))
   }
 }
 
@@ -147,6 +145,19 @@
   )),
   grid.cell(align: top + right, right-logo),
 ))
+
+/// Get the offset of the current heading in the document
+#let global-heading-offset(heading) = {
+  if heading == none {
+    0
+  } else {
+    query(
+      selector(std.heading.where(level: heading.level)).before(
+        heading.location(),
+      ),
+    ).len()
+  }
+}
 
 
 /// Create a footer block
@@ -180,23 +191,26 @@
       body = [#author #h(2em) #body]
     }
     if section == auto {
-      section =  context (if self.slide-level > 2 {
+      section = context (
+        if self.slide-level > 2 {
           if utils.current-heading(level: self.slide-level - 2) != none {
             link(
-              utils.current-heading(level: self.slide-level -2).location(),
-              utils.display-current-heading(level: self.slide-level -2)
+              utils.current-heading(level: self.slide-level - 2).location(),
+              utils.display-current-heading(level: self.slide-level - 2),
             )
           }
         },
-        if utils.current-heading(level: self.slide-level -1) != none {
-        link(
-          utils.current-heading(level: self.slide-level -1).location(),
-          utils.display-current-heading(
-            level: self.slide-level - 1,
+        if utils.current-heading(level: self.slide-level - 1) != none {
+          link(
+            utils.current-heading(level: self.slide-level - 1).location(),
+            utils.display-current-heading(
+              level: self.slide-level - 1,
+            ),
           )
-        )
-        }).filter(it => it != none).join(" | ")
-
+        },
+      )
+        .filter(it => it != none)
+        .join(" | ")
     }
     if section != none and section != [] {
       body += section
@@ -207,7 +221,10 @@
     }
     if numbering == auto {
       if self.store.numbering-by-chapter {
-        numbering = [#context chapter-count.get().at(0) - #context utils.slide-counter.display()]
+        let l2-heading-count = context global-heading-offset(
+          utils.current-heading(level: 2),
+        )
+        numbering = [#l2-heading-count - #context utils.slide-counter.display()]
       } else {
         numbering = {
           let curr = context utils.slide-counter.display()
@@ -218,10 +235,11 @@
     grid(
       columns: (1fr, auto),
       rows: 100%,
-      body,
-      align(right)[#numbering #h(2mm)],
+      body, align(right)[#numbering #h(2mm)],
     )
-    if green-box {place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))}
+    if green-box {
+      place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
+    }
   },
 ))
 
@@ -329,7 +347,12 @@
         center-logo,
         align(horizon + right, r-logo),
       )),
-      footer: slide-footer(self: self, numbering: false, green-box: false, align(center, footer)),
+      footer: slide-footer(
+        self: self,
+        numbering: false,
+        green-box: false,
+        align(center, footer),
+      ),
       margin: (top: 40pt + 2 * 4.8pt),
     ),
   )
@@ -415,17 +438,17 @@
   touying-slide(self: self, config: config, align(center + horizon, body))
 })
 
-#let structure=  text.with(fill: luh.blue)
-#let Structure=  text.with(fill: luh.blue, style:"italic")
-#let STRUCTURE=  text.with(fill: luh.blue, weight: "bold")
+#let structure = text.with(fill: luh.blue)
+#let Structure = text.with(fill: luh.blue, style: "italic")
+#let STRUCTURE = text.with(fill: luh.blue, weight: "bold")
 
-#let alert= it => text(fill: sra.red, it)
-#let Alert= it => emph(alert(it))
-#let ALERT= it => strong(alert(it))
+#let alert = it => text(fill: sra.red, it)
+#let Alert = it => emph(alert(it))
+#let ALERT = it => strong(alert(it))
 
-#let sample= it => text(fill: luh.green, it)
-#let Sample= it => emph(sample(it))
-#let SAMPLE= it => strong(sample(it))
+#let sample = it => text(fill: luh.green, it)
+#let Sample = it => emph(sample(it))
+#let SAMPLE = it => strong(sample(it))
 
 #let texttt = text.with(font: "DeJaVu Sans Mono", stretch: 80%)
 
@@ -528,59 +551,62 @@
   show outline.entry: it => {
     let styled(it) = {
       list(
-        block(inset: (bottom: 0.5em),
-          link(
-            it.element.location(),
-            if it.element.location().page() == here().page() {
-              strong(it.body())
-            } else {
-              it.body()
-            },
-          )
-        )
+        block(inset: (bottom: 0.5em), link(
+          it.element.location(),
+          if it.element.location().page() == here().page() {
+            strong(it.body())
+          } else {
+            it.body()
+          },
+        )),
       )
     }
     let wrap(it, level) = {
       if level == 1 {
         styled(it)
       } else {
-        list(marker:[#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak], wrap(it, level - 1))
+        list(
+          marker: [#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak],
+          wrap(it, level - 1),
+        )
       }
     }
     wrap(it, it.level)
-
   }
 
+  set heading(numbering: (..nums) => {
+    if nums.pos().len() == 1 {
+      numbering("A", ..nums)
+    } else {
+      numbering("1.", ..nums.pos().slice(1))
+    }
+  })
+  show heading.where(level: 1): it => {
+    // Count level 2 headings globally
+    let l2-offset = query(
+      selector(heading.where(level: 2)).before(here()),
+    ).len()
+    counter(heading).update((..n) => (..n.pos(), l2-offset))
+    it
+  }
 
   // chapter-numbering
   show heading.where(level: 2): it => {
     if numbering-by-chapter {
-      chapter-count.step()
       utils.slide-counter.update(1)
-      let cha = counter(heading).get()
-      [#cha\ #chapter-count.get()\ ]
-      cha.at(1) = chapter-count.get().first() + 1
-      [#cha]
-      // counter(heading).update(cha)
     }
     it
   }
-  // show heading.where(level: 1):
-  set heading(numbering: (..nums) => {
-    if nums.pos().len() == 1{
-      numbering("A", ..nums)
-    } else if nums.pos().len() == 2 {
-      numbering("1.", chapter-count.get().first() + 1)
-    } else {
-      numbering("1.", ..chapter-count.get(), ..nums.pos().slice(2))
-    }
-  })
 
 
   show std.title: set text(fill: luh.blue, size: 24pt)
 
   let header = self => slide-header(
-    title: utils.display-current-heading(self: self, level: self.slide-level, numbered: false),
+    title: utils.display-current-heading(
+      self: self,
+      level: self.slide-level,
+      numbered: false,
+    ),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -610,7 +636,7 @@
       zero-margin-header: false,
       zero-margin-footer: false,
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
-      reset-page-counter-to-slide-counter: not numbering-by-chapter
+      reset-page-counter-to-slide-counter: not numbering-by-chapter,
     ),
     config-colors(
       neutral-light: gray,
@@ -624,7 +650,7 @@
       header: header,
       footer: footer,
       right-logo: right-logo,
-      numbering-by-chapter: numbering-by-chapter
+      numbering-by-chapter: numbering-by-chapter,
     ),
     config-info(
       title: title,
@@ -634,7 +660,7 @@
       institution: [Leibniz Universität Hannover],
       logo: left-logo,
     ),
-      ..args,
+    ..args,
   )
 
   if enable-slidepilot {
