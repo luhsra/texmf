@@ -1,4 +1,4 @@
-#import "@preview/touying:0.6.1": *
+#import "@preview/touying:0.6.3": *
 #import "slidepilot.typ"
 // Backward compatibility
 #import components: side-by-side
@@ -420,7 +420,7 @@
 
   // set list and enum styles
   set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
-  set enum(numbering: enum-numbering.with(fill: luh.gray), full: true)
+  set enum(numbering: enum-numbering.with(fill: luh.blue), full: true)
 
   // Shrinking text for inner lists
   show list: it => {
@@ -483,6 +483,7 @@
   enable-slidepilot: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
+  numbering-by-chapter: false,
   ..args,
   body,
 ) = {
@@ -490,16 +491,21 @@
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
 
   // Style for outlines
-  show outline.entry: it => list(block(inset: (bottom: 0.2cm), link(
-    it.element.location(),
-    {
-      if it.element.location().page() == here().page() {
-        strong(it.body())
-      } else {
-        it.body()
-      }
-    },
-  )))
+    show outline.entry: it => list(
+        block(inset: (bottom: 0.2cm),
+            link(
+                it.element.location(),
+                it.indented(it.prefix(),
+                    {
+                        if it.element.location().page() == here().page() {
+                            strong(it.body())
+                        } else {
+                            it.body()
+                        }
+                    }),
+            )
+        )
+    )
 
   show std.title: set text(fill: luh.blue, size: 24pt)
 
@@ -512,7 +518,7 @@
     author: author,
     section: utils.display-current-heading(
       self: self,
-      level: 1,
+      level: 3,
       style: it => [~---~#it.body],
     ),
     self.info.title,
@@ -546,6 +552,7 @@
       header: header,
       footer: footer,
       right-logo: right-logo,
+      numbering-by-chapter: numbering-by-chapter
     ),
     config-info(
       title: title,
