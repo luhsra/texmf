@@ -598,6 +598,10 @@
     it
   }
 
+  // no bookmarks for slide-level headings
+  let slide-level = utils.merge-dicts(..args).at("slide-level", default: 2)
+  show heading.where(level: slide-level): set heading(bookmarked: not numbering-by-chapter)
+
 
   show std.title: set text(fill: luh.blue, size: 24pt)
 
