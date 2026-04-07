@@ -10,6 +10,8 @@
   title: title,
   author: author,
   date: date,
+  chapters: true,
+  numbering-by-chapter: true,
 )
 
 #show strong: text.with(fill: luh.blue)
@@ -36,8 +38,16 @@
   )
 ]
 
+= First Chapter
+
+#outline(title: none, depth: 3)
+
+== Some Section
+
+Section content
+
 // Level 2 headings separate slides
-== Example Slide
+=== Example Slide
 
 #lorem(20)
 
@@ -46,14 +56,14 @@
 
 
 // Level 1 headings separate sections
-= My new section
+= My new Chapter
 
-// This shows all sections
-#outline(title: none, depth: 1)
+#outline(title: none, depth: 2)
 
+== Another Section
 
 // This slide is part of the previous section
-== Normal Frame
+=== Normal Frame
 #lorem(50)
 
 ```note
@@ -64,9 +74,11 @@
 // New section without a new slide
 = Rust Language
 
-#outline(title: none, depth: 1)
+#outline(title: none, depth: 2)
 
-== The Rust Programming Language
+== Motivation
+
+=== The Rust Programming Language
 #side-by-side[
   - Developed by Mozilla in 2015
     - Independent Rust Foundation
@@ -89,7 +101,7 @@
   + ...
 ]
 
-== Hello World
+=== Hello World
 
 #title-block(title: [Normal Block])[
   With some text as content

@@ -63,12 +63,22 @@
   text(fill: fill, [#numbers.pos().map(n => [#n]).join[.].])
 }
 
+#let heading-num(heading) = {
+  if heading != none and heading.numbering != none {
+    numbering(heading.numbering, ..counter(std.heading).at(heading.location()))
+  }
+}
+
 
 /// Create a block with a title and a body
 ///
-/// - title (none, content): The title of the block
-/// - fill (color): The block color
-/// - body (content): The block content
+/// - title (none, content): The title of the block.
+/// - fill (color): The block color.
+/// - body (content): The block content.
+/// - width (length, auto): The block width or `auto` to determine it by the content.
+/// - alignment (alignment): The alignment of the block.
+/// - title-alignment (alignment, none): The alignment of the title. Defaults to `alignment`.
+/// - body-alignment (alignment, none): The alignment of the body. Defaults to `alignment`.
 #let title-block(
   title: none,
   fill: luh.blue,
@@ -76,27 +86,16 @@
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
-  place-alignment: none,
-  float: false,
   body,
 ) = {
-  // Change color of list and enum markers
-  set list(marker: list-marker.with(fill: fill))
-  set enum(numbering: enum-numbering.with(fill: fill))
-
-  if body-alignment == none { body-alignment = alignment }
   if title-alignment == none { title-alignment = alignment }
-  if place-alignment == none { place-alignment = alignment }
-
-  context {
-    let in_width = width
-    let width = width
-    if in_width == auto {
-      width = calc.max(measure(title).width + 8pt, measure(body).width + 16pt)
-    }
-
+  if body-alignment == none { body-alignment = alignment }
+  let inner(width) = {
+    // Change color of list and enum markers
+    set list(marker: list-marker.with(fill: fill))
+    set enum(numbering: enum-numbering.with(fill: fill))
     show strong: text.with(fill: fill)
-    place(place-alignment, float: float, stack(
+    stack(
       spacing: 0pt,
       if title != none {
         block(
@@ -104,10 +103,7 @@
           stroke: 0.5pt + color.lighten(fill, 80%),
           width: width,
           inset: 4pt,
-          {
-            set align(title-alignment)
-            text(fill: fill, title)
-          },
+          align(title-alignment, text(fill: fill, title)),
         )
       },
       block(
@@ -115,12 +111,19 @@
         stroke: 0.5pt + color.lighten(fill, 80%),
         width: width,
         inset: 8pt,
-        {
-          set align(body-alignment)
-          body
-        },
+        align(body-alignment, body),
       ),
+    )
+  }
+
+  if width == auto {
+    // Only use context if necessary
+    context inner(calc.max(
+      measure(title).width + 8pt,
+      measure(body).width + 16pt,
     ))
+  } else {
+    inner(width)
   }
 }
 
@@ -292,15 +295,6 @@
   ..bodies,
 ) = touying-slide-wrapper(self => {
   set align(horizon)
-  let header(self) = utils.call-or-display(self, self.store.header)
-  let footer(self) = utils.call-or-display(self, self.store.footer)
-  let self = utils.merge-dicts(
-    self,
-    config-page(
-      header: header,
-      footer: footer,
-    ),
-  )
   touying-slide(
     self: self,
     config: config,
@@ -363,6 +357,39 @@
 })
 
 
+/// New chapter slide for the presentation.
+///
+/// - config (dictionary): The configuration of the slide.
+///   You can use `config-xxx` to set the configuration of the slide.
+///   For more several configurations, you can use `utils.merge-dicts`
+///   to merge them.
+#let new-chapter-slide(
+  config: (:),
+  repeat: auto,
+  setting: body => body,
+  composer: auto,
+  ..bodies,
+) = touying-slide-wrapper(self => {
+  set align(horizon)
+  let header = slide-header(
+    title: context utils.current-heading(),
+    left-logo: self.info.logo,
+    right-logo: self.store.right-logo,
+  )
+  let self = utils.merge-dicts(
+    self,
+    config-page(header: header),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    repeat: repeat,
+    setting: setting,
+    composer: composer,
+    ..bodies,
+  )
+})
+
 /// New section slide for the presentation.
 ///
 /// - config (dictionary): The configuration of the slide.
@@ -378,23 +405,14 @@
 ) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: utils.display-current-heading(self: self, level: 1),
+    title: context utils.current-heading(),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
-  let footer(self) = utils.call-or-display(self, self.store.footer)
   let self = utils.merge-dicts(
     self,
-    config-page(
-      header: header,
-      footer: footer,
-    ),
+    config-page(header: header),
   )
-  // Ensure at least one body
-  // let bodies = bodies.pos()
-  // if bodies.len() == 0 or bodies.at(0) == none or bodies.at(0) == [] {
-  //   bodies = (outline(depth: 1, title: none),)
-  // }
   touying-slide(
     self: self,
     config: config,
@@ -525,10 +543,15 @@
 ///
 /// - title (content): Title of the presentation (for the footer)
 /// - author (content): Author of the presentation (for the footer)
+/// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
+/// - left-logo (image): Logo for the header
+/// - right-logo (image): Logo for the header
+/// - chapters (boolean): If false, level 1 headings are sections and level 2 headings are slides. If true, level 1 headings are chapters, level 2 headings are sections, and level 3 headings are slides.
+/// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
 /// - body (content): Body of the presentation
 #let sra-theme(
   title: [],
@@ -540,6 +563,7 @@
   enable-slidepilot: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
+  chapters: false,
   numbering-by-chapter: false,
   ..args,
   body,
@@ -549,68 +573,79 @@
 
   // Style for outlines
   show outline.entry: it => {
-    let styled(it) = {
-      list(
-        block(inset: (bottom: 0.5em), link(
-          it.element.location(),
-          if it.element.location().page() == here().page() {
-            strong(it.body())
-          } else {
-            it.body()
-          },
-        )),
-      )
-    }
     let wrap(it, level) = {
       if level == 1 {
-        styled(it)
-      } else {
         list(
-          marker: [#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak#sym.space.nobreak],
-          wrap(it, level - 1),
+          block(inset: (bottom: 0.5em), link(
+            it.element.location(),
+            if it.element.location().page() == here().page() {
+              strong[#it.prefix() #it.body()]
+            } else {
+              [#it.prefix() #it.body()]
+            },
+          )),
         )
+      } else {
+        list(marker: h(1.5em), wrap(it, level - 1))
       }
     }
     wrap(it, it.level)
   }
 
-  set heading(numbering: (..nums) => {
-    if nums.pos().len() == 1 {
-      numbering("A", ..nums)
-    } else {
-      numbering("1.", ..nums.pos().slice(1))
+  // Heading numbering
+  set heading(numbering: if chapters {
+    (..nums) => {
+      // extra chapter level
+      if nums.pos().len() == 1 {
+        numbering("A", ..nums)
+      } else {
+        numbering("1.", ..nums.pos().slice(1))
+      }
     }
-  })
+  } else { "1." })
+
   show heading.where(level: 1): it => {
-    // Count level 2 headings globally
-    let l2-offset = query(
-      selector(heading.where(level: 2)).before(here()),
-    ).len()
-    counter(heading).update((..n) => (..n.pos(), l2-offset))
+    set text(size: 16pt)
+    if chapters {
+      // Count level 2 headings globally
+      let l2-offset = query(
+        selector(heading.where(level: 2)).before(here()),
+      ).len()
+      counter(heading).update((..n) => (..n.pos(), l2-offset))
+    }
     it
   }
 
-  // chapter-numbering
+  // up to which level should touying create slides?
+  let slide-level = if chapters { 3 } else { 2 }
+  let sl = utils.merge-dicts((:), ..args).at("slide-level", default: none)
+  assert(
+    sl == none or sl == slide-level,
+    message: "slide-level must be 2, or 3 for chapters",
+  )
+
+  assert(
+    not (numbering-by-chapter and not chapters),
+    message: "numbering-by-chapter can only be true if chapters is true",
+  )
   show heading.where(level: 2): it => {
-    if numbering-by-chapter {
+    set text(size: 16pt)
+    // page numbering by chapter
+    if chapters and numbering-by-chapter {
       utils.slide-counter.update(1)
     }
     it
   }
 
-  // no bookmarks for slide-level headings
-  let slide-level = utils.merge-dicts(..args).at("slide-level", default: 2)
-  show heading.where(level: slide-level): set heading(bookmarked: not numbering-by-chapter)
+  show heading.where(level: slide-level): set heading(
+    bookmarked: not numbering-by-chapter,
+  )
 
 
   show std.title: set text(fill: luh.blue, size: 24pt)
 
   let header = self => slide-header(
-    title: utils.display-current-heading(
-      self: self,
-      level: self.slide-level,
-      numbered: false,
-    ),
+    title: utils.display-current-heading(numbered: false),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -619,9 +654,14 @@
     author: author,
     section: utils.display-current-heading(
       self: self,
-      level: 3,
-      style: it => [~---~#it.body],
-    ),
+      level: self.slide-level - 2, // show section in the footer
+      style: it => [~---~#heading-num(it)~#it.body],
+    )
+      + utils.display-current-heading(
+        self: self,
+        level: self.slide-level - 1, // show section in the footer
+        style: it => [~---~#heading-num(it)~#it.body],
+      ),
     self.info.title,
   )
 
@@ -631,16 +671,25 @@
       height: 9cm,
       margin: (top: 5.5mm + 2 * 1.7mm, x: 7mm, bottom: 6mm),
       header-ascent: 0mm,
+      header: header,
       footer-descent: 0mm,
       footer: footer,
     ),
     config-common(
       slide-fn: slide,
-      new-section-slide-fn: new-section-slide,
+      new-section-slide-fn: if chapters {
+        new-chapter-slide
+      } else {
+        new-section-slide
+      },
+      new-subsection-slide-fn: if chapters {
+        new-section-slide
+      },
       zero-margin-header: false,
       zero-margin-footer: false,
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
       reset-page-counter-to-slide-counter: not numbering-by-chapter,
+      slide-level: slide-level,
     ),
     config-colors(
       neutral-light: gray,
@@ -651,9 +700,8 @@
     ),
     // save the variables for later use
     config-store(
-      header: header,
-      footer: footer,
       right-logo: right-logo,
+      chapters: chapters,
       numbering-by-chapter: numbering-by-chapter,
     ),
     config-info(
