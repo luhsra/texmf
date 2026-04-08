@@ -372,7 +372,7 @@
 ) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: context utils.current-heading(),
+    title: context utils.current-heading(level: self.slide-level - 2),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -405,7 +405,7 @@
 ) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: context utils.current-heading(),
+    title: context utils.current-heading(level: self.slide-level - 1),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -645,7 +645,10 @@
   show std.title: set text(fill: luh.blue, size: 24pt)
 
   let header = self => slide-header(
-    title: utils.display-current-heading(numbered: false),
+    title: utils.display-current-heading(
+      numbered: false,
+      level: self.slide-level,
+    ),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
