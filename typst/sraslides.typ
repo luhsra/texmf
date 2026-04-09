@@ -550,7 +550,7 @@
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
-/// - chapters (boolean): If false, level 1 headings are sections and level 2 headings are slides. If true, level 1 headings are chapters, level 2 headings are sections, and level 3 headings are slides.
+/// - chapters (boolean): If false, level 1 headings are sections and level 2 headings are slides. If true, level 1 headings are parts, level 2 headings are chapters, level 3 headings are sections, and level 4 headings are slides.
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
 /// - body (content): Body of the presentation
 #let sra-theme(
@@ -617,11 +617,11 @@
   }
 
   // up to which level should touying create slides?
-  let slide-level = if chapters { 3 } else { 2 }
+  let slide-level = args.at("slide-level", default: if chapters { 4 } else { 2 })
   let sl = utils.merge-dicts((:), ..args).at("slide-level", default: none)
   assert(
     sl == none or sl == slide-level,
-    message: "slide-level must be 2, or 3 for chapters",
+    message: "slide-level must be 2, or 4 for chapters",
   )
 
   assert(
