@@ -38,16 +38,16 @@
   )
 ]
 
-= First Chapter
+= First Part
 
-#outline(title: none, depth: 3)
+== Some Chapter
 
-== Some Section
+=== Some Section
 
 Section content
 
 // Level 2 headings separate slides
-=== Example Slide
+==== Example Slide
 
 #lorem(20)
 
@@ -55,15 +55,16 @@ Section content
 *This is revealed after in the next step.*
 
 
-// Level 1 headings separate sections
-= My new Chapter
+// Level 1 headings separate parts
+= Another Part
+== My new Chapter
 
 #outline(title: none, depth: 2)
 
-== Another Section
+=== Another Section
 
 // This slide is part of the previous section
-=== Normal Frame
+==== Normal Frame
 #lorem(50)
 
 ```note
@@ -72,13 +73,13 @@ Section content
 ```
 
 // New section without a new slide
-= Rust Language
+== Rust Language
 
 #outline(title: none, depth: 2)
 
-== Motivation
+=== Motivation
 
-=== The Rust Programming Language
+==== The Rust Programming Language
 #side-by-side[
   - Developed by Mozilla in 2015
     - Independent Rust Foundation
@@ -101,7 +102,7 @@ Section content
   + ...
 ]
 
-=== Hello World
+==== Hello World
 
 #title-block(title: [Normal Block])[
   With some text as content
