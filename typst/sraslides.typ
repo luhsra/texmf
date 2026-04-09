@@ -372,7 +372,7 @@
 ) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: context utils.current-heading(level: self.slide-level - 2),
+    title: context utils.current-heading(level: 1),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -401,11 +401,12 @@
   repeat: auto,
   setting: body => body,
   composer: auto,
+  heading-level: 1,
   ..bodies,
 ) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: context utils.current-heading(level: self.slide-level - 1),
+    title: context utils.current-heading(level: heading-level),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -683,10 +684,13 @@
       new-section-slide-fn: if chapters {
         new-chapter-slide
       } else {
-        new-section-slide
+        new-section-slide.with(heading-level: 1)
       },
       new-subsection-slide-fn: if chapters {
-        new-section-slide
+        new-section-slide.with(heading-level: 2)
+      },
+      new-subsubsection-slide-fn: if chapters {
+        new-section-slide.with(heading-level: 3)
       },
       zero-margin-header: false,
       zero-margin-footer: false,
