@@ -10,8 +10,8 @@
   title: title,
   author: author,
   date: date,
-  chapters: true,
   numbering-by-chapter: true,
+  config-common(slide-level: 4)
 )
 
 #show strong: text.with(fill: luh.blue)
