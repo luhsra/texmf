@@ -356,56 +356,11 @@
   ))
 })
 
-
-/// New chapter slide for the presentation.
-///
-/// - config (dictionary): The configuration of the slide.
-///   You can use `config-xxx` to set the configuration of the slide.
-///   For more several configurations, you can use `utils.merge-dicts`
-///   to merge them.
-#let new-chapter-slide(
-  config: (:),
-  repeat: auto,
-  setting: body => body,
-  composer: auto,
-  ..bodies,
-) = touying-slide-wrapper(self => {
-  set align(horizon)
-  let header = slide-header(
-    title: context utils.current-heading(level: self.slide-level - 2),
-    left-logo: self.info.logo,
-    right-logo: self.store.right-logo,
-  )
-  let self = utils.merge-dicts(
-    self,
-    config-page(header: header),
-  )
-  touying-slide(
-    self: self,
-    config: config,
-    repeat: repeat,
-    setting: setting,
-    composer: composer,
-    ..bodies,
-  )
-})
-
 /// New section slide for the presentation.
-///
-/// - config (dictionary): The configuration of the slide.
-///   You can use `config-xxx` to set the configuration of the slide.
-///   For more several configurations, you can use `utils.merge-dicts`
-///   to merge them.
-#let new-section-slide(
-  config: (:),
-  repeat: auto,
-  setting: body => body,
-  composer: auto,
-  ..bodies,
-) = touying-slide-wrapper(self => {
+#let new-section-slide(level: 2, ..args) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
-    title: context utils.current-heading(level: self.slide-level - 1),
+    title: context utils.current-heading(level: level),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -415,11 +370,7 @@
   )
   touying-slide(
     self: self,
-    config: config,
-    repeat: repeat,
-    setting: setting,
-    composer: composer,
-    ..bodies,
+    ..args,
   )
 })
 
@@ -550,7 +501,6 @@
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
-/// - chapters (boolean): If false, level 1 headings are sections and level 2 headings are slides. If true, level 1 headings are parts, level 2 headings are chapters, level 3 headings are sections, and level 4 headings are slides.
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
 /// - body (content): Body of the presentation
 #let sra-theme(
@@ -563,7 +513,6 @@
   enable-slidepilot: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
-  chapters: false,
   numbering-by-chapter: false,
   ..args,
   body,
@@ -592,8 +541,12 @@
     wrap(it, it.level)
   }
 
+  // up to which level should touying create slides?
+  let slide-level = utils.merge-dicts((:), ..args).at("slide-level", default: 2)
+
+
   // Heading numbering
-  set heading(numbering: if chapters {
+  set heading(numbering: if slide-level > 2 {
     (..nums) => {
       // extra chapter level
       if nums.pos().len() == 1 {
@@ -606,7 +559,7 @@
 
   show heading.where(level: 1): it => {
     set text(size: 16pt)
-    if chapters {
+    if slide-level > 2 {
       // Count level 2 headings globally
       let l2-offset = query(
         selector(heading.where(level: 2)).before(here()),
@@ -616,22 +569,14 @@
     it
   }
 
-  // up to which level should touying create slides?
-  let slide-level = args.at("slide-level", default: if chapters { 4 } else { 2 })
-  let sl = utils.merge-dicts((:), ..args).at("slide-level", default: none)
   assert(
-    sl == none or sl == slide-level,
-    message: "slide-level must be 2, or 4 for chapters",
-  )
-
-  assert(
-    not (numbering-by-chapter and not chapters),
-    message: "numbering-by-chapter can only be true if chapters is true",
+    not (numbering-by-chapter and slide-level <= 2),
+    message: "numbering-by-chapter can only be true if slide-level > 2",
   )
   show heading.where(level: 2): it => {
     set text(size: 16pt)
     // page numbering by chapter
-    if chapters and numbering-by-chapter {
+    if numbering-by-chapter {
       utils.slide-counter.update(1)
     }
     it
@@ -680,13 +625,12 @@
     ),
     config-common(
       slide-fn: slide,
-      new-section-slide-fn: if chapters {
-        new-chapter-slide
-      } else {
-        new-section-slide
+      new-section-slide-fn: new-section-slide.with(level: slide-level - 1),
+      new-subsection-slide-fn: if slide-level > 2 {
+        new-section-slide.with(level: slide-level - 2)
       },
-      new-subsection-slide-fn: if chapters {
-        new-section-slide
+      new-subsubsection-slide-fn: if slide-level > 3 {
+        new-section-slide.with(level: slide-level - 3)
       },
       zero-margin-header: false,
       zero-margin-footer: false,
@@ -704,7 +648,6 @@
     // save the variables for later use
     config-store(
       right-logo: right-logo,
-      chapters: chapters,
       numbering-by-chapter: numbering-by-chapter,
     ),
     config-info(
