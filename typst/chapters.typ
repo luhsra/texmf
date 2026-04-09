@@ -54,28 +54,97 @@ Section content
 #pause
 *This is revealed after in the next step.*
 
-
-// Level 1 headings separate parts
-= Another Part
-== My new Chapter
-
-#outline(title: none, depth: 2)
+=== other section
+==== content
+#lorem(20)
 
 === Another Section
 
 // This slide is part of the previous section
 ==== Normal Frame
 #lorem(50)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
+
+
+// Level 1 headings separate parts
+= Another Part
+== My new Chapter
+
+// #outline(title: none, depth: 2)
+
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
 
 ```note
 - Here you can add your speeker notes
 - They can be exported with typst query
 ```
 
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+#pause
+#lorem(20)
 // New section without a new slide
 == Rust Language
 
-#outline(title: none, depth: 2)
+// #outline(title: none, depth: 2)
 
 === Motivation
 
@@ -118,3 +187,13 @@ Section content
   }
   ```
 ]
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
+=== Another Section
+
+// This slide is part of the previous section
+==== Normal Frame
+#lorem(50)
