@@ -358,7 +358,7 @@
 
 
 /// New section slide for the presentation.
-#let new-section-slide(level: 2, ..args) = touying-slide-wrapper(self => {
+#let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
   set align(horizon)
   let header = slide-header(
     title: context utils.current-heading(level: level),
@@ -498,11 +498,12 @@
 /// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
-/// - enable-pdfpc (boolean): Enable pdfpc export
-/// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
+/// - colorful-emph (boolean): Whether to use colors for strong and emph
+/// - enable-pdfpc (boolean): Enable pdfpc export
+/// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - body (content): Body of the presentation
 #let sra-theme(
   title: [],
@@ -510,16 +511,20 @@
   date: datetime.today(),
   oss-font: false,
   list-shrink: true,
-  enable-pdfpc: true,
-  enable-slidepilot: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   numbering-by-chapter: false,
+  colorful-emph: true,
+  enable-pdfpc: true,
+  enable-slidepilot: false,
   ..args,
   body,
 ) = {
   set document(title: title, author: author, date: date)
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
+
+  show strong: it => if colorful-emph { text(fill: luh.blue, it) } else { it }
+  show emph: it => if colorful-emph { text(fill: sra.red, it) } else { it }
 
   // Style for outlines
   show outline.entry: it => {
