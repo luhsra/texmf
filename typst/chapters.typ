@@ -197,3 +197,50 @@ Section content
 // This slide is part of the previous section
 ==== Normal Frame
 #lorem(50)
+
+
+= Part 3
+== chap 4
+=== sec 4.1
+=== sec 4.2
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+=== sec 4.x
+=== sec 4.x
+
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+=== sec 4.x
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+=== sec 4.x
+
+== chap 5
+=== sec 5.1
+==== cont
+#context {
+  let loc = utils.loc-prior-newslide.get()
+  [
+    old: #counter(heading).at(loc)\
+    old page: #loc.page()\
+    here: #counter(heading).get()\
+  ]
+}
+#{lorem(20);pause;linebreak();lorem(20)}
+#context utils.loc-prior-newslide.get().page()
+=== sec 5.2
+==== cont
+#{lorem(20);pause;linebreak();lorem(20)}
+=== sec 5.3
+=== sec 5.4
+=== sec 5.5
+=== sec 5.6
+=== sec 5.7
+=== sec 5.8

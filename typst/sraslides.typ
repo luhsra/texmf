@@ -643,6 +643,13 @@
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
       reset-page-counter-to-slide-counter: not numbering-by-chapter,
       slide-level: slide-level,
+      default-frozen-counters:   (
+        // unfreeze heading counter, as it messes up with chapter numbers
+        // counter(heading),
+        counter(math.equation),
+        counter(figure.where(kind: table)),
+        counter(figure.where(kind: image)),
+      ),
     ),
     config-colors(
       neutral-light: gray,
