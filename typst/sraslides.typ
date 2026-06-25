@@ -1,4 +1,4 @@
-#import "@preview/touying:0.6.3": *
+#import "@preview/touying:0.7.4": *
 #import "slidepilot.typ"
 // Backward compatibility
 #import components: side-by-side
@@ -292,16 +292,16 @@
   repeat: auto,
   setting: body => body,
   composer: auto,
-  ..bodies,
+  ..args,
 ) = touying-slide-wrapper(self => {
-  set align(horizon)
   touying-slide(
     self: self,
     config: config,
     repeat: repeat,
     setting: setting,
     composer: composer,
-    ..bodies,
+    ..args.named(),
+    ..args.pos().map(align.with(horizon)),
   )
 })
 
@@ -359,7 +359,6 @@
 
 /// New section slide for the presentation.
 #let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
-  set align(horizon)
   let header = slide-header(
     title: context utils.current-heading(level: level),
     left-logo: self.info.logo,
@@ -371,7 +370,8 @@
   )
   touying-slide(
     self: self,
-    ..args,
+    ..args.named(),
+    ..args.pos().map(align.with(horizon)),
   )
 })
 
@@ -638,6 +638,11 @@
       new-subsubsection-slide-fn: if slide-level > 3 {
         new-section-slide.with(level: 3)
       },
+      // Docs say that these default to true, but they don't seem to
+      receive-body-for-new-section-slide-fn: true,
+      receive-body-for-new-subsection-slide-fn: true,
+      receive-body-for-new-subsubsection-slide-fn: true,
+
       zero-margin-header: false,
       zero-margin-footer: false,
       enable-pdfpc: enable-pdfpc or enable-slidepilot,

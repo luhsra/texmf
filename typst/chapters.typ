@@ -40,6 +40,8 @@
 
 = First Part
 
+#outline(title: none, depth: 2)
+
 == Some Chapter
 
 === Some Section
