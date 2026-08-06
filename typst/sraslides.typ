@@ -513,6 +513,7 @@
   list-shrink: true,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
+  custom-footer: none,
   numbering-by-chapter: false,
   colorful-emph: true,
   enable-pdfpc: true,
@@ -618,6 +619,9 @@
       ),
     self.info.title,
   )
+  if custom-footer != none {
+    footer = custom-footer
+  }
 
   show: touying-slides.with(
     config-page(
