@@ -524,8 +524,13 @@
   set document(title: title, author: author, date: date)
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
 
-  show strong: it => if colorful-emph { text(fill: luh.blue, it) } else { it }
-  show emph: it => if colorful-emph { text(fill: sra.red, it) } else { it }
+  let strong-style = (:)
+  if colorful-emph { strong-style = (fill: luh.blue) }
+  show strong: set text(..strong-style)
+
+  let emph-style = (:)
+  if colorful-emph { emph-style = (fill: sra.red) }
+  show emph: set text(..emph-style)
 
   // Style for outlines
   show outline.entry: it => {
