@@ -290,7 +290,7 @@
 #let slide(
   config: (:),
   repeat: auto,
-  setting: body => body,
+  setting: body => align(horizon, body),
   composer: auto,
   ..args,
 ) = touying-slide-wrapper(self => {
@@ -301,7 +301,7 @@
     setting: setting,
     composer: composer,
     ..args.named(),
-    ..args.pos().map(align.with(horizon)),
+    ..args.pos(),
   )
 })
 
@@ -370,8 +370,9 @@
   )
   touying-slide(
     self: self,
+    setting: body => align(horizon, body),
     ..args.named(),
-    ..args.pos().map(align.with(horizon)),
+    ..args.pos(),
   )
 })
 
