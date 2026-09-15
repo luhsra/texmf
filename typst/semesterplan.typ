@@ -60,7 +60,7 @@
 #let semesterplan(csv, offset: 0, len: none, wrapper: text, ..args) = table(
   columns: csv.at(0).len(),
   ..args,
-  table.header(..csv.at(0).map(strong).map(wrapper)),
+  table.header(..csv.at(0).map(c => eval(c, mode: "markup")).map(strong).map(wrapper)),
   ..for row in csv.slice(1 + offset, if len != none { 1 + offset + len }) {
     (wrapper(style-date(row.at(0))), ..row.slice(1).map(style-event).map(wrapper))
   }
