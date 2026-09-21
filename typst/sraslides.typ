@@ -439,6 +439,45 @@
   touying-slide(self: self, config: config, align(center + horizon, body))
 })
 
+
+/// Include a full slide from another lectures PDF file
+/// reassembles beamertools btInputPDFFrames
+///
+///
+/// - path (string): path to pdf file
+/// - page (int): page to include
+/// - title (content): title to print over the old one
+/// - bodies (array): content to add to the page
+/// -> slide
+#let image-slide(
+  path: none,
+  page: none,
+  title: none,
+  ..bodies,
+) = touying-slide-wrapper(self => {
+  let header(self) = if (title != none) { slide-header(title: title) } else {
+    none
+  }
+
+  self = utils.merge-dicts(
+    self,
+    config-page(
+      header: header,
+      background: [#align(horizon + left, image(
+          fit: "cover",
+          height: 100%,
+          path,
+          page: page,
+        ))#place(top + left, rect(fill: white, width: 100%, height: 9.3mm))],
+    ),
+  )
+  touying-slide(
+    self: self,
+    ..bodies,
+  )
+})
+
+
 #let structure = text.with(fill: luh.blue)
 #let Structure = text.with(fill: luh.blue, style: "italic")
 #let STRUCTURE = text.with(fill: luh.blue, weight: "bold")
@@ -587,7 +626,6 @@
   // up to which level should touying create slides?
   let slide-level = utils.merge-dicts((:), ..args).at("slide-level", default: 2)
 
-
   // Heading numbering
   set heading(numbering: if slide-level > 2 {
     (..nums) => {
@@ -628,7 +666,6 @@
   show heading.where(level: slide-level): set heading(
     bookmarked: not numbering-by-chapter,
   )
-
 
   show std.title: set text(fill: luh.blue, size: 24pt)
 
@@ -688,7 +725,7 @@
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
       reset-page-counter-to-slide-counter: not numbering-by-chapter,
       slide-level: slide-level,
-      default-frozen-counters:   (
+      default-frozen-counters: (
         // unfreeze heading counter, as it messes up with chapter numbers
         // counter(heading),
         counter(math.equation),
@@ -723,5 +760,277 @@
     context slidepilot.slidepilot-file(here())
   }
 
+  body
+}
+
+//
+// Derivations for the lecture slides
+//
+
+#let title-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: block(inset: (top: 4.8pt, x: -12pt), grid(
+
+        columns: (1fr, auto, 1fr),
+        rows: 40pt,
+        gutter: 2.5pt,
+        align(horizon + left, self.info.logo),
+        [],
+        align(horizon + right, self.store.right-logo),
+      )),
+      footer: slide-footer(self: self, numbering: false, green-box: false, text(
+        fill: black,
+        align(center, [
+          #show link: texttt.with(fill: black)
+          #h(.5fr)
+          #link(
+            "https://sra.uni-hannover.de/Lehre/"
+              + self.store.lecture.sem-short
+              + "/"
+              + self.store.lecture.web,
+          )
+          #h(1fr)
+          #link("mailto:" + self.store.lecture.mail + "@sra.uni-hannover.de")
+          #h(.5fr)
+        ]),
+      )),
+      margin: (top: 40pt + 2 * 4.8pt),
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      place(top + left, context hide(utils.current-heading(level: 1)))
+      v(.8cm)
+      set align(center + horizon)
+      text(
+        size: 24pt,
+        fill: luh.blue,
+        weight: "bold",
+      )[#self.store.lecture.title (RS)]
+
+      context {
+        v(1fr)
+        text(size: 18pt, fill: luh.blue, utils.display-current-heading(
+          level: 1,
+          setting: it => [#self.store.lecture.part #it],
+        ))
+      }
+
+      // #v(20pt)
+      v(1fr)
+      [#text(weight: "bold")[#self.store.lecture.author]
+
+        Institut for Systems Engineering\
+        System- und Rechnerarchitektur (SRA)
+
+        #{ self.store.lecture.term-long }semester 20#{ self.store.lecture.year }]
+      v(.5cm)
+    },
+  )
+})
+
+#let sub-headings(last) = {
+  let current-sel = selector(
+    heading.where(level: last.level + 1),
+  ).after(last.location())
+  let next = query(
+    selector(heading.where(level: last.level)).after(last.location()),
+  ).at(1, default: none)
+  if next != none {
+    current-sel = current-sel.before(next.location())
+  }
+  query(current-sel)
+}
+
+#let new-subsection-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: slide-header(
+        title: [
+          #text(fill: luh.blue)[#self.store.lecture.overview: ] #text(
+            fill: sra.red,
+          )[#self.store.lecture.part #utils.display-current-heading(
+              self: self,
+              level: 1,
+            )]],
+        left-logo: self.info.logo,
+        right-logo: self.store.right-logo,
+      ),
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      set align(horizon)
+
+      //needs to be called here for hook at heading to be executed
+      context place(hide(utils.current-heading(level: 2)))
+
+      context {
+        let last-l1 = query(
+          selector(heading.where(level: 1)).before(here()),
+        ).last()
+        let current-l2 = sub-headings(last-l1)
+        let l2-offset = global-heading-offset(current-l2.first())
+
+        list(
+          tight: false,
+          marker: h(1em),
+          ..current-l2
+            .enumerate()
+            .map(((l2-count, it)) => {
+              let is-current = it.location().page() == here().page()
+
+              let style = if is-current {
+                text.with(weight: "bold")
+              } else {
+                text.with(fill: luh.blue.transparentize(50%))
+              }
+              link(it.location(), style[
+                #std.numbering(
+                  it.numbering,
+                  ..counter(heading).at(it.location()),
+                )
+                #it.body
+              ])
+
+              if is-current {
+                list(
+                  marker: h(1em),
+                  ..sub-headings(it).map(it => link(it.location())[
+                    #std.numbering(
+                      it.numbering,
+                      ..counter(heading).at(it.location()),
+                    )
+                    #it.body
+                  ]),
+                )
+              }
+            }),
+        )
+      }
+    },
+  )
+})
+
+#let new-subsubsection-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: slide-header(title: utils.display-current-heading(level: 2)),
+      footer: none,
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      set align(center + horizon)
+      set text(size: 30pt, fill: luh.blue)
+      context {
+        utils.display-current-heading(self: self, level: 3)
+      }
+    },
+  )
+})
+
+
+
+#let sra-lecture-footer = self => slide-footer(
+  self: self,
+  author: [
+    #sym.copyright #lower(
+      self
+        .store
+        .lecture
+        .author
+        .split(",")
+        .map(x => x
+          .split(" ")
+          .filter(p => p.len() > 0)
+          .map(p => p.at(0))
+          .join(""))
+        .join(", "),
+    )
+    #h(.5cm)
+    #self.store.lecture.short (#self.store.lecture.part #utils.display-current-heading(level: 1),
+    #self.store.lecture.term-short #self.store.lecture.year)
+  ],
+
+  [],
+)
+
+
+#let overview-slide-lecture(slide-title) = {
+  heading(depth: 4)[#slide-title]
+  slide(config: config-page(footer: none), context {
+    show: box.with(height: 70%)
+    show: columns.with(2)
+
+    let chapters = query(selector(heading.where(level: 1, outlined: true)))
+    enum(
+      tight: false,
+      numbering: it => ALERT(numbering(chapters.first().numbering, it)),
+      ..chapters.map(it => box[
+        #link(it.location(), ALERT(it.body))
+
+        #let sub-sections = sub-headings(it)
+        #let offset = global-heading-offset(sub-sections.first())
+        #enum(
+          numbering: n => text(luh.blue, strong[#n.]),
+          full: false,
+          start: offset,
+          ..sub-sections.map(it => link(it.location(), strong(it.body))),
+        )
+      ]),
+    )
+  })
+}
+
+
+
+#let sra-lecture-theme(
+  title: [],
+  author: none,
+  date: datetime.today(),
+  lecture: (:),
+  ..args,
+  body,
+) = {
+  let view-mode = sys.inputs.at("mode", default: "normal")
+  show: sra-theme.with(
+    oss-font: false,
+    author: author,
+    title: title
+      + if view-mode
+        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    date: datetime.today(),
+    numbering-by-chapter: true,
+    colorful-emph: false,
+    config-page(footer: sra-lecture-footer),
+    config-store(footer: sra-lecture-footer, lecture: lecture),
+    config-common(
+      new-section-slide-fn: title-slide-lecture,
+      new-subsection-slide-fn: new-subsection-slide-lecture,
+      new-subsubsection-slide-fn: new-subsubsection-slide-lecture,
+      handout: view-mode == "handout",
+      slide-level: 4,
+    ),
+  )
   body
 }
