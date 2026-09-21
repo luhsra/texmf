@@ -70,6 +70,36 @@
 }
 
 
+/// Increase the actual depth of all headings in a content block.
+///
+/// This normalizes heading offsets into the depth because Touying splits slides
+/// based on `depth` before Typst applies set and show rules.
+#let heading-depth-offset(offset, body) = {
+  let transform(it) = {
+    if utils.is-sequence(it) {
+      it.children.map(transform).sum(default: none)
+    } else if utils.is-styled(it) {
+      utils.reconstruct-styled(it, transform(it.child))
+    } else if type(it) == content and it.func() == heading {
+      let fields = it.fields()
+      let label = fields.remove("label", default: none)
+      let body = fields.remove("body")
+      fields.depth = it.depth + offset
+      fields.offset = 0
+      if label != none {
+        [#heading(..fields, body)#label]
+      } else {
+        heading(..fields, body)
+      }
+    } else {
+      it
+    }
+  }
+
+  transform(body)
+}
+
+
 /// Create a block with a title and a body
 ///
 /// - title (none, content): The title of the block.
