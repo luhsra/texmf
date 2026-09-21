@@ -813,7 +813,7 @@
         size: 24pt,
         fill: luh.blue,
         weight: "bold",
-      )[#self.store.lecture.title (RS)]
+      )[#self.store.lecture.title (#self.store.lecture.short)]
 
       context {
         v(1fr)
