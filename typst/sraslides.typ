@@ -223,6 +223,9 @@
     if author != none {
       body = [#author #h(2em) #body]
     }
+    if self.appendix {
+      section = none
+    }
     if section == auto {
       section = context (
         if self.slide-level > 2 {
@@ -330,8 +333,7 @@
     repeat: repeat,
     setting: setting,
     composer: composer,
-    ..args.named(),
-    ..args.pos(),
+    ..args,
   )
 })
 
@@ -401,8 +403,7 @@
   touying-slide(
     self: self,
     setting: body => align(horizon, body),
-    ..args.named(),
-    ..args.pos(),
+    ..args
   )
 })
 
@@ -771,6 +772,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -832,6 +837,8 @@
 
         #{ self.store.lecture.term-long }semester 20#{ self.store.lecture.year }]
       v(.5cm)
+
+      body
     },
   )
 })
@@ -853,6 +860,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -921,6 +932,7 @@
             }),
         )
       }
+      body
     },
   )
 })
@@ -929,6 +941,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -940,11 +956,13 @@
     self: self,
     config: config,
     {
-      set align(center + horizon)
-      set text(size: 30pt, fill: luh.blue)
-      context {
-        utils.display-current-heading(self: self, level: 3)
-      }
+      align(center + horizon)[
+        #set text(size: 30pt, fill: luh.blue)
+        #context {
+          utils.display-current-heading(self: self, level: 3)
+        }
+      ]
+      body
     },
   )
 })
@@ -968,8 +986,8 @@
         .join(", "),
     )
     #h(.5cm)
-    #self.store.lecture.short (#self.store.lecture.part #utils.display-current-heading(level: 1),
-    #self.store.lecture.term-short #self.store.lecture.year)
+    #self.store.lecture.short #if not self.appendix [(#self.store.lecture.part #utils.display-current-heading(level: 1),
+    #self.store.lecture.term-short #self.store.lecture.year)] else [Appendix]
   ],
 
   [],
@@ -990,13 +1008,15 @@
         #link(it.location(), ALERT(it.body))
 
         #let sub-sections = sub-headings(it)
-        #let offset = global-heading-offset(sub-sections.first())
-        #enum(
-          numbering: n => text(luh.blue, strong[#n.]),
-          full: false,
-          start: offset,
-          ..sub-sections.map(it => link(it.location(), strong(it.body))),
-        )
+        #if sub-sections.len() != 0 {
+          let offset = global-heading-offset(sub-sections.first())
+          enum(
+            numbering: n => text(luh.blue, strong[#n.]),
+            full: false,
+            start: offset,
+            ..sub-sections.map(it => link(it.location(), strong(it.body))),
+          )
+        }
       ]),
     )
   })
