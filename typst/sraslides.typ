@@ -45,6 +45,12 @@
 // Counter for the list depth
 #let list-depth = counter("list-depth")
 
+#let fonts = (
+  default: (font: "Rotis Sans Serif Std", stretch: 100%),
+  oss: (font: "Universalis ADF Std", stretch: 80%),
+  mono: (font: "DejaVu Sans Mono", stretch: 100%),
+)
+
 
 #let list-marker(fill: sra.red, depth) = {
   if depth == 0 {
@@ -491,7 +497,7 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt = text.with(font: "DeJaVu Sans Mono", stretch: 80%)
+#let texttt = text.with(..fonts.mono)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
@@ -500,12 +506,9 @@
 /// - list-shrink (boolean): Enable list shrinking
 /// - body (content): Document body
 #let basic-theme(oss-font: false, list-shrink: true, body) = {
-  let (font, stretch) = if not oss-font {
-    ("Rotis Sans Serif Std", 100%)
-  } else {
-    ("Universalis ADF Std", 80%)
-  }
-  set text(size: 12pt, font: font, stretch: stretch, weight: "light")
+  let font = if oss-font { fonts.oss } else { fonts.default }
+  set text(size: 12pt, weight: "light", ..font)
+  show raw: set text(..fonts.mono)
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
