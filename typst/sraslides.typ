@@ -118,10 +118,14 @@
 #let title-block(
   title: none,
   fill: luh.blue,
+  title-bg: auto,
+  body-bg: auto,
   width: 100%,
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
+  rounded: true,
+  radius: 4pt,
   body,
 ) = {
   if title-alignment == none { title-alignment = alignment }
@@ -135,18 +139,18 @@
       spacing: 0pt,
       if title != none {
         block(
-          fill: color.lighten(fill, 80%),
-          stroke: 0.5pt + color.lighten(fill, 80%),
+          fill: if title-bg == auto { color.lighten(fill, 80%) } else { title-bg },
           width: width,
           inset: 4pt,
+          radius: if rounded { (top: radius) },
           align(title-alignment, text(fill: fill, title)),
         )
       },
       block(
-        fill: color.lighten(fill, 90%),
-        stroke: 0.5pt + color.lighten(fill, 80%),
+        fill: if body-bg == auto { color.lighten(fill, 90%) } else { body-bg },
         width: width,
         inset: 8pt,
+        radius: if rounded { (bottom: 4pt, top: if title == none { radius } else { 0pt }) },
         align(body-alignment, body),
       ),
     )
@@ -375,9 +379,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, l-logo),
-        center-logo,
-        align(horizon + right, r-logo),
+        align(horizon + left, l-logo), center-logo, align(horizon + right, r-logo),
       )),
       footer: slide-footer(
         self: self,
@@ -409,7 +411,7 @@
   touying-slide(
     self: self,
     setting: body => align(horizon, body),
-    ..args
+    ..args,
   )
 })
 
@@ -787,9 +789,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, self.info.logo),
-        [],
-        align(horizon + right, self.store.right-logo),
+        align(horizon + left, self.info.logo), [], align(horizon + right, self.store.right-logo),
       )),
       footer: slide-footer(self: self, numbering: false, green-box: false, text(
         fill: black,
@@ -797,10 +797,7 @@
           #show link: texttt.with(fill: black)
           #h(.5fr)
           #link(
-            "https://sra.uni-hannover.de/Lehre/"
-              + self.store.lecture.sem-short
-              + "/"
-              + self.store.lecture.web,
+            "https://sra.uni-hannover.de/Lehre/" + self.store.lecture.sem-short + "/" + self.store.lecture.web,
           )
           #h(1fr)
           #link("mailto:" + self.store.lecture.mail + "@sra.uni-hannover.de")
@@ -981,16 +978,12 @@
         .lecture
         .author
         .split(",")
-        .map(x => x
-          .split(" ")
-          .filter(p => p.len() > 0)
-          .map(p => p.at(0))
-          .join(""))
+        .map(x => x.split(" ").filter(p => p.len() > 0).map(p => p.at(0)).join(""))
         .join(", "),
     )
     #h(.5cm)
     #self.store.lecture.short #if not self.appendix [(#self.store.lecture.part #utils.display-current-heading(level: 1),
-    #self.store.lecture.term-short #self.store.lecture.year)] else [Appendix]
+      #self.store.lecture.term-short #self.store.lecture.year)] else [Appendix]
   ],
 
   [],
@@ -1039,9 +1032,7 @@
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title
-      + if view-mode
-        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
     colorful-emph: false,
