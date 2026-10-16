@@ -45,6 +45,12 @@
 // Counter for the list depth
 #let list-depth = counter("list-depth")
 
+#let fonts = (
+  default: (font: "Rotis Sans Serif Std", stretch: 100%),
+  oss: (font: "Universalis ADF Std", stretch: 80%),
+  mono: (font: "DejaVu Sans Mono", stretch: 100%),
+)
+
 
 #let list-marker(fill: sra.red, depth) = {
   if depth == 0 {
@@ -112,10 +118,14 @@
 #let title-block(
   title: none,
   fill: luh.blue,
+  title-bg: auto,
+  body-bg: auto,
   width: 100%,
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
+  rounded: true,
+  radius: 4pt,
   body,
 ) = {
   if title-alignment == none { title-alignment = alignment }
@@ -129,18 +139,18 @@
       spacing: 0pt,
       if title != none {
         block(
-          fill: color.lighten(fill, 80%),
-          stroke: 0.5pt + color.lighten(fill, 80%),
+          fill: if title-bg == auto { color.lighten(fill, 80%) } else { title-bg },
           width: width,
           inset: 4pt,
+          radius: if rounded { (top: radius) },
           align(title-alignment, text(fill: fill, title)),
         )
       },
       block(
-        fill: color.lighten(fill, 90%),
-        stroke: 0.5pt + color.lighten(fill, 80%),
+        fill: if body-bg == auto { color.lighten(fill, 90%) } else { body-bg },
         width: width,
         inset: 8pt,
+        radius: if rounded { (bottom: 4pt, top: if title == none { radius } else { 0pt }) },
         align(body-alignment, body),
       ),
     )
@@ -222,6 +232,9 @@
 
     if author != none {
       body = [#author #h(2em) #body]
+    }
+    if self.appendix {
+      section = none
     }
     if section == auto {
       section = context (
@@ -330,8 +343,7 @@
     repeat: repeat,
     setting: setting,
     composer: composer,
-    ..args.named(),
-    ..args.pos(),
+    ..args,
   )
 })
 
@@ -367,9 +379,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, l-logo),
-        center-logo,
-        align(horizon + right, r-logo),
+        align(horizon + left, l-logo), center-logo, align(horizon + right, r-logo),
       )),
       footer: slide-footer(
         self: self,
@@ -401,8 +411,7 @@
   touying-slide(
     self: self,
     setting: body => align(horizon, body),
-    ..args.named(),
-    ..args.pos(),
+    ..args,
   )
 })
 
@@ -490,7 +499,7 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt = text.with(font: "DeJaVu Sans Mono", stretch: 80%)
+#let texttt = text.with(..fonts.mono)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
@@ -499,12 +508,9 @@
 /// - list-shrink (boolean): Enable list shrinking
 /// - body (content): Document body
 #let basic-theme(oss-font: false, list-shrink: true, body) = {
-  let (font, stretch) = if not oss-font {
-    ("Rotis Sans Serif Std", 100%)
-  } else {
-    ("Universalis ADF Std", 80%)
-  }
-  set text(size: 12pt, font: font, stretch: stretch, weight: "light")
+  let font = if oss-font { fonts.oss } else { fonts.default }
+  set text(size: 12pt, weight: "light", ..font)
+  show raw: set text(..fonts.mono)
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
@@ -771,6 +777,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -779,9 +789,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, self.info.logo),
-        [],
-        align(horizon + right, self.store.right-logo),
+        align(horizon + left, self.info.logo), [], align(horizon + right, self.store.right-logo),
       )),
       footer: slide-footer(self: self, numbering: false, green-box: false, text(
         fill: black,
@@ -789,10 +797,7 @@
           #show link: texttt.with(fill: black)
           #h(.5fr)
           #link(
-            "https://sra.uni-hannover.de/Lehre/"
-              + self.store.lecture.sem-short
-              + "/"
-              + self.store.lecture.web,
+            "https://sra.uni-hannover.de/Lehre/" + self.store.lecture.sem-short + "/" + self.store.lecture.web,
           )
           #h(1fr)
           #link("mailto:" + self.store.lecture.mail + "@sra.uni-hannover.de")
@@ -832,6 +837,8 @@
 
         #{ self.store.lecture.term-long }semester 20#{ self.store.lecture.year }]
       v(.5cm)
+
+      body
     },
   )
 })
@@ -853,6 +860,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -921,6 +932,7 @@
             }),
         )
       }
+      body
     },
   )
 })
@@ -929,6 +941,10 @@
   config: (:),
   body,
 ) = touying-slide-wrapper(self => {
+  if self.appendix {
+    return if body != none { touying-slide(self: self, config: config, body) }
+  }
+
   let self = utils.merge-dicts(
     self,
     config-page(
@@ -940,11 +956,13 @@
     self: self,
     config: config,
     {
-      set align(center + horizon)
-      set text(size: 30pt, fill: luh.blue)
-      context {
-        utils.display-current-heading(self: self, level: 3)
-      }
+      align(center + horizon)[
+        #set text(size: 30pt, fill: luh.blue)
+        #context {
+          utils.display-current-heading(self: self, level: 3)
+        }
+      ]
+      body
     },
   )
 })
@@ -960,16 +978,12 @@
         .lecture
         .author
         .split(",")
-        .map(x => x
-          .split(" ")
-          .filter(p => p.len() > 0)
-          .map(p => p.at(0))
-          .join(""))
+        .map(x => x.split(" ").filter(p => p.len() > 0).map(p => p.at(0)).join(""))
         .join(", "),
     )
     #h(.5cm)
-    #self.store.lecture.short (#self.store.lecture.part #utils.display-current-heading(level: 1),
-    #self.store.lecture.term-short #self.store.lecture.year)
+    #self.store.lecture.short #if not self.appendix [(#self.store.lecture.part #utils.display-current-heading(level: 1),
+      #self.store.lecture.term-short #self.store.lecture.year)] else [Appendix]
   ],
 
   [],
@@ -990,13 +1004,15 @@
         #link(it.location(), ALERT(it.body))
 
         #let sub-sections = sub-headings(it)
-        #let offset = global-heading-offset(sub-sections.first())
-        #enum(
-          numbering: n => text(luh.blue, strong[#n.]),
-          full: false,
-          start: offset,
-          ..sub-sections.map(it => link(it.location(), strong(it.body))),
-        )
+        #if sub-sections.len() != 0 {
+          let offset = global-heading-offset(sub-sections.first())
+          enum(
+            numbering: n => text(luh.blue, strong[#n.]),
+            full: false,
+            start: offset,
+            ..sub-sections.map(it => link(it.location(), strong(it.body))),
+          )
+        }
       ]),
     )
   })
@@ -1016,9 +1032,7 @@
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title
-      + if view-mode
-        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
     colorful-emph: false,
