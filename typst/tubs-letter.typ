@@ -3,12 +3,13 @@
 //
 // #import "texmf/typst/tubs-letter.typ": tubs-letter
 // #show: tubs-letter.with(
-//   sender: (name: [Vorname Nachname], phone-direct: "0000", ...),
 //   recipient: [Name \ Straße 1 \ 12345 Ort],
 //   opening: [Sehr geehrte Damen und Herren,],
 //   closing: [Mit freundlichen Grüßen,],
-//   signature: [Vorname Nachname],
 // )
+//
+// Absender ist Christian Mengert-Dietrich (IBR/VSS); einzelne Felder
+// lassen sich überschreiben: sender: (name: [..], signature: [..], ..)
 // Brieftext …
 #import "ibrslides.typ": tubs
 
@@ -18,17 +19,19 @@
 #let default-sender = (
   university: [TU Braunschweig],
   institute: [Institut für Betriebssysteme und Rechnerverbund],
-  department: none,
+  department: [Abt. Verlässliche Systemsoftware],
   street: [Mühlenpfordtstraße 23],
   city: [38106 Braunschweig],
   country: [Deutschland],
-  title: none,
-  name: none,
+  title: [Prof. Dr.-Ing.],
+  name: [Christian Mengert-Dietrich],
+  // Name unter der Unterschrift, none: wie name
+  signature: [Prof. Christian Mengert-Dietrich],
   // Durchwahlen, ergeben +49 (0) 531 391-…
-  phone-direct: none,
-  fax-direct: none,
-  email: none,
-  url: none,
+  phone-direct: "3294",
+  fax-direct: "3109",
+  email: "christian.dietrich@tu-braunschweig.de",
+  url: "https://ibr.cs.tu-bs.de/vss",
 )
 
 #let labels = (
@@ -60,7 +63,8 @@
 ///   your-ref, your-mail, my-ref, my-mail
 /// - opening (content): Anrede
 /// - closing (content): Grußformel
-/// - signature (content): Name unter der Unterschrift
+/// - signature (content, auto): Name unter der Unterschrift,
+///   auto: sender.signature bzw. sender.name
 /// - logo (content): Logo rechts oben, `none` für keines
 /// - lang (str): "de" oder "en"
 #let tubs-letter(
@@ -71,7 +75,7 @@
   references: (:),
   opening: none,
   closing: none,
-  signature: none,
+  signature: auto,
   logo: ibr-logo(width: 81mm),
   lang: "de",
   font: ("NexusSansPro", "Universalis ADF Std"),
@@ -79,6 +83,9 @@
 ) = {
   let s = default-sender + sender
   let l = labels.at(lang)
+  if signature == auto {
+    signature = if s.signature != none { s.signature } else { s.name }
+  }
   let date = if type(date) == datetime {
     [#date.day(). #l.months.at(date.month() - 1) #date.year()]
   } else { date }
