@@ -1,4 +1,4 @@
-#import "@preview/touying:0.6.1": *
+#import "@preview/touying:0.7.4": *
 #import "slidepilot.typ"
 // Backward compatibility
 #import components: side-by-side
@@ -21,20 +21,20 @@
 
 // TUBS Colors
 #let tubs = (
-  black: rgb(0,0,0),
-  red: rgb(190,30,60),
-  white: rgb(255,255,255),
-  yellow: rgb(255,205,0),
-  orange: rgb(250,110,0),
-  green: rgb(137,164,0),
-  greenlight: rgb(198,238,0),
-  greendark: rgb(0,113,86),
-  blue: rgb(0,128,180),
-  bluelight: rgb(124,205,230),
-  bluedark: rgb(0,83,116),
-  violet: rgb(118,0,118),
-  violetlight: rgb(204,0,153),
-  violetdark: rgb(118,0,84),
+  black: rgb(0, 0, 0),
+  red: rgb(190, 30, 60),
+  white: rgb(255, 255, 255),
+  yellow: rgb(255, 205, 0),
+  orange: rgb(250, 110, 0),
+  green: rgb(137, 164, 0),
+  greenlight: rgb(198, 238, 0),
+  greendark: rgb(0, 113, 86),
+  blue: rgb(0, 128, 180),
+  bluelight: rgb(124, 205, 230),
+  bluedark: rgb(0, 83, 116),
+  violet: rgb(118, 0, 118),
+  violetlight: rgb(204, 0, 153),
+  violetdark: rgb(118, 0, 84),
   gray: rgb(128, 128, 128),
 )
 
@@ -64,14 +64,15 @@
 
 // Background is rendered from a PDF
 #let bg-file = "../tex/latex/srabeamer/tubs.bg/beamerthemetubs169_bg.pdf"
-#let bg-title = image(bg-file, page:1, width: 100%, height: 100%)
-#let bg-normal = image(bg-file, page:2, width: 100%, height: 100%)
-#let bg-plain = image(bg-file, page:3, width: 100%, height: 100%)
+#let bg-title = image(bg-file, page: 1, width: 100%, height: 100%)
+#let bg-normal = image(bg-file, page: 2, width: 100%, height: 100%)
+#let bg-plain = image(bg-file, page: 3, width: 100%, height: 100%)
 
 // Counter for the list depth
 #let list-depth = counter("list-depth")
 
-#let list-marker(fill: sra.red, depth) = {
+
+#let list-marker(fill: tubs.red, depth) = {
   if depth == 0 {
     block(inset: (right: 1em), height: 2em / 3, align(horizon, square(
       size: 0.5em,
@@ -88,35 +89,98 @@
   text(fill: fill, [#numbers.pos().map(n => [#n]).join[.].])
 }
 
+#let heading-num(heading) = {
+  if heading != none and heading.numbering != none {
+    numbering(heading.numbering, ..counter(std.heading).at(heading.location()))
+  }
+}
+
+
+/// Increase the actual depth of all headings in a content block.
+///
+/// This normalizes heading offsets into the depth because Touying splits slides
+/// based on `depth` before Typst applies set and show rules.
+#let heading-depth-offset(offset, body) = {
+  let transform(it) = {
+    if utils.is-sequence(it) {
+      it.children.map(transform).sum(default: none)
+    } else if utils.is-styled(it) {
+      utils.reconstruct-styled(it, transform(it.child))
+    } else if type(it) == content and it.func() == heading {
+      let fields = it.fields()
+      let label = fields.remove("label", default: none)
+      let body = fields.remove("body")
+      fields.depth = it.depth + offset
+      fields.offset = 0
+      if label != none {
+        [#heading(..fields, body)#label]
+      } else {
+        heading(..fields, body)
+      }
+    } else {
+      it
+    }
+  }
+
+  transform(body)
+}
+
+
 /// Create a block with a title and a body
 ///
-/// - title (none, content): The title of the block
-/// - fill (color): The block color
-/// - body (content): The block content
-#let title-block(title: none, fill: tubs.blue, width: 100%, body) = {
-  // Change color of list and enum markers
-  set list(marker: list-marker.with(fill: fill))
-  set enum(numbering: enum-numbering.with(fill: fill))
-  show strong: text.with(fill: fill)
-  stack(
-    spacing: 0pt,
-    if title != none {
+/// - title (none, content): The title of the block.
+/// - fill (color): The block color.
+/// - body (content): The block content.
+/// - width (length, auto): The block width or `auto` to determine it by the content.
+/// - alignment (alignment): The alignment of the block.
+/// - title-alignment (alignment, none): The alignment of the title. Defaults to `alignment`.
+/// - body-alignment (alignment, none): The alignment of the body. Defaults to `alignment`.
+#let title-block(
+  title: none,
+  fill: tubs.blue,
+  width: 100%,
+  alignment: top + left,
+  title-alignment: none,
+  body-alignment: none,
+  body,
+) = {
+  if title-alignment == none { title-alignment = alignment }
+  if body-alignment == none { body-alignment = alignment }
+  let inner(width) = {
+    // Change color of list and enum markers
+    set list(marker: list-marker.with(fill: fill))
+    set enum(numbering: enum-numbering.with(fill: fill))
+    show strong: text.with(fill: fill)
+    stack(
+      spacing: 0pt,
+      if title != none {
+        block(
+          fill: color.lighten(fill, 80%),
+          stroke: 0.5pt + color.lighten(fill, 80%),
+          width: width,
+          inset: 4pt,
+          align(title-alignment, text(fill: fill, title)),
+        )
+      },
       block(
-        fill: color.lighten(fill, 80%),
+        fill: color.lighten(fill, 90%),
         stroke: 0.5pt + color.lighten(fill, 80%),
         width: width,
-        inset: 4pt,
-        text(fill: fill, title),
-      )
-    },
-    block(
-      fill: color.lighten(fill, 90%),
-      stroke: 0.5pt + color.lighten(fill, 80%),
-      width: width,
-      inset: 8pt,
-      body,
-    ),
-  )
+        inset: 8pt,
+        align(body-alignment, body),
+      ),
+    )
+  }
+
+  if width == auto {
+    // Only use context if necessary
+    context inner(calc.max(
+      measure(title).width + 8pt,
+      measure(body).width + 16pt,
+    ))
+  } else {
+    inner(width)
+  }
 }
 
 /// Create the header block
@@ -136,21 +200,36 @@
   grid.cell(align: top + left, []),
   grid.cell(align: top + left, block(
     inset: (top: 0.7mm),
-    text(size: 16pt, title), // FIXME: Heading?
+    text(size: 16pt, title),
   )),
   grid.cell(align: top + right, right-logo),
 ))
 
+/// Get the offset of the current heading in the document
+#let global-heading-offset(heading) = {
+  if heading == none {
+    0
+  } else {
+    query(
+      selector(std.heading.where(level: heading.level)).before(
+        heading.location(),
+      ),
+    ).len()
+  }
+}
+
 
 /// Create a footer block
 ///
-/// - numbering (bool): Show frame number
-/// - section (bool): Show current section
+/// - numbering (auto, content): Show frame number
+/// - section (auto, content): Show current section
 /// - author (content, none): Show the given author in the footer
 #let slide-footer(
-  numbering: true,
-  section: none,
+  self: none,
+  numbering: auto,
+  section: auto,
   author: none,
+  green-box: false,
   body,
 ) = align(left + bottom, block(
   width: 100%,
@@ -158,32 +237,64 @@
   outset: (x: 7mm),
   inset: (
     left: -7mm + 3mm + 5.5mm + 5mm,
-    right: -7mm + 3mm + if not numbering { 5.5mm + 5mm },
+    right: -7mm + 3mm,
   ),
   {
     set text(size: 7pt, fill: tubs.gray)
+    show link: set text(size: 7pt, fill: tubs.gray)
+    show heading: set text(size: 7pt, fill: tubs.gray)
     set align(horizon)
 
     if author != none {
       body = [#author #h(2em) #body]
     }
+    if section == auto and self != none {
+      section = context (
+        if self.slide-level > 2 {
+          if utils.current-heading(level: self.slide-level - 2) != none {
+            link(
+              utils.current-heading(level: self.slide-level - 2).location(),
+              utils.display-current-heading(level: self.slide-level - 2),
+            )
+          }
+        },
+        if utils.current-heading(level: self.slide-level - 1) != none {
+          link(
+            utils.current-heading(level: self.slide-level - 1).location(),
+            utils.display-current-heading(
+              level: self.slide-level - 1,
+            ),
+          )
+        },
+      )
+        .filter(it => it != none)
+        .join(" | ")
+    }
     if section != none and section != [] {
       body += section
     }
 
-    if numbering {
-      grid(
-        columns: (1fr, auto),
-        rows: 100%,
-        body,
-        [
-          #let curr = context utils.slide-counter.display()
-          #align(right)[#curr - #utils.last-slide-number #h(2mm)]
-        ],
-      )
-    } else {
-      body
+    if numbering in (none, false) {
+      numbering = []
     }
+    if numbering == auto {
+      if self != none and self.store.at("numbering-by-chapter", default: false) {
+        let l2-heading-count = context global-heading-offset(
+          utils.current-heading(level: 2),
+        )
+        numbering = [#l2-heading-count - #context utils.slide-counter.display()]
+      } else {
+        numbering = {
+          let curr = context utils.slide-counter.display()
+          [#curr - #utils.last-slide-number]
+        }
+      }
+    }
+    grid(
+      columns: (1fr, auto),
+      rows: 100%,
+      body, align(right)[#numbering #h(2mm)],
+    )
   },
 ))
 
@@ -231,28 +342,18 @@
 #let slide(
   config: (:),
   repeat: auto,
-  setting: body => body,
+  setting: body => align(horizon, body),
   composer: auto,
-  ..bodies,
+  ..args,
 ) = touying-slide-wrapper(self => {
-  set align(horizon)
-  let header(self) = utils.call-or-display(self, self.store.header)
-  let footer(self) = utils.call-or-display(self, self.store.footer)
-  let self = utils.merge-dicts(
-    self,
-    config-page(
-      header: header,
-      footer: footer,
-      background: bg-normal,
-    ),
-  )
   touying-slide(
     self: self,
     config: config,
     repeat: repeat,
     setting: setting,
     composer: composer,
-    ..bodies,
+    ..args.named(),
+    ..args.pos(),
   )
 })
 
@@ -263,62 +364,46 @@
 ///   You can use `config-xxx` to set the configuration of the slide.
 ///   For more several configurations, you can use `utils.merge-dicts`
 ///   to merge them.
+/// - footer (content): Custom footer content
 /// - body (content): Frame content
 #let title-slide(
   config: (:),
-  body,
+  footer: [],
+  ..args,
 ) = touying-slide-wrapper(self => {
   let self = utils.merge-dicts(
     self,
     config-page(
       margin: (top: 160pt),
-      footer: [],
-      background: bg-title
+      footer: footer,
+      background: bg-title,
     ),
   )
-  touying-slide(self: self, config: config, body)
+  touying-slide(
+    self: self,
+    config: config,
+    ..args.named(),
+    ..args.pos(),
+  )
 })
 
 
 /// New section slide for the presentation.
-///
-/// - config (dictionary): The configuration of the slide.
-///   You can use `config-xxx` to set the configuration of the slide.
-///   For more several configurations, you can use `utils.merge-dicts`
-///   to merge them.
-#let new-section-slide(
-  config: (:),
-  repeat: auto,
-  setting: body => body,
-  composer: auto,
-  ..bodies,
-) = touying-slide-wrapper(self => {
-  set align(horizon)
+#let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
   let header = slide-header(
-    title: utils.display-current-heading(self: self, level: 1),
+    title: context utils.current-heading(level: level),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
-  let footer = slide-footer(author: self.info.author, self.info.title)
   let self = utils.merge-dicts(
     self,
-    config-page(
-      header: header,
-      footer: footer,
-    ),
+    config-page(header: header),
   )
-  // Ensure at least one body
-  // let bodies = bodies.pos()
-  // if bodies.len() == 0 or bodies.at(0) == none or bodies.at(0) == [] {
-  //   bodies = (outline(depth: 1, title: none),)
-  // }
   touying-slide(
     self: self,
-    config: config,
-    repeat: repeat,
-    setting: setting,
-    composer: composer,
-    ..bodies,
+    setting: body => align(horizon, body),
+    ..args.named(),
+    ..args.pos(),
   )
 })
 
@@ -345,17 +430,70 @@
   self = utils.merge-dicts(
     self,
     config-common(freeze-slide-counter: true),
-    config-page(background: bg-plain,
-    fill: if background == auto {
-      self.colors.primary
-    } else {
-      background
-    }),
+    config-page(
+      background: bg-plain,
+      fill: if background == auto {
+        self.colors.primary
+      } else {
+        background
+      },
+    ),
   )
   set text(fill: foreground, size: 2em)
   touying-slide(self: self, config: config, align(center + horizon, body))
 })
 
+
+/// Include a full slide from another lectures PDF file
+/// reassembles beamertools btInputPDFFrames
+///
+/// - path (string): path to pdf file
+/// - page (int): page to include
+/// - title (content): title to print over the old one
+/// - bodies (array): content to add to the page
+/// -> slide
+#let image-slide(
+  path: none,
+  page: none,
+  title: none,
+  ..bodies,
+) = touying-slide-wrapper(self => {
+  let header(self) = if (title != none) { slide-header(title: title) } else {
+    none
+  }
+
+  self = utils.merge-dicts(
+    self,
+    config-page(
+      header: header,
+      background: [#align(horizon + left, image(
+          fit: "cover",
+          height: 100%,
+          path,
+          page: page,
+        ))#place(top + left, rect(fill: white, width: 100%, height: 9.3mm))],
+    ),
+  )
+  touying-slide(
+    self: self,
+    ..bodies,
+  )
+})
+
+
+#let structure = text.with(fill: tubs.blue)
+#let Structure = text.with(fill: tubs.blue, style: "italic")
+#let STRUCTURE = text.with(fill: tubs.blue, weight: "bold")
+
+#let alert = it => text(fill: tubs.red, it)
+#let Alert = it => emph(alert(it))
+#let ALERT = it => strong(alert(it))
+
+#let sample = it => text(fill: tubs.green, it)
+#let Sample = it => emph(sample(it))
+#let SAMPLE = it => strong(sample(it))
+
+#let texttt = text.with(font: "DeJaVu Sans Mono", stretch: 80%)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
@@ -374,15 +512,13 @@
   show heading: set text(fill: tubs.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
 
-  show strong: set text(fill: tubs.bluedark, weight: 300)
-  show emph: set text(fill: tubs.red)
+  show strong: set text(weight: 300)
+
   show link: set text(fill: tubs.bluedark)
-  set table.cell(inset: 5pt)
-  set table(stroke: 0.5pt + black)
 
   // set list and enum styles
-  set list(marker: list-marker.with(fill: sra.red), body-indent: 0em)
-  set enum(numbering: enum-numbering.with(fill: tubs.gray), full: true)
+  set list(marker: list-marker.with(fill: tubs.red), body-indent: 0em)
+  set enum(numbering: enum-numbering.with(fill: tubs.blue), full: true)
 
   // Shrinking text for inner lists
   show list: it => {
@@ -430,8 +566,14 @@
 ///
 /// - title (content): Title of the presentation (for the footer)
 /// - author (content): Author of the presentation (for the footer)
+/// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
+/// - left-logo (image): Logo for the header
+/// - right-logo (image): Logo for the header
+/// - custom-footer (content, function): Custom footer content or function
+/// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
+/// - colorful-emph (boolean): Whether to use colors for strong and emph
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - body (content): Body of the presentation
@@ -441,44 +583,120 @@
   date: datetime.today(),
   oss-font: true,
   list-shrink: true,
-  enable-pdfpc: true,
-  enable-slidepilot: false,
   left-logo: left-logo(),
   right-logo: right-logo(),
+  custom-footer: none,
+  numbering-by-chapter: false,
+  colorful-emph: true,
+  enable-pdfpc: true,
+  enable-slidepilot: false,
   ..args,
   body,
 ) = {
   set document(title: title, author: author, date: date)
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
 
+  let strong-style = (:)
+  if colorful-emph { strong-style = (fill: tubs.bluedark) }
+  show strong: set text(..strong-style)
+
+  let emph-style = (:)
+  if colorful-emph { emph-style = (fill: tubs.red) }
+  show emph: set text(..emph-style)
+
   // Style for outlines
-  show outline.entry: it => list(block(inset: (bottom: 0.2cm), link(
-    it.element.location(),
-    {
-      if it.element.location().page() == here().page() {
-        strong(it.body())
+  show outline.entry: it => {
+    let wrap(it, level) = {
+      if level == 1 {
+        list(
+          block(inset: (bottom: 0.5em), link(
+            it.element.location(),
+            if it.element.location().page() == here().page() {
+              strong[#it.prefix() #it.body()]
+            } else {
+              [#it.prefix() #it.body()]
+            },
+          )),
+        )
       } else {
-        it.body()
+        list(marker: h(1.5em), wrap(it, level - 1))
       }
-    },
-  )))
+    }
+    wrap(it, it.level)
+  }
+
+  // up to which level should touying create slides?
+  let slide-level = utils.merge-dicts((:), ..args).at("slide-level", default: 2)
+
+  // Heading numbering
+  set heading(numbering: if slide-level > 2 {
+    (..nums) => {
+      // extra chapter level
+      if nums.pos().len() == 1 {
+        numbering("A", ..nums)
+      } else {
+        numbering("1.", ..nums.pos().slice(1))
+      }
+    }
+  } else { "1." })
+
+  show heading.where(level: 1): it => {
+    set text(size: 16pt)
+    if slide-level > 2 {
+      // Count level 2 headings globally
+      let l2-offset = query(
+        selector(heading.where(level: 2)).before(here()),
+      ).len()
+      counter(heading).update((..n) => (..n.pos(), l2-offset))
+    }
+    it
+  }
+
+  assert(
+    not (numbering-by-chapter and slide-level <= 2),
+    message: "numbering-by-chapter can only be true if slide-level > 2",
+  )
+  show heading.where(level: 2): it => {
+    set text(size: 16pt)
+    // page numbering by chapter
+    if numbering-by-chapter {
+      utils.slide-counter.update(1)
+    }
+    it
+  }
+
+  show heading.where(level: slide-level): set heading(
+    bookmarked: not numbering-by-chapter,
+  )
 
   show std.title: set text(fill: tubs.blue, size: 24pt)
 
   let header = self => slide-header(
-    title: utils.display-current-heading(self: self, level: self.slide-level),
+    title: utils.display-current-heading(
+      numbered: false,
+      level: self.slide-level,
+    ),
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
   let footer = self => slide-footer(
+    self: self,
     author: author,
     section: utils.display-current-heading(
       self: self,
-      level: 1,
-      style: it => [~---~#it.body],
-    ),
+      level: self.slide-level - 2, // show section in the footer
+      style: it => [~---~#heading-num(it)~#it.body],
+    )
+      + utils.display-current-heading(
+        self: self,
+        level: self.slide-level - 1, // show section in the footer
+        style: it => [~---~#heading-num(it)~#it.body],
+      ),
     self.info.title,
   )
+  if custom-footer != none {
+    footer = custom-footer
+  }
 
   show: touying-slides.with(
     config-page(
@@ -486,16 +704,37 @@
       height: 9cm,
       margin: (top: 5.5mm + 2 * 1.7mm, x: 2.55mm + 5.78mm, bottom: 6mm),
       header-ascent: 0mm,
+      header: header,
       footer-descent: 0mm,
       footer: footer,
       background: bg-normal,
     ),
     config-common(
       slide-fn: slide,
-      new-section-slide-fn: new-section-slide,
+      new-section-slide-fn: new-section-slide.with(level: 1),
+      new-subsection-slide-fn: if slide-level > 2 {
+        new-section-slide.with(level: 2)
+      },
+      new-subsubsection-slide-fn: if slide-level > 3 {
+        new-section-slide.with(level: 3)
+      },
+      // Docs say that these default to true, but they don't seem to
+      receive-body-for-new-section-slide-fn: true,
+      receive-body-for-new-subsection-slide-fn: true,
+      receive-body-for-new-subsubsection-slide-fn: true,
+
       zero-margin-header: false,
       zero-margin-footer: false,
       enable-pdfpc: enable-pdfpc or enable-slidepilot,
+      reset-page-counter-to-slide-counter: not numbering-by-chapter,
+      slide-level: slide-level,
+      default-frozen-counters: (
+        // unfreeze heading counter, as it messes up with chapter numbers
+        // counter(heading),
+        counter(math.equation),
+        counter(figure.where(kind: table)),
+        counter(figure.where(kind: image)),
+      ),
     ),
     config-colors(
       neutral-light: gray,
@@ -506,9 +745,8 @@
     ),
     // save the variables for later use
     config-store(
-      header: header,
-      footer: footer,
       right-logo: right-logo,
+      numbering-by-chapter: numbering-by-chapter,
     ),
     config-info(
       title: title,
@@ -518,7 +756,7 @@
       institution: [Technische Universität Braunschweig],
       logo: left-logo,
     ),
-      ..args,
+    ..args,
   )
 
   if enable-slidepilot {
@@ -527,3 +765,291 @@
 
   body
 }
+
+// Backward compatibility alias
+#let sra-theme = ibr-theme
+
+
+//
+// Derivations for the lecture slides
+//
+
+#let title-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let lecture = self.store.at("lecture", default: (:))
+  let web-url = lecture.at(
+    "url",
+    default: if "web" in lecture and "sem-short" in lecture {
+      "https://www.ibr.cs.tu-bs.de/courses/" + lecture.sem-short + "/" + lecture.web
+    } else { none },
+  )
+  let mail = lecture.at("mail", default: none)
+  let mail-url = if mail != none {
+    if mail.contains("@") { mail } else { mail + "@ibr.cs.tu-bs.de" }
+  } else { none }
+
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: block(inset: (top: 4.8pt, x: -12pt), grid(
+        columns: (1fr, auto, 1fr),
+        rows: 40pt,
+        gutter: 2.5pt,
+        align(horizon + left, self.info.logo),
+        [],
+        align(horizon + right, self.store.right-logo),
+      )),
+      footer: slide-footer(self: self, numbering: false, green-box: false, text(
+        fill: black,
+        align(center, [
+          #show link: texttt.with(fill: black)
+          #h(.5fr)
+          #if web-url != none { link(web-url) }
+          #h(1fr)
+          #if mail-url != none { link("mailto:" + mail-url) }
+          #h(.5fr)
+        ]),
+      )),
+      margin: (top: 40pt + 2 * 4.8pt),
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      place(top + left, context hide(utils.current-heading(level: 1)))
+      v(.8cm)
+      set align(center + horizon)
+      text(
+        size: 24pt,
+        fill: tubs.blue,
+        weight: "bold",
+      )[#lecture.at("title", default: self.info.title) (#lecture.at("short", default: []))]
+
+      context {
+        v(1fr)
+        text(size: 18pt, fill: tubs.blue, utils.display-current-heading(
+          level: 1,
+          setting: it => [#lecture.at("part", default: []) #it],
+        ))
+      }
+
+      // #v(20pt)
+      v(1fr)
+      [#text(weight: "bold")[#lecture.at("author", default: self.info.author)]
+
+        #lecture.at("institute", default: [
+          Institute of Operating Systems and Computer Networks\
+          (IBR)
+        ])
+
+        #{ lecture.at("term-long", default: []) }semester 20#{ lecture.at("year", default: []) }]
+      v(.5cm)
+    },
+  )
+})
+
+#let sub-headings(last) = {
+  let current-sel = selector(
+    heading.where(level: last.level + 1),
+  ).after(last.location())
+  let next = query(
+    selector(heading.where(level: last.level)).after(last.location()),
+  ).at(1, default: none)
+  if next != none {
+    current-sel = current-sel.before(next.location())
+  }
+  query(current-sel)
+}
+
+#let new-subsection-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let lecture = self.store.at("lecture", default: (:))
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: slide-header(
+        title: [
+          #text(fill: tubs.blue)[#lecture.at("overview", default: [Overview]): ] #text(
+            fill: tubs.red,
+          )[#lecture.at("part", default: []) #utils.display-current-heading(
+              self: self,
+              level: 1,
+            )]],
+        left-logo: self.info.logo,
+        right-logo: self.store.right-logo,
+      ),
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      set align(horizon)
+
+      //needs to be called here for hook at heading to be executed
+      context place(hide(utils.current-heading(level: 2)))
+
+      context {
+        let last-l1 = query(
+          selector(heading.where(level: 1)).before(here()),
+        ).last()
+        let current-l2 = sub-headings(last-l1)
+        let l2-offset = global-heading-offset(current-l2.first())
+
+        list(
+          tight: false,
+          marker: h(1em),
+          ..current-l2
+            .enumerate()
+            .map(((l2-count, it)) => {
+              let is-current = it.location().page() == here().page()
+
+              let style = if is-current {
+                text.with(weight: "bold")
+              } else {
+                text.with(fill: tubs.blue.transparentize(50%))
+              }
+              link(it.location(), style[
+                #std.numbering(
+                  it.numbering,
+                  ..counter(heading).at(it.location()),
+                )
+                #it.body
+              ])
+
+              if is-current {
+                list(
+                  marker: h(1em),
+                  ..sub-headings(it).map(it => link(it.location())[
+                    #std.numbering(
+                      it.numbering,
+                      ..counter(heading).at(it.location()),
+                    )
+                    #it.body
+                  ]),
+                )
+              }
+            }),
+        )
+      }
+    },
+  )
+})
+
+#let new-subsubsection-slide-lecture(
+  config: (:),
+  body,
+) = touying-slide-wrapper(self => {
+  let self = utils.merge-dicts(
+    self,
+    config-page(
+      header: slide-header(title: utils.display-current-heading(level: 2)),
+      footer: none,
+    ),
+  )
+  touying-slide(
+    self: self,
+    config: config,
+    {
+      set align(center + horizon)
+      set text(size: 30pt, fill: tubs.blue)
+      context {
+        utils.display-current-heading(self: self, level: 3)
+      }
+    },
+  )
+})
+
+#let ibr-lecture-footer = self => {
+  let lecture = self.store.at("lecture", default: (:))
+  let author-initials = if "author" in lecture {
+    lower(
+      lecture
+        .author
+        .split(",")
+        .map(x => x
+          .split(" ")
+          .filter(p => p.len() > 0)
+          .map(p => p.at(0))
+          .join(""))
+        .join(", "),
+    )
+  } else { [] }
+  slide-footer(
+    self: self,
+    author: [
+      #sym.copyright #author-initials
+      #h(.5cm)
+      #lecture.at("short", default: []) (#lecture.at("part", default: []) #utils.display-current-heading(level: 1),
+      #lecture.at("term-short", default: []) #lecture.at("year", default: []))
+    ],
+    [],
+  )
+}
+
+#let overview-slide-lecture(slide-title) = {
+  heading(depth: 4)[#slide-title]
+  slide(config: config-page(footer: none), context {
+    show: box.with(height: 70%)
+    show: columns.with(2)
+
+    let chapters = query(selector(heading.where(level: 1, outlined: true)))
+    enum(
+      tight: false,
+      numbering: it => ALERT(numbering(chapters.first().numbering, it)),
+      ..chapters.map(it => box[
+        #link(it.location(), ALERT(it.body))
+
+        #let sub-sections = sub-headings(it)
+        #let offset = global-heading-offset(sub-sections.first())
+        #enum(
+          numbering: n => text(tubs.blue, strong[#n.]),
+          full: false,
+          start: offset,
+          ..sub-sections.map(it => link(it.location(), strong(it.body))),
+        )
+      ]),
+    )
+  })
+}
+
+#let ibr-lecture-theme(
+  title: [],
+  author: none,
+  date: datetime.today(),
+  lecture: (:),
+  ..args,
+  body,
+) = {
+  let view-mode = sys.inputs.at("mode", default: "normal")
+  show: ibr-theme.with(
+    oss-font: false,
+    author: author,
+    title: title
+      + if view-mode
+        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    date: datetime.today(),
+    numbering-by-chapter: true,
+    colorful-emph: false,
+    config-page(footer: ibr-lecture-footer),
+    config-store(footer: ibr-lecture-footer, lecture: lecture),
+    config-common(
+      new-section-slide-fn: title-slide-lecture,
+      new-subsection-slide-fn: new-subsection-slide-lecture,
+      new-subsubsection-slide-fn: new-subsubsection-slide-lecture,
+      handout: view-mode == "handout",
+      slide-level: 4,
+    ),
+    ..args,
+  )
+  body
+}
+
+// Backward compatibility alias
+#let sra-lecture-theme = ibr-lecture-theme
+#let sra-lecture-footer = ibr-lecture-footer
