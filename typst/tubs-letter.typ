@@ -12,6 +12,7 @@
 // lassen sich überschreiben: sender: (name: [..], signature: [..], ..)
 // Brieftext …
 #import "ibrslides.typ": tubs
+#import "@preview/meander:0.4.0"
 
 #let tubs-logo = image.with("../tex/latex/srabeamer/tubs.bg/tubs-logo.svg")
 #let ibr-logo = image.with("../tex/latex/srabeamer/tubs.bg/ibr-logo.pdf")
@@ -153,12 +154,12 @@
 
   set page(
     paper: "a4",
-    // tubslttr2 setzt ab Seite 2 16 cm Textbreite, auf Seite 1 12,2 cm.
-    // Typst kann die Breite nicht seitenweise ändern, daher gilt 12,2 cm.
-    margin: (top: 33mm, bottom: 35mm, left: 24.5mm, right: 63.5mm),
+    // Wie tubslttr2: 16 cm Textbreite, auf Seite 1 nur 12,2 cm neben
+    // der Absenderspalte (siehe meander.reflow unten).
+    margin: (top: 33mm, bottom: 35mm, left: 24.5mm, right: 25.5mm),
     header-ascent: 5mm,
     header: context if here().page() > 1 {
-      block(height: 22mm, width: 122mm, align(horizon, text(size: 9pt)[
+      block(height: 22mm, align(horizon, text(size: 9pt)[
         #s.university \
         *#s.institute*
         #if s.department != none [\ #s.department]
@@ -183,22 +184,33 @@
 
   // Der Brieftext beginnt auf Höhe der ersten Falzmarke (105 mm)
   v(73.2mm - 0.75em)
-  if subject != none {
-    strong(subject)
-    v(0.9em)
-  }
-  if opening != none {
-    opening
-    v(0.9em)
-  }
 
-  body
+  // Typst kann die Textbreite nicht seitenweise ändern: auf Seite 1
+  // läuft der Text in einen 12,2 cm breiten Container, der Überlauf
+  // danach normal über die volle Breite.
+  meander.reflow({
+    import meander: *
+    container(width: 122mm, margin: 0mm)
+    // Ohne Blocksatz trennt Typst nicht; meander soll es auch nicht.
+    content(hyphenate: false, {
+      if subject != none {
+        strong(subject)
+        v(0.9em)
+      }
+      if opening != none {
+        opening
+        v(0.9em)
+      }
 
-  if closing != none or signature != none {
-    block(above: 2.2em, breakable: false, {
-      closing
-      v(11.2mm)
-      signature
+      body
+
+      if closing != none or signature != none {
+        block(above: 2.2em, breakable: false, {
+          closing
+          v(11.2mm)
+          signature
+        })
+      }
     })
-  }
+  })
 }
