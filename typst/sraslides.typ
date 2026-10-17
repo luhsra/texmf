@@ -766,7 +766,7 @@
       if nums.pos().len() == 1 {
         numbering("A", ..nums)
       } else {
-        numbering("1.", ..nums.pos().slice(1))
+        numbering("1.1", ..nums.pos().slice(1))
       }
     }
   } else { "1." })
@@ -866,6 +866,8 @@
         counter(figure.where(kind: table)),
         counter(figure.where(kind: image)),
       ),
+      // let content stay on current slide
+      breakable: false,
     ),
     config-colors(
       neutral-light: gray,
@@ -1000,13 +1002,34 @@
     config-page(
       header: slide-header(
         title: [
-          #text(fill: luh.blue)[#self.store.lecture.overview: ] #text(
-            fill: sra.red,
-          )[#self.store.lecture.part #utils.display-current-heading(
-              self: self,
-              level: 1,
-            )]],
-        left-logo: self.info.logo,
+          #text(fill: luh.blue)[#self.store.lecture.overview: ]
+          #utils.display-current-heading(
+            level: 1,
+            style: (
+              setting: body => body,
+              numbered: true,
+              current-heading,
+            ) => text(
+              fill: sra.red,
+              self.store.lecture.part
+                + h(.3em)
+                + (
+                  if numbered and current-heading.numbering != none {
+                    (
+                      std.numbering(
+                        current-heading.numbering,
+                        ..counter(heading).at(current-heading.location()),
+                      )
+                        + h(.3em)
+                    )
+                  } else {
+                    []
+                  }
+                )
+                + current-heading.body,
+            ),
+          )
+        ],
         right-logo: self.store.right-logo,
       ),
     ),
@@ -1123,30 +1146,38 @@
 
 #let overview-slide-lecture(slide-title) = {
   heading(depth: 4)[#slide-title]
-  slide(config: config-page(footer: none), context {
-    show: box.with(height: 70%)
-    show: columns.with(2)
+  slide(
+    config: utils.merge-dicts(
+      (:),
+      config-page(footer: none),
+      config-common(breakable: true),
+    ),
+    context {
+      // show: box.with(height: 70%)
+      show: columns.with(2)
+      show: align.with(top)
+      show enum: set enum(tight: false)
 
-    let chapters = query(selector(heading.where(level: 1, outlined: true)))
-    enum(
-      tight: false,
-      numbering: it => ALERT(numbering(chapters.first().numbering, it)),
-      ..chapters.map(it => box[
-        #link(it.location(), ALERT(it.body))
+      let chapters = query(selector(heading.where(level: 1, outlined: true)))
+      enum(
+        numbering: it => ALERT(numbering(chapters.first().numbering, it)),
+        ..chapters.map(it => box[
+          #link(it.location(), ALERT(it.body))
 
-        #let sub-sections = sub-headings(it)
-        #if sub-sections.len() != 0 {
-          let offset = global-heading-offset(sub-sections.first())
-          enum(
-            numbering: n => text(luh.blue, strong[#n.]),
-            full: false,
-            start: offset,
-            ..sub-sections.map(it => link(it.location(), strong(it.body))),
-          )
-        }
-      ]),
-    )
-  })
+          #let sub-sections = sub-headings(it)
+          #if sub-sections.len() != 0 {
+            let offset = global-heading-offset(sub-sections.first())
+            enum(
+              numbering: n => text(luh.blue, strong[#n.]),
+              full: false,
+              start: offset,
+              ..sub-sections.map(it => link(it.location(), strong(it.body))),
+            )
+          }
+        ]),
+      )
+    },
+  )
 }
 
 
