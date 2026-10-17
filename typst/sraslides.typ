@@ -1,5 +1,6 @@
 #import "@preview/touying:0.7.4": *
 #import "slidepilot.typ"
+#import "beamertools.typ": *
 #import "sra-colors.typ": *
 // Backward compatibility
 #import components: side-by-side
