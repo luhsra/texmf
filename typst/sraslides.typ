@@ -26,10 +26,14 @@
       fill: fill,
     )))
   } else {
-    block(inset: (right: 0.5em), height: 2em / 3, align(horizon, square(
-      size: 0.4em,
-      fill: luh.gray,
-    )))
+    block(inset: (right: 0.5em), height: 2em / 3, align(horizon, if depth >= 2 {
+      text(fill: luh.gray, weight: "bold")[--]
+    } else {
+      square(
+        size: 0.4em,
+        fill: luh.gray,
+      )
+    }))
   }
 }
 #let enum-numbering(fill: luh.gray, ..numbers) = {
@@ -487,7 +491,9 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, l-logo), center-logo, align(horizon + right, r-logo),
+        align(horizon + left, l-logo),
+        center-logo,
+        align(horizon + right, r-logo),
       )),
       footer: slide-footer(
         self: self,
@@ -627,7 +633,7 @@
 #let basic-theme(oss-font: false, list-shrink: true, body) = {
   let font = if oss-font { fonts.oss } else { fonts.default }
   set text(size: 12pt, weight: "light", ..font)
-  show raw: set text(..fonts.mono)
+  show raw: set text(size: 8pt, ..fonts.mono)
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
@@ -666,6 +672,11 @@
     } else {
       it
     }
+  }
+
+  show terms: it => {
+    show strong: it => text(fill: luh.blue, it.body)
+    text(fill: black, it)
   }
 
   set footnote.entry(separator: line(stroke: 0.5pt + luh.gray, length: 45mm))
@@ -922,7 +933,9 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, self.info.logo), [], align(horizon + right, self.store.right-logo),
+        align(horizon + left, self.info.logo),
+        [],
+        align(horizon + right, self.store.right-logo),
       )),
       footer: slide-footer(self: self, numbering: false, green-box: false, text(
         fill: black,
@@ -930,7 +943,10 @@
           #show link: texttt.with(fill: black)
           #h(.5fr)
           #link(
-            "https://sra.uni-hannover.de/Lehre/" + self.store.lecture.sem-short + "/" + self.store.lecture.web,
+            "https://sra.uni-hannover.de/Lehre/"
+              + self.store.lecture.sem-short
+              + "/"
+              + self.store.lecture.web,
           )
           #h(1fr)
           #link("mailto:" + self.store.lecture.mail + "@sra.uni-hannover.de")
@@ -1132,7 +1148,11 @@
         .lecture
         .author
         .split(",")
-        .map(x => x.split(" ").filter(p => p.len() > 0).map(p => p.at(0)).join(""))
+        .map(x => x
+          .split(" ")
+          .filter(p => p.len() > 0)
+          .map(p => p.at(0))
+          .join(""))
         .join(", "),
     )
     #h(.5cm)
@@ -1191,10 +1211,21 @@
   body,
 ) = {
   let view-mode = sys.inputs.at("mode", default: "normal")
+
+  // make "regular" text gray and all "marked up" text black
+  set text(fill: luh.gray)
+  show list.item: set text(fill: black)
+  show enum.item: set text(fill: black)
+  show table: set text(fill: black)
+  show math.equation: set text(fill: black)
+  show raw: set text(fill: black)
+
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title
+      + if view-mode
+        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
     colorful-emph: false,
@@ -1207,6 +1238,8 @@
       handout: view-mode == "handout",
       slide-level: 4,
     ),
+    ..args,
   )
   body
 }
+
