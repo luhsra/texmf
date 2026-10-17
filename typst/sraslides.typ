@@ -73,6 +73,8 @@
 }
 
 
+#let _title-block-citation-style = bytes(read("sra-author.csl"))
+
 /// Create a block with a title and a body
 ///
 /// - title (none, content): The title of the block.
@@ -82,10 +84,14 @@
 /// - alignment (alignment): The alignment of the block.
 /// - title-alignment (alignment, none): The alignment of the title. Defaults to `alignment`.
 /// - body-alignment (alignment, none): The alignment of the body. Defaults to `alignment`.
+/// - author (none, label, content): Quote attribution. Bibliography labels
+///   (e.g. `author: <pike:00>`) and direct `ref` elements become citations.
+///   Citations use `sra-author.csl`: Author Year: italic title [number]
 #let title-block(
   title: none,
   fill: luh.blue,
   title-bg: auto,
+  text-fill: black,
   body-bg: auto,
   width: 100%,
   alignment: top + left,
@@ -93,20 +99,42 @@
   body-alignment: none,
   rounded: true,
   radius: 4pt,
+  author: none,
+  scale-content: 100%,
+  position: none,
+  visible: none,
+  reveal-method: auto,
   body,
 ) = {
+  if type(author) == label {
+    author = cite(author)
+  } else if type(author) == content and author.func() == ref {
+    let supplement = author.at("supplement", default: auto)
+    author = cite(
+      author.target,
+      supplement: if supplement == auto { none } else { supplement },
+    )
+  }
   if title-alignment == none { title-alignment = alignment }
   if body-alignment == none { body-alignment = alignment }
+  if reveal-method == auto {
+    reveal-method = if position == none { uncover } else { only }
+  }
   let inner(width) = {
+    set text(fill: text-fill)
     // Change color of list and enum markers
     set list(marker: list-marker.with(fill: fill))
     set enum(numbering: enum-numbering.with(fill: fill))
-    show strong: text.with(fill: fill)
+    if touying-get-config("store.colorful-emph") == true {
+      show strong: text.with(fill: fill, weight: bold)
+    }
     stack(
       spacing: 0pt,
       if title != none {
         block(
-          fill: if title-bg == auto { color.lighten(fill, 80%) } else { title-bg },
+          fill: if title-bg == auto { color.lighten(fill, 80%) } else {
+            title-bg
+          },
           width: width,
           inset: 4pt,
           radius: if rounded { (top: radius) },
@@ -117,22 +145,77 @@
         fill: if body-bg == auto { color.lighten(fill, 90%) } else { body-bg },
         width: width,
         inset: 8pt,
-        radius: if rounded { (bottom: 4pt, top: if title == none { radius } else { 0pt }) },
-        align(body-alignment, body),
+        radius: if rounded {
+          (bottom: 4pt, top: if title == none { radius } else { 0pt })
+        },
+        align(body-alignment, {
+          if (author != none) {
+            quote(block: false, quotes: false, {
+              // Place glyphs out of flow; reserve their width, but no ascent/descent.
+              let quotation-mark(
+                mark,
+                lower: 0em,
+                bottom-edge: "baseline",
+              ) = context {
+                let glyph = text(
+                  size: 30pt,
+                  fill: fill,
+                  bottom-edge: bottom-edge,
+                  mark,
+                )
+                let size = measure(glyph)
+                box(
+                  width: size.width,
+                  height: 0pt,
+                  baseline: 0pt,
+                  place(top + left, dy: -size.height + lower, glyph),
+                )
+              }
+              // Include the low opening glyph's ink below its baseline when positioning it.
+              quotation-mark("„", bottom-edge: "bounds")
+              {
+                show emph: it => text(fill: fill, it.body)
+                body
+              }
+              quotation-mark("“", lower: 1em)
+            })
+
+            align(right, text(size: .8em, {
+              show cite.where(style: auto): it => cite(
+                it.key,
+                supplement: it.supplement,
+                form: "normal",
+                style: _title-block-citation-style,
+              )
+              author
+            }))
+          } else { body }
+        }),
       ),
     )
   }
 
+  let ret = inner(width)
   if width == auto {
     // Only use context if necessary
-    context inner(calc.max(
+    ret = context inner(calc.max(
       measure(title).width + 8pt,
       measure(body).width + 16pt,
     ))
-  } else {
-    inner(width)
   }
+  if scale-content != none {
+    ret = scale(scale-content, reflow: true, ret)
+  }
+  if visible != none {
+    ret = reveal-method(visible, ret)
+  }
+  if position != none {
+    ret = place(top + left, dx: position.at(0), dy: position.at(1), ret)
+  }
+  return ret
 }
+
+#let orange-box = title-block.with(fill: orange)
 
 /// Create the header block
 ///
@@ -540,6 +623,12 @@
 /// - author (content): Author of the presentation (for the footer)
 /// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
+/// - quotation-font (dictionary): Text settings for quote bodies and quotation
+///   marks in `title-block`; stored as `store.quotation-font`. Defaults to
+///   `(font: "Latin Modern Roman", style: "oblique", stretch: 100%)`.
+/// - math-font (dictionary): Text settings for inline and display equations;
+///   stored as `store.math-font`. Defaults to Latin Modern Math, the OpenType
+///   counterpart of LaTeX's Computer Modern mathematics.
 /// - list-shrink (boolean): Enable list shrinking
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
@@ -553,6 +642,8 @@
   author: none,
   date: datetime.today(),
   oss-font: false,
+  quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
+  math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
   list-shrink: true,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
@@ -566,6 +657,8 @@
 ) = {
   set document(title: title, author: author, date: date)
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
+  show math.equation: set text(..math-font)
+  show quote.where(block: false, quotes: false): set text(..quotation-font)
 
   let strong-style = (:)
   if colorful-emph { strong-style = (fill: luh.blue) }
@@ -717,6 +810,9 @@
     config-store(
       right-logo: right-logo,
       numbering-by-chapter: numbering-by-chapter,
+      colorful-emph: colorful-emph,
+      quotation-font: quotation-font,
+      math-font: math-font,
     ),
     config-info(
       title: title,
