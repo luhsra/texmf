@@ -217,27 +217,85 @@
 
 #let orange-box = title-block.with(fill: orange)
 
-/// Create the header block
+/// Add subtitle content in place of the current slide's right header logo.
 ///
-/// - title (content): Title
+/// - body (content): Subtitle shown in the slide header.
+#let subtitle(body) = [#metadata(body) <sraslides-subtitle>]
+
+/// Create the header block, hiding the right header item when it would force the title to wrap.
+///
+/// - title (content): Title content.
+/// - fit-title (bool): Hide the right header item if needed to keep a content-slide title on one line.
 /// - left-logo (image): Left logo
-/// - right-logo (image): Right logo
+/// - right-logo (image): Right header item when no subtitle is supplied.
 #let slide-header(
   title: [],
+  fit-title: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   first-subslide: true,
-) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
-  columns: (auto, 1fr, auto),
-  rows: 5.5mm,
-  column-gutter: 5mm,
-  grid.cell(align: top + left, left-logo),
-  grid.cell(align: top + left, block(
+) = context {
+  let title-content = text(fill: luh.blue, size: 16pt, title)
+  let margins = page.margin
+  let left-margin = if type(margins) == dictionary {
+    margins.at("left", default: margins.at("x", default: 0pt))
+  } else {
+    margins
+  }
+  let right-margin = if type(margins) == dictionary {
+    margins.at("right", default: margins.at("x", default: 0pt))
+  } else {
+    margins
+  }
+  let header-width = page.width - left-margin - right-margin + 8mm
+  let left-width = measure(left-logo, height: 5.5mm).width
+  let subtitle-marker = query(<sraslides-subtitle>)
+    .filter(it => it.location().page() == here().page())
+    .first(default: none)
+  let right-content = if subtitle-marker == none {
+    right-logo
+  } else {
+    align(horizon)[#text(size: 11pt, fill: luh.blue, subtitle-marker.value)]
+  }
+  let right-width = if right-content == none {
+    0pt
+  } else if subtitle-marker == none {
+    measure(right-content, height: 5.5mm).width
+  } else {
+    measure(right-content).width
+  }
+  let title-width = measure(title-content).width
+  let show-right-item = (
+    right-content != none
+      and (
+        not fit-title
+          or title-width <= header-width - left-width - right-width - 10mm
+      )
+  )
+  let title-cell = grid.cell(align: top + left, block(
     inset: (top: 0.7mm),
-    text(fill: luh.blue, size: 16pt, title),
-  )),
-  grid.cell(align: top + right, right-logo),
-))
+    title-content,
+  ))
+  let header-grid = if show-right-item {
+    grid(
+      columns: (auto, 1fr, auto),
+      rows: 5.5mm,
+      column-gutter: 5mm,
+      grid.cell(align: top + left, left-logo),
+      title-cell,
+      grid.cell(align: top + right, right-content),
+    )
+  } else {
+    grid(
+      columns: (auto, 1fr),
+      rows: 5.5mm,
+      column-gutter: 5mm,
+      grid.cell(align: top + left, left-logo),
+      title-cell,
+    )
+  }
+  box(inset: (x: -7mm + 3mm, y: 1.7mm), header-grid)
+}
 
 /// Get the offset of the current heading in the document
 #let global-heading-offset(heading) = {
@@ -450,8 +508,8 @@
 /// New section slide for the presentation.
 #let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
   let header = slide-header(
-    title: context utils.current-heading(level: level),
     left-logo: self.info.logo,
+    title: utils.display-current-heading(level: level),
     right-logo: self.store.right-logo,
   )
   let self = utils.merge-dicts(
@@ -514,7 +572,9 @@
   title: none,
   ..bodies,
 ) = touying-slide-wrapper(self => {
-  let header(self) = if (title != none) { slide-header(title: title) } else {
+  let header(self) = if (title != none) {
+    slide-header(title: title, fit-title: true)
+  } else {
     none
   }
 
@@ -737,9 +797,10 @@
 
   let header = self => slide-header(
     title: utils.display-current-heading(
-      numbered: false,
       level: self.slide-level,
+      numbered: false,
     ),
+    fit-title: true,
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
