@@ -585,14 +585,21 @@
       background: [#align(horizon + left, image(
           fit: "cover",
           height: 100%,
-          path,
+          "/" + path,
           page: page,
         ))#place(top + left, rect(fill: white, width: 100%, height: 9.3mm))],
     ),
   )
+  /// Background-only slides receive an invisible 1pt body so Touying's content
+  /// measurement does not report them as empty. Supplied bodies remain unchanged.
+  let content = bodies.pos()
+  if content.len() == 0 {
+    content.push(block(height: 1pt, []))
+  }
   touying-slide(
     self: self,
-    ..bodies,
+    ..content,
+    ..bodies.named(),
   )
 })
 
