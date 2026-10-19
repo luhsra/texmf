@@ -1240,6 +1240,16 @@
     ),
     ..args,
   )
+  // Query physical pages; the visible page counter restarts for each chapter.
+  context [
+    #metadata((
+      chapters: query(heading.where(level: 2)).map(it => (
+        title: it.body,
+        page: it.location().page(),
+      )),
+      pages: counter(page).final(),
+    )) <chapter-ranges>
+  ]
   body
 }
 
