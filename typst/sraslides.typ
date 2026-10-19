@@ -988,6 +988,33 @@
       v(.5cm)
 
       body
+      // Query physical pages; the visible page counter restarts for each chapter.
+      context [
+        #metadata((
+          chapters: {
+            let chapters = query(heading.where(level: 2))
+            let disabled-pages = query(<disabled-chapter>).map(it => it
+              .location()
+              .page())
+            chapters
+              .enumerate()
+              .map(((index, it)) => {
+                let start = it.location().page()
+                let end = if index + 1 < chapters.len() {
+                  chapters.at(index + 1).location().page()
+                } else { counter(page).final().last() + 1 }
+                (
+                  title: it.body,
+                  page: start,
+                  disabled: disabled-pages.any(page => (
+                    start <= page and page < end
+                  )),
+                )
+              })
+          },
+          pages: counter(page).final().last(),
+        )) <chapter-ranges>
+      ]
     },
   )
 })
@@ -1240,16 +1267,6 @@
     ),
     ..args,
   )
-  // Query physical pages; the visible page counter restarts for each chapter.
-  context [
-    #metadata((
-      chapters: query(heading.where(level: 2)).map(it => (
-        title: it.body,
-        page: it.location().page(),
-      )),
-      pages: counter(page).final(),
-    )) <chapter-ranges>
-  ]
   body
 }
 

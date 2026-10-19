@@ -49,7 +49,10 @@
   if sys.inputs.at("mode", default: "normal") == "debug" {
     body
   } else {
-    placeholder
+    [
+      #placeholder
+      #metadata(none) <disabled-chapter>
+    ]
   }
 }
 
