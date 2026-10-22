@@ -11,6 +11,23 @@
   lighterblue: rgb(230, 238, 245),
   gray: rgb(128, 128, 128),
   lightgray: rgb(220, 222, 222),
+  maphy: rgb(0, 105, 77),
+  darkgreen: rgb(0, 105, 77),
+  nawi: rgb(0, 140, 66),
+  jura: rgb(165, 22, 82),
+  berry: rgb(165, 22, 82),
+  phil: rgb(235, 105, 11),
+  orange: rgb(235, 105, 11),
+  arch: rgb(248, 212, 0),
+  yellow: rgb(248, 212, 0),
+  bau: rgb(0, 165, 209),
+  fei: rgb(85, 189, 203),
+  macshbau: rgb(0, 111, 137),
+  wiwi: rgb(226, 0, 38),
+  red: rgb(226, 0, 38),
+  lse: rgb(99, 111, 107),
+  lsop: rgb(109, 127, 143),
+  quest: rgb(168, 178, 173),
 )
 
 // Additional colors
