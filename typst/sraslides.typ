@@ -1246,12 +1246,6 @@
   let view-mode = sys.inputs.at("mode", default: "normal")
 
   // make "regular" text gray and all "marked up" text black
-  set text(fill: luh.gray)
-  show list.item: set text(fill: black)
-  show enum.item: set text(fill: black)
-  show table: set text(fill: black)
-  show math.equation: set text(fill: black)
-  show raw: set text(fill: black)
 
   show: sra-theme.with(
     oss-font: false,
