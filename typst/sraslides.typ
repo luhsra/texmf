@@ -129,6 +129,9 @@
     // Change color of list and enum markers
     set list(marker: list-marker.with(fill: fill))
     set enum(numbering: enum-numbering.with(fill: fill))
+    // FIXME: This does not work for multiple reasons
+    // - touying-get-config returns delayed content
+    // - show rule is cleared after the block ends
     if touying-get-config("store.colorful-emph") == true {
       show strong: text.with(fill: fill, weight: bold)
     }
@@ -780,7 +783,7 @@
         numbering("1.1", ..nums.pos().slice(1))
       }
     }
-  } else { "1." })
+  })
 
   show heading.where(level: 1): it => {
     set text(size: 16pt)
@@ -1269,4 +1272,3 @@
   )
   body
 }
-
