@@ -79,6 +79,54 @@
 
 #let _title-block-citation-style = bytes(read("sra-author.csl"))
 
+/// SRA-styled quote
+///
+/// - body (content): The body of the quote.
+/// - author (content): The author of the quote.
+/// - fill (color): Color of the quotation marks.
+/// -> content
+#let sra-quote(body, author, fill: black) = {
+  quote(block: false, quotes: false, {
+    // Place glyphs out of flow; reserve their width, but no ascent/descent.
+    let quotation-mark(
+      mark,
+      lower: 0em,
+      bottom-edge: "baseline",
+    ) = context {
+      let glyph = text(
+        size: 30pt,
+        fill: fill,
+        bottom-edge: bottom-edge,
+        mark,
+      )
+      let size = measure(glyph)
+      box(
+        width: size.width,
+        height: 0pt,
+        baseline: 0pt,
+        place(top + left, dy: -size.height + lower, glyph),
+      )
+    }
+    // Include the low opening glyph's ink below its baseline when positioning it.
+    quotation-mark("„", bottom-edge: "bounds")
+    {
+      show emph: it => text(fill: fill, it.body)
+      body
+    }
+    quotation-mark("“", lower: 1em)
+  })
+
+  align(right, text(size: .8em, {
+    show cite.where(style: auto): it => cite(
+      it.key,
+      supplement: it.supplement,
+      form: "normal",
+      style: _title-block-citation-style,
+    )
+    author
+  }))
+}
+
 /// Create a block with a title and a body
 ///
 /// - title (none, content): The title of the block.
@@ -155,49 +203,9 @@
         radius: if rounded {
           (bottom: 4pt, top: if title == none { radius } else { 0pt })
         },
-        align(body-alignment, {
-          if (author != none) {
-            quote(block: false, quotes: false, {
-              // Place glyphs out of flow; reserve their width, but no ascent/descent.
-              let quotation-mark(
-                mark,
-                lower: 0em,
-                bottom-edge: "baseline",
-              ) = context {
-                let glyph = text(
-                  size: 30pt,
-                  fill: fill,
-                  bottom-edge: bottom-edge,
-                  mark,
-                )
-                let size = measure(glyph)
-                box(
-                  width: size.width,
-                  height: 0pt,
-                  baseline: 0pt,
-                  place(top + left, dy: -size.height + lower, glyph),
-                )
-              }
-              // Include the low opening glyph's ink below its baseline when positioning it.
-              quotation-mark("„", bottom-edge: "bounds")
-              {
-                show emph: it => text(fill: fill, it.body)
-                body
-              }
-              quotation-mark("“", lower: 1em)
-            })
-
-            align(right, text(size: .8em, {
-              show cite.where(style: auto): it => cite(
-                it.key,
-                supplement: it.supplement,
-                form: "normal",
-                style: _title-block-citation-style,
-              )
-              author
-            }))
-          } else { body }
-        }),
+        align(body-alignment, if (author != none) {
+          sra-quote(body, author, fill: fill)
+        } else { body }),
       ),
     )
   }
@@ -275,8 +283,7 @@
   let show-right-item = (
     right-content != none
       and (
-        not fit-title
-          or title-width <= header-width - left-width - right-width - 10mm
+        not fit-title or title-width <= header-width - left-width - right-width - 10mm
       )
   )
   let title-cell = grid.cell(align: top + left, block(
@@ -337,7 +344,8 @@
   outset: (x: 7mm),
   inset: (
     left: -7mm + 3mm + 5.5mm + 5mm,
-    right: -7mm + 3mm,
+    // if no numbering -> symmetric inset for center alignment
+    right: -7mm + 3mm + if numbering in (false, none) { 5.5mm + 5mm } else { 0mm },
   ),
   {
     set text(size: 7pt, fill: luh.gray)
@@ -396,9 +404,10 @@
     grid(
       columns: (1fr, auto),
       rows: 100%,
-      body, align(right)[#numbering #h(2mm)],
+      body, if numbering != [] { align(right)[#numbering #h(2mm)] },
     )
-    if green-box {
+    // show only if there is a number
+    if numbering != [] and green-box {
       place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
     }
   },
@@ -494,9 +503,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, l-logo),
-        center-logo,
-        align(horizon + right, r-logo),
+        align(horizon + left, l-logo), center-logo, align(horizon + right, r-logo),
       )),
       footer: slide-footer(
         self: self,
@@ -936,9 +943,7 @@
         columns: (1fr, auto, 1fr),
         rows: 40pt,
         gutter: 2.5pt,
-        align(horizon + left, self.info.logo),
-        [],
-        align(horizon + right, self.store.right-logo),
+        align(horizon + left, self.info.logo), [], align(horizon + right, self.store.right-logo),
       )),
       footer: slide-footer(self: self, numbering: false, green-box: false, text(
         fill: black,
@@ -946,10 +951,7 @@
           #show link: texttt.with(fill: black)
           #h(.5fr)
           #link(
-            "https://sra.uni-hannover.de/Lehre/"
-              + self.store.lecture.sem-short
-              + "/"
-              + self.store.lecture.web,
+            "https://sra.uni-hannover.de/Lehre/" + self.store.lecture.sem-short + "/" + self.store.lecture.web,
           )
           #h(1fr)
           #link("mailto:" + self.store.lecture.mail + "@sra.uni-hannover.de")
@@ -996,9 +998,7 @@
         #metadata((
           chapters: {
             let chapters = query(heading.where(level: 2))
-            let disabled-pages = query(<disabled-chapter>).map(it => it
-              .location()
-              .page())
+            let disabled-pages = query(<disabled-chapter>).map(it => it.location().page())
             chapters
               .enumerate()
               .map(((index, it)) => {
@@ -1178,11 +1178,7 @@
         .lecture
         .author
         .split(",")
-        .map(x => x
-          .split(" ")
-          .filter(p => p.len() > 0)
-          .map(p => p.at(0))
-          .join(""))
+        .map(x => x.split(" ").filter(p => p.len() > 0).map(p => p.at(0)).join(""))
         .join(", "),
     )
     #h(.5cm)
@@ -1253,9 +1249,7 @@
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title
-      + if view-mode
-        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
     colorful-emph: false,
