@@ -149,7 +149,6 @@
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
-  rounded: true,
   radius: 4pt,
   author: none,
   scale-content: 100%,
@@ -192,7 +191,7 @@
           },
           width: width,
           inset: 4pt,
-          radius: if rounded { (top: radius) },
+          radius: (top: radius),
           align(title-alignment, text(fill: fill, title)),
         )
       },
@@ -200,9 +199,7 @@
         fill: if body-bg == auto { color.lighten(fill, 90%) } else { body-bg },
         width: width,
         inset: 8pt,
-        radius: if rounded {
-          (bottom: 4pt, top: if title == none { radius } else { 0pt })
-        },
+        radius: (bottom: radius, top: if title == none { radius } else { 0pt }),
         align(body-alignment, if (author != none) {
           sra-quote(body, author, fill: fill)
         } else { body }),
