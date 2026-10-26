@@ -45,6 +45,26 @@
 
 - Much wow
 
+== Theme Options
+
+Pass presentation-wide options to the initial show rule:
+
+```typ
+#show: sra-theme.with(
+  title: title,
+  author: author,
+  date: date,
+  oss-font: true,
+  colorful-emph: false,
+  math-font: (font: "New Computer Modern Math"),
+  quotation-font: (font: "New Computer Modern", style: "italic"),
+)
+```
+
+- `oss-font` selects Universalis ADF Std instead of Rotis
+- `colorful-emph: false` keeps emphasis in the surrounding text color
+- Custom math and quotation fonts
+
 = Layout and Styling
 
 #outline(title: none, depth: 1)
@@ -288,6 +308,18 @@ The `author` option adds quotation marks and a right-aligned attribution.
   ]
 ]
 
+#focus-slide[
+  Klausurrelevant!
+
+  #text(size: 12pt)[
+    Useful for very important messages.
+  ]
+
+  ```
+  #focus-slide[Klausurrelevant!]
+  ```
+]
+
 = Animations
 
 #outline(title: none, depth: 1)
@@ -342,7 +374,7 @@ The `author` option adds quotation marks and a right-aligned attribution.
   #only(3)[The final result.]
 ])
 
-= Presentation Tools
+= Tooling
 
 #outline(title: none, depth: 1)
 
@@ -366,35 +398,3 @@ typst eval --root . --in texmf/typst/example.typ \
 - Explain the motivation first.
 - Leave time for questions.
 ```
-
-== Theme Options
-
-Pass presentation-wide options to the initial show rule:
-
-```typ
-#show: sra-theme.with(
-  title: title,
-  author: author,
-  date: date,
-  oss-font: true,
-  colorful-emph: false,
-  math-font: (font: "New Computer Modern Math",),
-  quotation-font: (font: "New Computer Modern", style: "italic"),
-)
-```
-
-- `oss-font` selects Universalis ADF Std instead of Rotis
-- `colorful-emph: false` keeps emphasis in the surrounding text color
-- Custom math and quotation fonts must be installed locally
-
-#focus-slide[
-  Klausurrelevant!
-
-  #text(size: 12pt)[
-    Useful for very important messages.
-  ]
-
-  ```
-  #focus-slide[Klausurrelevant!]
-  ```
-]
