@@ -65,7 +65,8 @@
   }
 }
 
-/// Link to a numbered heading; full form also displays the target heading title.
+/// Link using the lecture numbering scheme, as in the footer.
+/// Full form also displays the target heading title.
 #let link-chapter(where, form: "short") = {
   show text: set text(fill: luh.gray)
   // ra
@@ -75,16 +76,17 @@
     stroke: luh.gray + .5pt,
     fill: luh.lightgray,
     inset: 2pt,
-    [#ref(
-        where,
-        supplement: none,
-      )
-      #if form == "full" {
-        context {
-          let target = query(where).first()
-          [~#link(target.location(), target.body)]
-        }
-      }],
+    context {
+      let target = query(where).first()
+      let loc = target.location()
+      let chapters = query(selector(heading.where(level: 2)).before(loc))
+      let chapter-nr = chapters.len()
+      let chapter-name = chapters.first().body
+      let page = utils.slide-counter.at(loc).first()
+      [#link(loc)[#chapter-nr;-#page]#if form == "full" {
+          [#chapter-name ~#link(loc, target.body)]
+        }]
+    },
   )
 }
 
