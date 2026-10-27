@@ -658,9 +658,9 @@
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
 /// - body (content): Document body
-#let basic-theme(oss-font: false, list-shrink: true, body) = {
+#let basic-theme(oss-font: false, list-shrink: true, text-size: 12pt, body) = {
   let font = if oss-font { fonts.oss } else { fonts.default }
-  set text(size: 12pt, weight: "light", ..font)
+  set text(size: text-size, weight: "light", ..font)
   show raw: set text(size: 8pt, ..fonts.mono)
 
   show heading: set text(fill: luh.blue, weight: "light")
@@ -747,6 +747,7 @@
   author: none,
   date: datetime.today(),
   oss-font: false,
+  text-size: 12pt,
   quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
   math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
   list-shrink: true,
@@ -760,7 +761,11 @@
   body,
 ) = {
   set document(title: title, author: author, date: date)
-  show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
+  show: basic-theme.with(
+    oss-font: oss-font,
+    list-shrink: list-shrink,
+    text-size: text-size,
+  )
   show math.equation: set text(..math-font)
   show quote.where(block: false, quotes: false): set text(..quotation-font)
 
