@@ -1265,6 +1265,7 @@
       new-subsection-slide-fn: new-subsection-slide-lecture,
       new-subsubsection-slide-fn: new-subsubsection-slide-lecture,
       handout: view-mode == "handout",
+      detect-overflow: false,
       slide-level: 4,
     ),
     ..args,
