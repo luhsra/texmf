@@ -8,10 +8,19 @@
 
 // ise an arrow as item marker
 #let ra = $#text(fill: sra.red, sym.arrow.r.hook)$
-#let item-ra(body) = [
-  #set list(marker: depth => [#box(width: .5em, align(center, ra))#h(1em)])
+#let item-x(marker: [x], body) = [
+  #set list(marker: marker)
   - #body
 ]
+#let item-ra = item-x.with(marker: depth => [
+  #box(width: .5em, align(
+    center,
+    ra,
+  ))#h(1em)
+])
+
+#let item-pro = item-x.with(marker: text(fill: luh.green)[+#h(.5em)])
+#let item-con = item-x.with(marker: text(fill: sra.red)[−#h(.5em)])
 
 // tab content to absolute x offset
 #let tab-to(pos, body) = {
