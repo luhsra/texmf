@@ -650,7 +650,7 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt = text.with(..fonts.mono)
+#let texttt = text.with(size: .8em, ..fonts.mono)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
