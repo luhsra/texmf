@@ -86,6 +86,16 @@
 /// - fill (color): Color of the quotation marks.
 /// -> content
 #let sra-quote(body, author, fill: black) = {
+  if type(author) == label {
+    author = cite(author)
+  } else if type(author) == content and author.func() == ref {
+    let supplement = author.at("supplement", default: auto)
+    author = cite(
+      author.target,
+      supplement: if supplement == auto { none } else { supplement },
+    )
+  }
+
   quote(block: false, quotes: false, {
     // Place glyphs out of flow; reserve their width, but no ascent/descent.
     let quotation-mark(
@@ -127,23 +137,43 @@
   }))
 }
 
-/// Create a block with a title and a body
+/// Create a colored block with an optional title and quote attribution.
 ///
-/// - title (none, content): The title of the block.
-/// - fill (color): The block color.
+/// - title (none, content): An optional block title.
+/// - fill (color): Color of the title text, list markers, and quotation marks.
+///   Also determines the automatic background colors.
+/// - text-fill (color): Body text color.
+/// - title-bg (auto, none, color): Title background. With `auto`, lightens `fill`
+///   by 80%. Use `none` for no background.
+/// - body-bg (auto, none, color): Body background. With `auto`, lightens `fill`
+///   by 90%. Use `none` for no background.
+/// - width (auto, length, ratio): Width of the title and body. With `auto`, uses
+///   the larger measured width of the title and body, plus padding.
+/// - alignment (alignment): Shared alignment of the title and body.
+/// - title-alignment (alignment, none): Title alignment. With `none`, uses `alignment`.
+/// - body-alignment (alignment, none): Body alignment. With `none`, uses `alignment`.
+/// - radius (length): Outer corner radius.
+/// - author (none, label, content): Quote attribution. When not `none`, formats
+///   the body as an `sra-quote` with right-aligned attribution.
+///   Bibliography labels (e.g. `author: <pike:00>`) and direct `ref` elements
+///   become citations. Citations with automatic style use `sra-author.csl`:
+///   Author Year: italic title [number].
+/// - scale-content (ratio): Scale of the entire block.
+/// - position (none, array): Placement offsets `(dx, dy)` from the top-left
+///   corner of the containing area. With `none`, keeps the block in normal flow.
+/// - visible (none, int, array, str, label, dictionary): Touying subslide
+///   specification passed to `reveal-method`, e.g. `"2-"`.
+/// - reveal-method (auto, function): Function called with `(visible, block)`
+///   when `visible` is set. With `auto`, uses `uncover` in normal flow,
+///   or `only` when `position` is set.
+/// - colorful-emph (boolean): Whether to use `fill` for strong and emph
 /// - body (content): The block content.
-/// - width (length, auto): The block width or `auto` to determine it by the content.
-/// - alignment (alignment): The alignment of the block.
-/// - title-alignment (alignment, none): The alignment of the title. Defaults to `alignment`.
-/// - body-alignment (alignment, none): The alignment of the body. Defaults to `alignment`.
-/// - author (none, label, content): Quote attribution. Bibliography labels
-///   (e.g. `author: <pike:00>`) and direct `ref` elements become citations.
-///   Citations use `sra-author.csl`: Author Year: italic title [number]
+/// -> content
 #let title-block(
   title: none,
   fill: luh.blue,
-  title-bg: auto,
   text-fill: black,
+  title-bg: auto,
   body-bg: auto,
   width: 100%,
   alignment: top + left,
@@ -155,17 +185,9 @@
   position: none,
   visible: none,
   reveal-method: auto,
+  colorful-emph: false,
   body,
 ) = {
-  if type(author) == label {
-    author = cite(author)
-  } else if type(author) == content and author.func() == ref {
-    let supplement = author.at("supplement", default: auto)
-    author = cite(
-      author.target,
-      supplement: if supplement == auto { none } else { supplement },
-    )
-  }
   if title-alignment == none { title-alignment = alignment }
   if body-alignment == none { body-alignment = alignment }
   if reveal-method == auto {
@@ -176,12 +198,10 @@
     // Change color of list and enum markers
     set list(marker: list-marker.with(fill: fill))
     set enum(numbering: enum-numbering.with(fill: fill))
-    // FIXME: This does not work for multiple reasons
-    // - touying-get-config returns delayed content
-    // - show rule is cleared after the block ends
-    if touying-get-config("store.colorful-emph") == true {
-      show strong: text.with(fill: fill, weight: bold)
-    }
+
+    let text-args = if colorful-emph { (fill: fill) } else { (:) }
+    show strong: set text(..text-args)
+
     stack(
       spacing: 0pt,
       if title != none {
@@ -207,15 +227,16 @@
     )
   }
 
-  let ret = inner(width)
-  if width == auto {
+  let ret = if width == auto {
     // Only use context if necessary
-    ret = context inner(calc.max(
+    context inner(calc.max(
       measure(title).width + 8pt,
       measure(body).width + 16pt,
     ))
+  } else {
+    inner(width)
   }
-  if scale-content != none {
+  if scale-content != 100% {
     ret = scale(scale-content, reflow: true, ret)
   }
   if visible != none {
@@ -718,7 +739,6 @@
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
-/// - colorful-emph (boolean): Whether to use colors for strong and emph
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - body (content): Body of the presentation
@@ -734,7 +754,6 @@
   right-logo: luh-logo(),
   custom-footer: none,
   numbering-by-chapter: false,
-  colorful-emph: true,
   enable-pdfpc: true,
   enable-slidepilot: false,
   ..args,
@@ -744,14 +763,6 @@
   show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
   show math.equation: set text(..math-font)
   show quote.where(block: false, quotes: false): set text(..quotation-font)
-
-  let strong-style = (:)
-  if colorful-emph { strong-style = (fill: luh.blue) }
-  show strong: set text(..strong-style)
-
-  let emph-style = (:)
-  if colorful-emph { emph-style = (fill: sra.red) }
-  show emph: set text(..emph-style)
 
   // Style for outlines
   show outline.entry: it => {
@@ -898,7 +909,6 @@
     config-store(
       right-logo: right-logo,
       numbering-by-chapter: numbering-by-chapter,
-      colorful-emph: colorful-emph,
       quotation-font: quotation-font,
       math-font: math-font,
     ),
@@ -1249,7 +1259,6 @@
     title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
-    colorful-emph: false,
     config-page(footer: sra-lecture-footer),
     config-store(footer: sra-lecture-footer, lecture: lecture),
     config-common(
