@@ -57,8 +57,8 @@
 /// - len (int, none): Optional number of rows to include
 /// - wrapper (function): Optional wrapper function for the table cells
 /// - args (arguments): Additional arguments for the table
-#let semesterplan(csv, offset: 0, len: none, wrapper: text, ..args) = table(
-  columns: csv.at(0).len(),
+#let semesterplan(csv, offset: 0, column: none, len: none, wrapper: text, ..args) = table(
+  columns: if column == none { (csv.at(0).len()) } else { column },
   ..args,
   table.header(..csv.at(0).map(c => eval(c, mode: "markup")).map(strong).map(wrapper)),
   ..for row in csv.slice(1 + offset, if len != none { 1 + offset + len }) {

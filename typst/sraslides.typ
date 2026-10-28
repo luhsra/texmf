@@ -1,42 +1,9 @@
 #import "@preview/touying:0.7.4": *
 #import "slidepilot.typ"
+#import "beamertools.typ": *
+#import "sra-colors.typ": *
 // Backward compatibility
 #import components: side-by-side
-
-/// SRA Colors
-#let sra = (
-  red: rgb(208, 38, 38),
-  /// Daniel tends to use this
-  orange: orange.lighten(70%),
-)
-/// LUH Colors
-#let luh = (
-  green: rgb(177, 201, 32),
-  blue: rgb(0, 80, 155),
-  lightblue: rgb(204, 220, 235),
-  lighterblue: rgb(230, 238, 245),
-  gray: rgb(128, 128, 128),
-  lightgray: rgb(220, 222, 222),
-)
-
-// Additional colors
-// Colors Daniel tends to use in his slides
-#let beamergreen = luh.green.darken(20%)
-#let badbee = rgb("#cbb750")
-
-/// Black'n White Safe colorbrewer colors
-#let safe = (
-  yellow: rgb("#ffffbf"),
-  orange: rgb("#fc8d59"),
-  red: rgb("#d95f0e"),
-  lightred: rgb("#fee0d2"),
-  blue: rgb("#2b8cbe"),
-  middleblue: rgb("#a6bddb"),
-  lightblue: rgb("#ece7f2"),
-  green: rgb("#31a354"),
-  middlegreen: rgb("#addd8e"),
-  lightgreen: rgb("#f7fcb9"),
-)
 
 // Images
 #let sra-logo = image.with("../tex/latex/srabeamer/sra.bg/sra-logo.svg")
@@ -59,10 +26,14 @@
       fill: fill,
     )))
   } else {
-    block(inset: (right: 0.5em), height: 2em / 3, align(horizon, square(
-      size: 0.4em,
-      fill: luh.gray,
-    )))
+    block(inset: (right: 0.5em), height: 2em / 3, align(horizon, if depth >= 2 {
+      text(fill: luh.gray, weight: "bold")[--]
+    } else {
+      square(
+        size: 0.4em,
+        fill: luh.gray,
+      )
+    }))
   }
 }
 #let enum-numbering(fill: luh.gray, ..numbers) = {
@@ -106,43 +77,141 @@
 }
 
 
-/// Create a block with a title and a body
+#let _title-block-citation-style = bytes(read("sra-author.csl"))
+
+/// SRA-styled quote
 ///
-/// - title (none, content): The title of the block.
-/// - fill (color): The block color.
+/// - body (content): The body of the quote.
+/// - author (content): The author of the quote.
+/// - fill (color): Color of the quotation marks.
+/// -> content
+#let sra-quote(body, author, fill: black) = {
+  if type(author) == label {
+    author = cite(author)
+  } else if type(author) == content and author.func() == ref {
+    let supplement = author.at("supplement", default: auto)
+    author = cite(
+      author.target,
+      supplement: if supplement == auto { none } else { supplement },
+    )
+  }
+
+  quote(block: false, quotes: false, {
+    // Place glyphs out of flow; reserve their width, but no ascent/descent.
+    let quotation-mark(
+      mark,
+      lower: 0em,
+      bottom-edge: "baseline",
+    ) = context {
+      let glyph = text(
+        size: 30pt,
+        fill: fill,
+        bottom-edge: bottom-edge,
+        mark,
+      )
+      let size = measure(glyph)
+      box(
+        width: size.width,
+        height: 0pt,
+        baseline: 0pt,
+        place(top + left, dy: -size.height + lower, glyph),
+      )
+    }
+    // Include the low opening glyph's ink below its baseline when positioning it.
+    quotation-mark("„", bottom-edge: "bounds")
+    {
+      show emph: it => text(fill: fill, it.body)
+      body
+    }
+    quotation-mark("“", lower: 1em)
+  })
+
+  align(right, text(size: .8em, {
+    show cite.where(style: auto): it => cite(
+      it.key,
+      supplement: it.supplement,
+      form: "normal",
+      style: _title-block-citation-style,
+    )
+    author
+  }))
+}
+
+/// Create a colored block with an optional title and quote attribution.
+///
+/// - title (none, content): An optional block title.
+/// - fill (color): Color of the title text, list markers, and quotation marks.
+///   Also determines the automatic background colors.
+/// - text-fill (color): Body text color.
+/// - title-bg (auto, none, color): Title background. With `auto`, lightens `fill`
+///   by 80%. Use `none` for no background.
+/// - body-bg (auto, none, color): Body background. With `auto`, lightens `fill`
+///   by 90%. Use `none` for no background.
+/// - width (auto, length, ratio): Width of the title and body. With `auto`, uses
+///   the larger measured width of the title and body, plus padding.
+/// - alignment (alignment): Shared alignment of the title and body.
+/// - title-alignment (alignment, none): Title alignment. With `none`, uses `alignment`.
+/// - body-alignment (alignment, none): Body alignment. With `none`, uses `alignment`.
+/// - radius (length): Outer corner radius.
+/// - author (none, label, content): Quote attribution. When not `none`, formats
+///   the body as an `sra-quote` with right-aligned attribution.
+///   Bibliography labels (e.g. `author: <pike:00>`) and direct `ref` elements
+///   become citations. Citations with automatic style use `sra-author.csl`:
+///   Author Year: italic title [number].
+/// - scale-content (ratio): Scale of the entire block.
+/// - position (none, array): Placement offsets `(dx, dy)` from the top-left
+///   corner of the containing area. With `none`, keeps the block in normal flow.
+/// - visible (none, int, array, str, label, dictionary): Touying subslide
+///   specification passed to `reveal-method`, e.g. `"2-"`.
+/// - reveal-method (auto, function): Function called with `(visible, block)`
+///   when `visible` is set. With `auto`, uses `uncover` in normal flow,
+///   or `only` when `position` is set.
+/// - colorful-emph (boolean): Whether to use `fill` for strong and emph
 /// - body (content): The block content.
-/// - width (length, auto): The block width or `auto` to determine it by the content.
-/// - alignment (alignment): The alignment of the block.
-/// - title-alignment (alignment, none): The alignment of the title. Defaults to `alignment`.
-/// - body-alignment (alignment, none): The alignment of the body. Defaults to `alignment`.
+/// -> content
 #let title-block(
   title: none,
   fill: luh.blue,
+  text-fill: black,
   title-bg: auto,
   body-bg: auto,
   width: 100%,
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
-  rounded: true,
   radius: 4pt,
+  author: none,
+  scale-content: 100%,
+  position: none,
+  visible: none,
+  reveal-method: auto,
+  colorful-emph: false,
   body,
 ) = {
   if title-alignment == none { title-alignment = alignment }
   if body-alignment == none { body-alignment = alignment }
+  if reveal-method == auto {
+    reveal-method = if position == none { uncover } else { only }
+  }
   let inner(width) = {
+    set text(fill: text-fill)
     // Change color of list and enum markers
     set list(marker: list-marker.with(fill: fill))
     set enum(numbering: enum-numbering.with(fill: fill))
-    show strong: text.with(fill: fill)
+
+    let text-args = if colorful-emph { (fill: fill) } else { (:) }
+    show strong: set text(..text-args)
+
     stack(
       spacing: 0pt,
       if title != none {
         block(
-          fill: if title-bg == auto { color.lighten(fill, 80%) } else { title-bg },
+          fill: if title-bg == auto { color.lighten(fill, 80%) } else {
+            title-bg
+          },
           width: width,
           inset: 4pt,
-          radius: if rounded { (top: radius) },
+          radius: (top: radius),
           align(title-alignment, text(fill: fill, title)),
         )
       },
@@ -150,13 +219,15 @@
         fill: if body-bg == auto { color.lighten(fill, 90%) } else { body-bg },
         width: width,
         inset: 8pt,
-        radius: if rounded { (bottom: 4pt, top: if title == none { radius } else { 0pt }) },
-        align(body-alignment, body),
+        radius: (bottom: radius, top: if title == none { radius } else { 0pt }),
+        align(body-alignment, if (author != none) {
+          sra-quote(body, author, fill: fill)
+        } else { body }),
       ),
     )
   }
 
-  if width == auto {
+  let ret = if width == auto {
     // Only use context if necessary
     context inner(calc.max(
       measure(title).width + 8pt,
@@ -165,29 +236,98 @@
   } else {
     inner(width)
   }
+  if scale-content != 100% {
+    ret = scale(scale-content, reflow: true, ret)
+  }
+  if visible != none {
+    ret = reveal-method(visible, ret)
+  }
+  if position != none {
+    ret = place(top + left, dx: position.at(0), dy: position.at(1), ret)
+  }
+  return ret
 }
 
-/// Create the header block
+#let orange-box = title-block.with(fill: orange)
+
+/// Add subtitle content in place of the current slide's right header logo.
 ///
-/// - title (content): Title
+/// - body (content): Subtitle shown in the slide header.
+#let subtitle(body) = [#metadata(body) <sraslides-subtitle>]
+
+/// Create the header block, hiding the right header item when it would force the title to wrap.
+///
+/// - title (content): Title content.
+/// - fit-title (bool): Hide the right header item if needed to keep a content-slide title on one line.
 /// - left-logo (image): Left logo
-/// - right-logo (image): Right logo
+/// - right-logo (image): Right header item when no subtitle is supplied.
 #let slide-header(
   title: [],
+  fit-title: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   first-subslide: true,
-) = box(inset: (x: -7mm + 3mm, y: 1.7mm), grid(
-  columns: (auto, 1fr, auto),
-  rows: 5.5mm,
-  column-gutter: 5mm,
-  grid.cell(align: top + left, left-logo),
-  grid.cell(align: top + left, block(
+) = context {
+  let title-content = text(fill: luh.blue, size: 16pt, title)
+  let margins = page.margin
+  let left-margin = if type(margins) == dictionary {
+    margins.at("left", default: margins.at("x", default: 0pt))
+  } else {
+    margins
+  }
+  let right-margin = if type(margins) == dictionary {
+    margins.at("right", default: margins.at("x", default: 0pt))
+  } else {
+    margins
+  }
+  let header-width = page.width - left-margin - right-margin + 8mm
+  let left-width = measure(left-logo, height: 5.5mm).width
+  let subtitle-marker = query(<sraslides-subtitle>)
+    .filter(it => it.location().page() == here().page())
+    .first(default: none)
+  let right-content = if subtitle-marker == none {
+    right-logo
+  } else {
+    align(horizon)[#text(size: 11pt, fill: luh.blue, subtitle-marker.value)]
+  }
+  let right-width = if right-content == none {
+    0pt
+  } else if subtitle-marker == none {
+    measure(right-content, height: 5.5mm).width
+  } else {
+    measure(right-content).width
+  }
+  let title-width = measure(title-content).width
+  let show-right-item = (
+    right-content != none
+      and (
+        not fit-title or title-width <= header-width - left-width - right-width - 10mm
+      )
+  )
+  let title-cell = grid.cell(align: top + left, block(
     inset: (top: 0.7mm),
-    text(fill: luh.blue, size: 16pt, title),
-  )),
-  grid.cell(align: top + right, right-logo),
-))
+    title-content,
+  ))
+  let header-grid = if show-right-item {
+    grid(
+      columns: (auto, 1fr, auto),
+      rows: 5.5mm,
+      column-gutter: 5mm,
+      grid.cell(align: top + left, left-logo),
+      title-cell,
+      grid.cell(align: top + right, right-content),
+    )
+  } else {
+    grid(
+      columns: (auto, 1fr),
+      rows: 5.5mm,
+      column-gutter: 5mm,
+      grid.cell(align: top + left, left-logo),
+      title-cell,
+    )
+  }
+  box(inset: (x: -7mm + 3mm, y: 1.7mm), header-grid)
+}
 
 /// Get the offset of the current heading in the document
 #let global-heading-offset(heading) = {
@@ -222,7 +362,8 @@
   outset: (x: 7mm),
   inset: (
     left: -7mm + 3mm + 5.5mm + 5mm,
-    right: -7mm + 3mm,
+    // if no numbering -> symmetric inset for center alignment
+    right: -7mm + 3mm + if numbering in (false, none) { 5.5mm + 5mm } else { 0mm },
   ),
   {
     set text(size: 7pt, fill: luh.gray)
@@ -281,9 +422,10 @@
     grid(
       columns: (1fr, auto),
       rows: 100%,
-      body, align(right)[#numbering #h(2mm)],
+      body, if numbering != [] { align(right)[#numbering #h(2mm)] },
     )
-    if green-box {
+    // show only if there is a number
+    if numbering != [] and green-box {
       place(top + right, rect(fill: luh.green, width: 19mm, height: 1mm))
     }
   },
@@ -400,8 +542,8 @@
 /// New section slide for the presentation.
 #let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
   let header = slide-header(
-    title: context utils.current-heading(level: level),
     left-logo: self.info.logo,
+    title: utils.display-current-heading(level: level),
     right-logo: self.store.right-logo,
   )
   let self = utils.merge-dicts(
@@ -464,7 +606,9 @@
   title: none,
   ..bodies,
 ) = touying-slide-wrapper(self => {
-  let header(self) = if (title != none) { slide-header(title: title) } else {
+  let header(self) = if (title != none) {
+    slide-header(title: title, fit-title: true)
+  } else {
     none
   }
 
@@ -475,14 +619,21 @@
       background: [#align(horizon + left, image(
           fit: "cover",
           height: 100%,
-          path,
+          "/" + path,
           page: page,
         ))#place(top + left, rect(fill: white, width: 100%, height: 9.3mm))],
     ),
   )
+  /// Background-only slides receive an invisible 1pt body so Touying's content
+  /// measurement does not report them as empty. Supplied bodies remain unchanged.
+  let content = bodies.pos()
+  if content.len() == 0 {
+    content.push(block(height: 1pt, []))
+  }
   touying-slide(
     self: self,
-    ..bodies,
+    ..content,
+    ..bodies.named(),
   )
 })
 
@@ -499,7 +650,7 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt = text.with(..fonts.mono)
+#let texttt = text.with(size: .8em, ..fonts.mono)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
@@ -507,10 +658,10 @@
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
 /// - body (content): Document body
-#let basic-theme(oss-font: false, list-shrink: true, body) = {
+#let basic-theme(oss-font: false, list-shrink: true, text-size: 12pt, body) = {
   let font = if oss-font { fonts.oss } else { fonts.default }
-  set text(size: 12pt, weight: "light", ..font)
-  show raw: set text(..fonts.mono)
+  set text(size: text-size, weight: "light", ..font)
+  show raw: set text(size: 8pt, ..fonts.mono)
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: 16pt)
@@ -551,6 +702,11 @@
     }
   }
 
+  show terms: it => {
+    show strong: it => text(fill: luh.blue, it.body)
+    text(fill: black, it)
+  }
+
   set footnote.entry(separator: line(stroke: 0.5pt + luh.gray, length: 45mm))
   show footnote.entry: set text(size: 0.9em)
 
@@ -573,11 +729,16 @@
 /// - author (content): Author of the presentation (for the footer)
 /// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
+/// - quotation-font (dictionary): Text settings for quote bodies and quotation
+///   marks in `title-block`; stored as `store.quotation-font`. Defaults to
+///   `(font: "Latin Modern Roman", style: "oblique", stretch: 100%)`.
+/// - math-font (dictionary): Text settings for inline and display equations;
+///   stored as `store.math-font`. Defaults to Latin Modern Math, the OpenType
+///   counterpart of LaTeX's Computer Modern mathematics.
 /// - list-shrink (boolean): Enable list shrinking
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
-/// - colorful-emph (boolean): Whether to use colors for strong and emph
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - body (content): Body of the presentation
@@ -586,27 +747,27 @@
   author: none,
   date: datetime.today(),
   oss-font: false,
+  text-size: 12pt,
+  quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
+  math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
   list-shrink: true,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   custom-footer: none,
   numbering-by-chapter: false,
-  colorful-emph: true,
   enable-pdfpc: true,
   enable-slidepilot: false,
   ..args,
   body,
 ) = {
   set document(title: title, author: author, date: date)
-  show: basic-theme.with(oss-font: oss-font, list-shrink: list-shrink)
-
-  let strong-style = (:)
-  if colorful-emph { strong-style = (fill: luh.blue) }
-  show strong: set text(..strong-style)
-
-  let emph-style = (:)
-  if colorful-emph { emph-style = (fill: sra.red) }
-  show emph: set text(..emph-style)
+  show: basic-theme.with(
+    oss-font: oss-font,
+    list-shrink: list-shrink,
+    text-size: text-size,
+  )
+  show math.equation: set text(..math-font)
+  show quote.where(block: false, quotes: false): set text(..quotation-font)
 
   // Style for outlines
   show outline.entry: it => {
@@ -639,10 +800,10 @@
       if nums.pos().len() == 1 {
         numbering("A", ..nums)
       } else {
-        numbering("1.", ..nums.pos().slice(1))
+        numbering("1.1", ..nums.pos().slice(1))
       }
     }
-  } else { "1." })
+  })
 
   show heading.where(level: 1): it => {
     set text(size: 16pt)
@@ -677,9 +838,10 @@
 
   let header = self => slide-header(
     title: utils.display-current-heading(
-      numbered: false,
       level: self.slide-level,
+      numbered: false,
     ),
+    fit-title: true,
     left-logo: self.info.logo,
     right-logo: self.store.right-logo,
   )
@@ -738,6 +900,8 @@
         counter(figure.where(kind: table)),
         counter(figure.where(kind: image)),
       ),
+      // let content stay on current slide
+      breakable: false,
     ),
     config-colors(
       neutral-light: gray,
@@ -750,6 +914,8 @@
     config-store(
       right-logo: right-logo,
       numbering-by-chapter: numbering-by-chapter,
+      quotation-font: quotation-font,
+      math-font: math-font,
     ),
     config-info(
       title: title,
@@ -839,6 +1005,31 @@
       v(.5cm)
 
       body
+      // Query physical pages; the visible page counter restarts for each chapter.
+      context [
+        #metadata((
+          chapters: {
+            let chapters = query(heading.where(level: 2))
+            let disabled-pages = query(<disabled-chapter>).map(it => it.location().page())
+            chapters
+              .enumerate()
+              .map(((index, it)) => {
+                let start = it.location().page()
+                let end = if index + 1 < chapters.len() {
+                  chapters.at(index + 1).location().page()
+                } else { counter(page).final().last() + 1 }
+                (
+                  title: it.body,
+                  page: start,
+                  disabled: disabled-pages.any(page => (
+                    start <= page and page < end
+                  )),
+                )
+              })
+          },
+          pages: counter(page).final().last(),
+        )) <chapter-ranges>
+      ]
     },
   )
 })
@@ -869,13 +1060,34 @@
     config-page(
       header: slide-header(
         title: [
-          #text(fill: luh.blue)[#self.store.lecture.overview: ] #text(
-            fill: sra.red,
-          )[#self.store.lecture.part #utils.display-current-heading(
-              self: self,
-              level: 1,
-            )]],
-        left-logo: self.info.logo,
+          #text(fill: luh.blue)[#self.store.lecture.overview: ]
+          #utils.display-current-heading(
+            level: 1,
+            style: (
+              setting: body => body,
+              numbered: true,
+              current-heading,
+            ) => text(
+              fill: sra.red,
+              self.store.lecture.part
+                + h(.3em)
+                + (
+                  if numbered and current-heading.numbering != none {
+                    (
+                      std.numbering(
+                        current-heading.numbering,
+                        ..counter(heading).at(current-heading.location()),
+                      )
+                        + h(.3em)
+                    )
+                  } else {
+                    []
+                  }
+                )
+                + current-heading.body,
+            ),
+          )
+        ],
         right-logo: self.store.right-logo,
       ),
     ),
@@ -992,30 +1204,38 @@
 
 #let overview-slide-lecture(slide-title) = {
   heading(depth: 4)[#slide-title]
-  slide(config: config-page(footer: none), context {
-    show: box.with(height: 70%)
-    show: columns.with(2)
+  slide(
+    config: utils.merge-dicts(
+      (:),
+      config-page(footer: none),
+      config-common(breakable: true),
+    ),
+    context {
+      // show: box.with(height: 70%)
+      show: columns.with(2)
+      show: align.with(top)
+      show enum: set enum(tight: false)
 
-    let chapters = query(selector(heading.where(level: 1, outlined: true)))
-    enum(
-      tight: false,
-      numbering: it => ALERT(numbering(chapters.first().numbering, it)),
-      ..chapters.map(it => box[
-        #link(it.location(), ALERT(it.body))
+      let chapters = query(selector(heading.where(level: 1, outlined: true)))
+      enum(
+        numbering: it => ALERT(numbering(chapters.first().numbering, it)),
+        ..chapters.map(it => box[
+          #link(it.location(), ALERT(it.body))
 
-        #let sub-sections = sub-headings(it)
-        #if sub-sections.len() != 0 {
-          let offset = global-heading-offset(sub-sections.first())
-          enum(
-            numbering: n => text(luh.blue, strong[#n.]),
-            full: false,
-            start: offset,
-            ..sub-sections.map(it => link(it.location(), strong(it.body))),
-          )
-        }
-      ]),
-    )
-  })
+          #let sub-sections = sub-headings(it)
+          #if sub-sections.len() != 0 {
+            let offset = global-heading-offset(sub-sections.first())
+            enum(
+              numbering: n => text(luh.blue, strong[#n.]),
+              full: false,
+              start: offset,
+              ..sub-sections.map(it => link(it.location(), strong(it.body))),
+            )
+          }
+        ]),
+      )
+    },
+  )
 }
 
 
@@ -1029,13 +1249,15 @@
   body,
 ) = {
   let view-mode = sys.inputs.at("mode", default: "normal")
+
+  // make "regular" text gray and all "marked up" text black
+
   show: sra-theme.with(
     oss-font: false,
     author: author,
     title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     date: datetime.today(),
     numbering-by-chapter: true,
-    colorful-emph: false,
     config-page(footer: sra-lecture-footer),
     config-store(footer: sra-lecture-footer, lecture: lecture),
     config-common(
@@ -1043,8 +1265,10 @@
       new-subsection-slide-fn: new-subsection-slide-lecture,
       new-subsubsection-slide-fn: new-subsubsection-slide-lecture,
       handout: view-mode == "handout",
+      detect-overflow: false,
       slide-level: 4,
     ),
+    ..args,
   )
   body
 }
