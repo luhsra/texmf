@@ -597,7 +597,7 @@
 ///
 /// - path (string): path to pdf file
 /// - page (int): page to include
-/// - title (content): title to print over the old one
+/// - title (content): title to print over the old one, auto to use recent heading
 /// - bodies (array): content to add to the page
 /// -> slide
 #let image-slide(
@@ -606,10 +606,18 @@
   title: none,
   ..bodies,
 ) = touying-slide-wrapper(self => {
-  let header(self) = if (title != none) {
-    slide-header(title: title, fit-title: true)
-  } else {
+  let header(self) = if (title == none) {
     none
+  } else if title == auto {
+    slide-header(
+      title: utils.display-current-heading(
+        level: self.slide-level,
+        numbered: false,
+      ),
+      fit-title: true,
+    )
+  } else {
+    slide-header(title: title, fit-title: true)
   }
 
   self = utils.merge-dicts(
