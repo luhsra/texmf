@@ -77,15 +77,20 @@
     fill: luh.lightgray,
     inset: 2pt,
     context {
-      let target = query(where).first()
-      let loc = target.location()
-      let chapters = query(selector(heading.where(level: 2)).before(loc))
-      let chapter-nr = chapters.len()
-      let chapter-name = chapters.first().body
-      let page = utils.slide-counter.at(loc).first()
-      [#link(loc)[#chapter-nr;-#page]#if form == "full" {
-          [#chapter-name ~#link(loc, target.body)]
-        }]
+      let target = query(where)
+      if target.len() > 0 {
+        target = target.first()
+        let loc = target.location()
+        let chapters = query(selector(heading.where(level: 2)).before(loc))
+        let chapter-nr = chapters.len()
+        let chapter-name = chapters.first().body
+        let page = utils.slide-counter.at(loc).first()
+        [#link(loc)[#chapter-nr;-#page]#if form == "full" {
+            [#chapter-name ~#link(loc, target.body)]
+          }]
+      } else {
+        [???]
+      }
     },
   )
 }
@@ -183,3 +188,17 @@
     only(visible, pinned)
   }
 }
+
+
+
+// Include only selected chapters in current compilation.
+// Useful to mitigate huge ram usage for large lectures.
+#let include-chapter(file, placeholder: none) = {
+  let chapter = sys.inputs.at("chapter", default: none)
+  if (chapter == none or file.starts-with(chapter)) {
+    if placeholder != none {
+      debug-else(placeholder: placeholder, include file)
+    } else { include "/" + file }
+  }
+}
+

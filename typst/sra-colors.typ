@@ -50,5 +50,7 @@
 )
 
 // yellow from Jürgen's RS slides.
-#let rs-yellow = rgb("ffff99")
-
+#let rs = (
+  yellow: rgb("ffff99"),
+  green: rgb("00af50"),
+)
