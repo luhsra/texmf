@@ -1,4 +1,5 @@
 #import "sraslides.typ": *
+#import "sra-colors.typ"
 
 #import "@preview/pinit:0.2.2": *
 #import "@preview/tiaoma:0.3.0"
@@ -308,6 +309,26 @@ Pass presentation-wide options to the initial show rule:
 ]
 
 The `author` option adds quotation marks and a right-aligned attribution.
+
+
+=== Colors
+Defined in sra-colors.typ
+
+#for (space-name, space) in (sra: sra, luh: luh, safe: safe, rs: rs) [
+
+  ==== #space-name Colors
+  #show: columns.with(4)
+  #for (k, c) in space [
+    #show: par
+    #box(fill: c, width: 3mm, height: 3mm) #raw(space-name + "." + k)
+  ]
+]
+==== Other colors
+#for (k, c) in (badbee: badbee, beamergreen: beamergreen) [
+  #show: par
+  #box(fill: c, width: 3mm, height: 3mm) #raw(k)
+]
+
 
 === Environments
 
