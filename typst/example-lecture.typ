@@ -219,33 +219,35 @@ Pass presentation-wide options to the initial show rule:
   position: (7cm, -.8cm),
   title: [abs. placement],
   width: 5cm,
-)[somewhere else]
+  colorful-emph: true,
+)[*somewhere* else on the _page_]
 
 #side-by-side[
-  #title-block(fill: luh.gray)[
+  #title-block(fill: luh.gray, local-emph: false)[
     ```typ
     #title-block(title: [Information])[
-      A normal block.
+      A ^normal^ block.
     ]
     #title-block(
       title: [Warning],
       fill: sra.red,
       visible: "2"
-    )[Check your assumptions.]
-    #title-block(fill: luh.green)[
-      A block without a title.
+    )[visible on slide 2]
+    #title-block(fill: beamergreen)[
+      A block #local[without] a title.
     ]
     #title-block(
       fill: orange,
       position: (7cm, -.8cm),
       title: [abs. placement],
       width: 4cm,
-    )[somewhere else]
+      colorful-emph: true
+    )[*somewhere* else on the _page_]
     ```
   ]
 ][
   #title-block(title: [Information])[
-    A normal block.
+    A ^normal^ block.
   ]
 
   #title-block(title: [Warning], fill: sra.red, visible: 2)[
@@ -253,7 +255,7 @@ Pass presentation-wide options to the initial show rule:
   ]
 
   #title-block(fill: luh.green)[
-    A block without a title.
+    A block #local[without] a title.
   ]
 ]
 

@@ -137,6 +137,12 @@
   }))
 }
 
+
+/// mark content inside title-blocks as to be emphazised by using the block's fill color.
+/// use shorthand ^text to be emphazized^ alternatively
+#let local(body) = [#body<local-emph>]
+
+
 /// Create a colored block with an optional title and quote attribution.
 ///
 /// - title (none, content): An optional block title.
@@ -179,6 +185,7 @@
   alignment: top + left,
   title-alignment: none,
   body-alignment: none,
+  place-alignment: top + left,
   radius: 4pt,
   author: none,
   scale-content: 100%,
@@ -186,6 +193,7 @@
   visible: none,
   reveal-method: auto,
   colorful-emph: false,
+  local-emph: true,
   body,
 ) = {
   if title-alignment == none { title-alignment = alignment }
@@ -199,8 +207,12 @@
     set list(marker: list-marker.with(fill: fill))
     set enum(numbering: enum-numbering.with(fill: fill))
 
-    let text-args = if colorful-emph { (fill: fill) } else { (:) }
-    show strong: set text(..text-args)
+    show strong: set text(fill: fill) if colorful-emph
+    show emph: set text(fill: fill) if colorful-emph
+    show <local-emph>: set text(fill: fill)
+    show regex("\^(.*?)\^"): it => if local-emph {
+      text(fill: fill, it.text.replace("^", ""))
+    } else { it }
 
     stack(
       spacing: 0pt,
@@ -243,7 +255,7 @@
     ret = reveal-method(visible, ret)
   }
   if position != none {
-    ret = place(top + left, dx: position.at(0), dy: position.at(1), ret)
+    ret = place(place-alignment, dx: position.at(0), dy: position.at(1), ret)
   }
   return ret
 }
