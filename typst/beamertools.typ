@@ -2,6 +2,11 @@
 #import "sra-colors.typ": *
 #import "@preview/cetz:0.5.3" as cetz
 
+#import "@preview/uniwarn:0.1.1"
+#let ns = "beamertools"
+#uniwarn.register-namespace(ns) // will panic if already registered by another package
+#let warning = uniwarn.warning.with(namespace: ns, prefix: "[beamertools] ")
+
 
 // Empty list to open lists on second level directly
 #let bii = list.with(marker: [])
@@ -54,8 +59,10 @@
   }
 }
 
+#let is-debug = sys.inputs.at("mode", default: "normal") == "debug"
+
 #let debug-else(placeholder: [Noch nicht veröffentlicht], body) = {
-  if sys.inputs.at("mode", default: "normal") == "debug" {
+  if is-debug {
     body
   } else {
     [
@@ -90,6 +97,11 @@
           }]
       } else {
         [???]
+        if is-debug {
+          warning("missing reference: " + str(where))
+        } else {
+          panic("missing reference: " + str(where))
+        }
       }
     },
   )

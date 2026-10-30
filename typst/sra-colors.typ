@@ -22,7 +22,7 @@
   yellow: rgb(248, 212, 0),
   bau: rgb(0, 165, 209),
   fei: rgb(85, 189, 203),
-  macshbau: rgb(0, 111, 137),
+  maschbau: rgb(0, 111, 137),
   wiwi: rgb(226, 0, 38),
   red: rgb(226, 0, 38),
   lse: rgb(99, 111, 107),
@@ -54,3 +54,14 @@
   yellow: rgb("ffff99"),
   green: rgb("00af50"),
 )
+
+#let t-red = text.with(fill: sra.red)
+#let t-blue = text.with(fill: luh.blue)
+#let t-gray = text.with(fill: luh.gray)
+#let t-green = text.with(fill: rs.green)
+#let t-dgreen = text.with(fill: luh.darkgreen)
+#let t-yellow = text.with(fill: luh.yellow)
+#let t-berry = text.with(fill: luh.berry)
+#let t-cyan = text.with(fill: rgb("00cbd1"))
+#let t-magenta = text.with(fill: rgb("b00079"))
+
