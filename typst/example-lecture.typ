@@ -488,3 +488,9 @@ typst eval --root . --in texmf/typst/example-lecture.typ \
 - Explain the motivation first.
 - Leave time for questions.
 ```
+
+
+== A borowed Chapter
+#heading-depth-offset(2)[
+  #include-chapter("typst/example-shared-content.typ")
+]
