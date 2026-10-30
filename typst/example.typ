@@ -2,7 +2,7 @@
 
 #import "@preview/pinit:0.2.2": *
 #import "@preview/tiaoma:0.3.0"
-#import "@preview/cetz:0.4.2"
+#import "@preview/cetz:0.5.3"
 
 #let title = [My Definitely Very Cool Topic]
 #let author = "Hugo Houston"

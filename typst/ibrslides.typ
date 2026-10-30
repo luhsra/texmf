@@ -1,4 +1,4 @@
-#import "@preview/touying:0.7.4": *
+#import "@preview/touying:0.8.0": *
 #import "slidepilot.typ"
 // Backward compatibility
 #import components: side-by-side

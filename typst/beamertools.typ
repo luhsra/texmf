@@ -1,6 +1,6 @@
-#import "@preview/touying:0.7.4": *
+#import "@preview/touying:0.8.0": *
 #import "sra-colors.typ": *
-#import "@preview/cetz:0.4.2" as cetz
+#import "@preview/cetz:0.5.3" as cetz
 
 
 // Empty list to open lists on second level directly
