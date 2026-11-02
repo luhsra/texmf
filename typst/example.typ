@@ -137,3 +137,12 @@ typst eval --root . --in texmf/typst/example.typ \
 - Explain the motivation first.
 - Leave time for questions.
 ```
+
+// Slides after here do not count towards page total
+#show: appendix
+// Slide is hidden from table of contents
+= Appendix <touying:hidden>
+
+== Some Appendix
+Please pay attention to the current slide number.
+
