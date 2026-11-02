@@ -1,6 +1,7 @@
 #import "sraslides.typ": *
 
 = Components
+#v(1pt) // remove empty slide warning
 
 == Lists
 
@@ -81,6 +82,7 @@
 ]
 
 = Titled Blocks, aka btBlock
+#v(1pt) // remove empty slide warning
 
 == Titled Blocks
 #title-block(
@@ -92,6 +94,7 @@
 )[*somewhere* else on the _page_]
 
 #side-by-side[
+  #v(-1pt) // fix content overflow
   #title-block(fill: luh.gray, local-emph: false)[
     ```typ
     #title-block(title: [Information])[
@@ -183,6 +186,7 @@
 - if author is a ref (`<vitruvius:27bc>`), it get's formated
 
 = Environments
+#v(1pt) // remove empty slide warning
 
 
 == Colors
@@ -190,12 +194,16 @@ Defined in sra-colors.typ
 
 #for (space-name, space) in (sra: sra, luh: luh, safe: safe, rs: rs) [
 
+  // remove a (bugged) warning
+  #import "@preview/uniwarn:0.1.1": disable-warnings, enable-warnings, warning
+  #disable-warnings("touying")
   == #space-name Colors
   #show: columns.with(4)
   #for (k, c) in space [
     #show: par
     #box(fill: c, width: 3mm, height: 3mm) #raw(space-name + "." + k)
   ]
+  #enable-warnings("touying")
 ]
 == Other colors
 #for (k, c) in (badbee: badbee, beamergreen: beamergreen) [
@@ -205,6 +213,7 @@ Defined in sra-colors.typ
 
 
 = Environments
+#v(1pt) // remove empty slide warning
 
 == Code and Mathematics
 
@@ -342,6 +351,7 @@ Defined in sra-colors.typ
   "example.bib",
   // "bib/wosch.bib",
 )
+#v(1pt) // remove empty slide warning
 
 #slide(config: utils.merge-dicts(
   (:),

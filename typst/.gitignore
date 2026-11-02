@@ -1,2 +1,6 @@
 *.pdf
+*.pdfpc
 !slide_example.pdf
+# Nix direnv files
+*.envrc
+*.direnv

@@ -53,10 +53,10 @@
 /// based on `depth` before Typst applies set and show rules.
 #let heading-depth-offset(offset, body) = {
   let transform(it) = {
-    if utils.is-sequence(it) {
+    if utils.tree.is-sequence(it) {
       it.children.map(transform).sum(default: none)
-    } else if utils.is-styled(it) {
-      utils.reconstruct-styled(it, transform(it.child))
+    } else if utils.tree.is-styled(it) {
+      utils.tree.reconstruct-styled(it, transform(it.child))
     } else if type(it) == content and it.func() == heading {
       let fields = it.fields()
       let label = fields.remove("label", default: none)
