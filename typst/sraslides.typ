@@ -777,6 +777,7 @@
   numbering-by-chapter: false,
   enable-pdfpc: true,
   enable-slidepilot: false,
+  enable-btUseExtraItemSep: true,
   ..args,
   body,
 ) = {
@@ -883,6 +884,44 @@
   if custom-footer != none {
     footer = custom-footer
   }
+
+  // The following show rule hack implements the `btUseExtraItemSep` from
+  // the latex beamer tools.
+  set list(spacing: auto) if enable-btUseExtraItemSep
+  let list-depth = state("list-depth", 0)
+
+  show list: it => {
+    list-depth.update(d => d + 1)
+    it
+    list-depth.update(d => d - 1)
+  }
+
+  set list(spacing: 1.2em) if enable-btUseExtraItemSep
+  let extra-item-sep(it) = context {
+    let d = it.fields() // dictionary of current fields
+    if d.spacing != auto {
+      // prevent infinite recursion
+      return it
+    }
+
+    let depth = list-depth.get()
+    let spacing = 1em
+    if depth == 0 {
+      spacing = 1.2em
+    } else if depth == 1 {
+      spacing = 1em
+    } else {
+      spacing = 0.8em
+    }
+
+    let f = it.func() // the list element function
+    d.remove("children")
+    // Reconstruct list with new spacing
+    return f(..d, ..it.children, spacing: spacing)
+  }
+
+  // Activate globally
+  show list: if enable-btUseExtraItemSep { extra-item-sep } else { it => { it } }
 
   show: touying-slides.with(
     config-page(
