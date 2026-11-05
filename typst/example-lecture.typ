@@ -69,6 +69,10 @@ Pass presentation-wide options to the initial show rule:
   colorful-emph: false,
   math-font: (font: "New Computer Modern Math"),
   quotation-font: (font: "New Computer Modern", style: "italic"),
+  text-size: 10.5pt,    // defaults to smaller sizes
+  title-size: 14.5pt,   // than sra-theme
+  subtitle-size: 9pt,   // to match latex's
+  footer-size: 6pt.     // text sizes
 )
 ```
 

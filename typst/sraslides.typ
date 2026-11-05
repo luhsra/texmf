@@ -273,14 +273,18 @@
 /// - fit-title (bool): Hide the right header item if needed to keep a content-slide title on one line.
 /// - left-logo (image): Left logo
 /// - right-logo (image): Right header item when no subtitle is supplied.
+/// - title-size (length): Slide title size.
+/// - subtitle-size (length): Slide subtitle size.
 #let slide-header(
   title: [],
+  title-size: 16pt,
+  subtitle-size: 11pt,
   fit-title: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
   first-subslide: true,
 ) = context {
-  let title-content = text(fill: luh.blue, size: 16pt, title)
+  let title-content = text(fill: luh.blue, size: title-size, title)
   let margins = page.margin
   let left-margin = if type(margins) == dictionary {
     margins.at("left", default: margins.at("x", default: 0pt))
@@ -300,7 +304,11 @@
   let right-content = if subtitle-marker == none {
     right-logo
   } else {
-    align(horizon)[#text(size: 11pt, fill: luh.blue, subtitle-marker.value)]
+    align(horizon)[#text(
+      size: subtitle-size,
+      fill: luh.blue,
+      subtitle-marker.value,
+    )]
   }
   let right-width = if right-content == none {
     0pt
@@ -360,12 +368,14 @@
 /// - numbering (auto, content): Show frame number
 /// - section (auto, content): Show current section
 /// - author (content, none): Show the given author in the footer
+/// - footer-size (length, auto): Footer size; auto uses the theme's stored size.
 #let slide-footer(
   self: none,
   numbering: auto,
   section: auto,
   author: none,
   green-box: true,
+  footer-size: auto,
   body,
 ) = align(left + bottom, block(
   fill: luh.lightgray,
@@ -378,9 +388,12 @@
     right: -7mm + 3mm + if numbering in (false, none) { 5.5mm + 5mm } else { 0mm },
   ),
   {
-    set text(size: 7pt, fill: luh.gray)
-    show link: set text(size: 7pt, fill: luh.gray)
-    show heading: set text(size: 7pt, fill: luh.gray)
+    let size = if footer-size != auto { footer-size } else if self != none {
+      self.store.at("footer-size", default: 7pt)
+    } else { 7pt }
+    set text(size: size, fill: luh.gray)
+    show link: set text(size: size, fill: luh.gray)
+    show heading: set text(size: size, fill: luh.gray)
     set align(horizon)
 
     if author != none {
@@ -554,6 +567,8 @@
 /// New section slide for the presentation.
 #let new-section-slide(level: 1, ..args) = touying-slide-wrapper(self => {
   let header = slide-header(
+    title-size: self.store.title-size,
+    subtitle-size: self.store.subtitle-size,
     left-logo: self.info.logo,
     title: utils.display-current-heading(level: level),
     right-logo: self.store.right-logo,
@@ -622,6 +637,8 @@
     none
   } else if title == auto {
     slide-header(
+      title-size: self.store.title-size,
+      subtitle-size: self.store.subtitle-size,
       title: utils.display-current-heading(
         level: self.slide-level,
         numbered: false,
@@ -629,7 +646,12 @@
       fit-title: true,
     )
   } else {
-    slide-header(title: title, fit-title: true)
+    slide-header(
+      title: title,
+      fit-title: true,
+      title-size: self.store.title-size,
+      subtitle-size: self.store.subtitle-size,
+    )
   }
 
   self = utils.merge-dicts(
@@ -670,21 +692,35 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt = text.with(size: .8em, ..fonts.mono)
+// LaTeX's VeraMono Scale=MatchLowercase against Rotis Light:
+// x-height ratio = (476 / 1000) / (1120 / 2048) = 0.8704.
+// DejaVu Sans Mono has the same x-height and ASCII advance as VeraMono.
+#let texttt = text.with(size: .8704em, ..fonts.mono)
 
 
 /// Apply basic theming for non-slide content, e.g., figures
 ///
 /// - oss-font (boolean): Use Open Source Software fonts
 /// - list-shrink (boolean): Enable list shrinking
+/// - text-size (length): Body size (12pt).
+/// - title-size (length): Heading size.
 /// - body (content): Document body
-#let basic-theme(oss-font: false, list-shrink: true, text-size: 12pt, body) = {
+#let basic-theme(
+  oss-font: false,
+  list-shrink: true,
+  text-size: 12pt,
+  title-size: 16pt,
+  body,
+) = {
   let font = if oss-font { fonts.oss } else { fonts.default }
   set text(size: text-size, weight: "light", ..font)
-  show raw: set text(size: 8pt, ..fonts.mono)
+  show raw: set text(..fonts.mono)
+  // Inline raw adds its own 0.8 scale: 1.088 × 0.8 = 0.8704.
+  show raw.where(block: false): set text(size: 1.088em)
+  show raw.where(block: true): set text(size: 8pt)
 
   show heading: set text(fill: luh.blue, weight: "light")
-  show heading.where(level: 1): set text(size: 16pt)
+  show heading.where(level: 1): set text(size: title-size)
 
   show strong: set text(weight: 300)
 
@@ -749,6 +785,10 @@
 /// - author (content): Author of the presentation (for the footer)
 /// - date (datetime): Date of the presentation (for the document meta)
 /// - oss-font (boolean): Use Open Source Software fonts
+/// - text-size (length): Body size (12pt).
+/// - title-size (length): Slide and outline heading size (16pt).
+/// - subtitle-size (length): Header subtitle size (11pt).
+/// - footer-size (length): Footer size (7pt).
 /// - quotation-font (dictionary): Text settings for quote bodies and quotation
 ///   marks in `title-block`; stored as `store.quotation-font`. Defaults to
 ///   `(font: "Latin Modern Roman", style: "oblique", stretch: 100%)`.
@@ -768,6 +808,9 @@
   date: datetime.today(),
   oss-font: false,
   text-size: 12pt,
+  title-size: 16pt,
+  subtitle-size: 11pt,
+  footer-size: 7pt,
   quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
   math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
   list-shrink: true,
@@ -786,6 +829,7 @@
     oss-font: oss-font,
     list-shrink: list-shrink,
     text-size: text-size,
+    title-size: title-size,
   )
   show math.equation: set text(..math-font)
   show quote.where(block: false, quotes: false): set text(..quotation-font)
@@ -827,7 +871,7 @@
   })
 
   show heading.where(level: 1): it => {
-    set text(size: 16pt)
+    set text(size: title-size)
     if slide-level > 2 {
       // Count level 2 headings globally
       let l2-offset = query(
@@ -843,7 +887,7 @@
     message: "numbering-by-chapter can only be true if slide-level > 2",
   )
   show heading.where(level: 2): it => {
-    set text(size: 16pt)
+    set text(size: title-size)
     // page numbering by chapter
     if numbering-by-chapter {
       utils.slide-counter.update(1)
@@ -858,6 +902,8 @@
   show std.title: set text(fill: luh.blue, size: 24pt)
 
   let header = self => slide-header(
+    title-size: self.store.title-size,
+    subtitle-size: self.store.subtitle-size,
     title: utils.display-current-heading(
       level: self.slide-level,
       numbered: false,
@@ -972,6 +1018,9 @@
     // save the variables for later use
     config-store(
       right-logo: right-logo,
+      title-size: title-size,
+      subtitle-size: subtitle-size,
+      footer-size: footer-size,
       numbering-by-chapter: numbering-by-chapter,
       quotation-font: quotation-font,
       math-font: math-font,
@@ -1118,6 +1167,8 @@
     self,
     config-page(
       header: slide-header(
+        title-size: self.store.title-size,
+        subtitle-size: self.store.subtitle-size,
         title: [
           #text(fill: luh.blue)[#self.store.lecture.overview: ]
           #utils.display-current-heading(
@@ -1219,7 +1270,11 @@
   let self = utils.merge-dicts(
     self,
     config-page(
-      header: slide-header(title: utils.display-current-heading(level: 2)),
+      header: slide-header(
+        title: utils.display-current-heading(level: 2),
+        title-size: self.store.title-size,
+        subtitle-size: self.store.subtitle-size,
+      ),
       footer: none,
     ),
   )
@@ -1304,6 +1359,10 @@
   author: none,
   date: datetime.today(),
   lecture: (:),
+  text-size: 10.5pt,
+  title-size: 14.5pt,
+  subtitle-size: 9pt,
+  footer-size: 6pt,
   ..args,
   body,
 ) = {
@@ -1314,7 +1373,13 @@
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title
+      + if view-mode
+        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    text-size: text-size,
+    title-size: title-size,
+    subtitle-size: subtitle-size,
+    footer-size: footer-size,
     date: datetime.today(),
     numbering-by-chapter: true,
     config-page(footer: sra-lecture-footer),
