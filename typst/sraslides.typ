@@ -186,6 +186,7 @@
   title-alignment: none,
   body-alignment: none,
   place-alignment: top + left,
+  parent-alignment: auto,
   radius: 4pt,
   author: none,
   scale-content: 100%,
@@ -250,6 +251,9 @@
   }
   if scale-content != 100% {
     ret = scale(scale-content, reflow: true, ret)
+  }
+  if parent-alignment != auto {
+    ret = align(parent-alignment, ret)
   }
   if visible != none {
     ret = reveal-method(visible, ret)
