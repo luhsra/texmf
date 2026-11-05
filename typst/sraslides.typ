@@ -267,6 +267,13 @@
 /// - body (content): Subtitle shown in the slide header.
 #let subtitle(body) = [#metadata(body) <sraslides-subtitle>]
 
+/// Enable extra bullet-list spacing on the current slide, overriding the theme default.
+/// The marker applies to all lists on its page; the last marker wins.
+#let btUseExtraItemSep() = [#metadata(true) <sraslides-extra-item-sep>]
+
+/// Disable extra bullet-list spacing on the current slide, overriding the theme default.
+#let btNoExtraItemSep() = [#metadata(false) <sraslides-extra-item-sep>]
+
 /// Create the header block, hiding the right header item when it would force the title to wrap.
 ///
 /// - title (content): Title content.
@@ -801,6 +808,8 @@
 /// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
+/// - enable-btUseExtraItemSep (boolean): Default extra bullet-list spacing;
+///   overridden per slide by `btUseExtraItemSep()` / `btNoExtraItemSep()`.
 /// - body (content): Body of the presentation
 #let sra-theme(
   title: [],
@@ -933,41 +942,34 @@
 
   // The following show rule hack implements the `btUseExtraItemSep` from
   // the latex beamer tools.
-  set list(spacing: auto) if enable-btUseExtraItemSep
+  // A page-local marker overrides the global default without affecting later slides.
+  // Explicit list spacing takes precedence over this default.
   let list-depth = state("list-depth", 0)
-
-  show list: it => {
-    list-depth.update(d => d + 1)
+  show selector(list).or(enum): it => {
+    list-depth.update(depth => depth + 1)
     it
-    list-depth.update(d => d - 1)
+    list-depth.update(depth => depth - 1)
   }
-
-  set list(spacing: 1.2em) if enable-btUseExtraItemSep
-  let extra-item-sep(it) = context {
-    let d = it.fields() // dictionary of current fields
-    if d.spacing != auto {
-      // prevent infinite recursion
+  show list: it => context {
+    let marker = query(<sraslides-extra-item-sep>)
+      .filter(it => it.location().page() == here().page())
+      .last(default: none)
+    let enabled = if marker == none { enable-btUseExtraItemSep } else {
+      marker.value
+    }
+    if not enabled or it.spacing != auto {
       return it
     }
-
+    let fields = it.fields()
+    let _ = fields.remove("children")
     let depth = list-depth.get()
-    let spacing = 1em
-    if depth == 0 {
-      spacing = 1.2em
-    } else if depth == 1 {
-      spacing = 1em
-    } else {
-      spacing = 0.8em
-    }
-
-    let f = it.func() // the list element function
-    d.remove("children")
-    // Reconstruct list with new spacing
-    return f(..d, ..it.children, spacing: spacing)
+    // Add LaTeX's extra itemsep to Typst's native list spacing, not in its place.
+    // Beamer supports three levels; deeper lists retain the third-level addition.
+    let base = if it.tight { par.leading } else { par.spacing }
+    let extra = (2.25 - calc.min(depth, 2)) * 3pt
+    let spacing = base + extra
+    it.func()(..fields, ..it.children, spacing: spacing)
   }
-
-  // Activate globally
-  show list: if enable-btUseExtraItemSep { extra-item-sep } else { it => { it } }
 
   show: touying-slides.with(
     config-page(

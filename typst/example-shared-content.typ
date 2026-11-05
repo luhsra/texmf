@@ -30,6 +30,59 @@
     ```
   ]
 ]
+== Slide-local list spacing
+
+#btNoExtraItemSep()
+
+- `#btUseExtraItemSep()` adds `6.75pt` / `3.75pt` / `0.75pt` to normal list spacing.
+- `#btNoExtraItemSep()` disables it for this slide.
+- Without a marker, `enable-btUseExtraItemSep` supplies the default.
+
+```typ
+== A compact slide
+#btNoExtraItemSep()
+- First point
+- Second point
+
+== A spacious slide
+#btUseExtraItemSep()
+- First point
+- Second point
+```
+
+Markers apply to the whole slide, regardless of placement. The last marker wins.
+Explicit per-list spacing is preserved. Numbered lists count toward nesting depth but retain their own spacing.
+
+== Slide with normal spacing
+#btNoExtraItemSep()
+- Top
+  + second
+    - third
+      - fourth
+    - third
+  + second again
+- top again
+  - second second
+  - second fooo
+  - bar
+- foobar
+  - barfoo
+
+== Slide with extra spacing
+#btUseExtraItemSep()
+- Top
+  + second
+    - third
+      - fourth
+    - third
+  + second again
+- top again
+  - second second
+  - second fooo
+  - bar
+- foobar
+  - barfoo
+
 == Emphasis
 
 #side-by-side[
