@@ -342,6 +342,31 @@ Defined in sra-colors.typ
   ```
 ]
 
+== In-Line Figures with cetz
+#cetz.canvas({
+  import cetz.draw: *
+  content((), name: "start", frame: "rect", padding: 4pt)[From here]
+  content((rel: (5, 2), to: "start"), name: "end", frame: "rect", padding: 4pt)[To here]
+  rounded-line(
+    "start.east",
+    (rel: (10pt, 0pt)),
+    (rel: (10pt, 10pt)),
+    (rel: (20pt, -10pt)),
+    (rel: (20deg, 50pt)),
+    (),
+    (rel: (100deg, 50pt)),
+    (rel: (30deg, 15pt)),
+    (rel: (10pt, 0pt)),
+    (rel: (0pt, 10pt), to: "end.north"),
+    "end.north",
+    radius: 20pt,
+    stroke: 2pt + sra.red,
+    name: "line"
+  )
+  circle((rel: (20deg, 50pt), to: (rel: (40pt, 0pt), to: "line.start")), radius: 5pt, stroke: 1.5pt + black, name: "edge")
+  content("edge", anchor: "north-west", padding: 4pt)[Sharp edge]
+})
+
 = Animations
 
 #outline(title: none, depth: 1)

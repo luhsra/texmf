@@ -2,6 +2,7 @@
 #import "slidepilot.typ"
 #import "beamertools.typ": *
 #import "sra-colors.typ": *
+#import "rounded-line.typ": rounded-line
 // Backward compatibility
 #import components: side-by-side
 

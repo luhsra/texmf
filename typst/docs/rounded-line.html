@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f1">
+  <title>Rounded Line — A CeTZ field guide</title>
+  <meta name="description" content="An illustrated guide to constructing tangent rounded corners in CeTZ.">
+  <style>
+:root{--ink:#202d25;--muted:#718077;--green:#285b46;--green-dark:#1c4837;--paper:#f8f8f3;--line:#dde3d9;--serif:Georgia,'Times New Roman',serif;--sans:system-ui,-apple-system,sans-serif;--mono:ui-monospace,monospace}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button,input{font:inherit}.wrap{width:min(1280px,calc(100% - 112px));margin:auto}.topbar{height:80px;padding:0 56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:inline-flex;gap:11px;align-items:center;font-weight:700;letter-spacing:-.05em;font-size:16px}.brand-icon{display:grid;place-items:center;background:var(--green);color:#fff;width:30px;height:30px;border-radius:7px;font-family:var(--serif);font-size:24px;line-height:1}.brand-light{color:#9aa99c;margin:0 2px}.topbar nav{display:flex;gap:38px;font-size:12px;font-weight:600;color:#5d6b62}.topbar nav a:hover,.source-link:hover,.inline-link:hover{color:#42906b}.source-link{font:11px var(--mono);letter-spacing:.01em}.source-link span{margin-left:9px}.hero{display:grid;grid-template-columns:1fr 1fr;gap:75px;align-items:center;min-height:650px;padding-top:64px;padding-bottom:64px}.eyebrow,.section-label,.overline{font:10px var(--mono);letter-spacing:.09em;color:#687b6e}.status-dot{display:inline-block;width:7px;height:7px;background:#5f9f70;border-radius:50%;margin-right:8px}.divider{color:#b7c4b8;margin:0 8px}h1,h2,h3,p{margin-top:0}h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.035em}h1{font-size:clamp(68px,6.7vw,105px);line-height:.92;margin:34px 0 28px}h1 em,h2 em,h3 em{font-weight:400;color:var(--green)}.period{color:#a3bda5}.hero-description,.section-lede{color:#69776d;line-height:1.75;font-size:15px;max-width:430px}.hero-description code,.section-lede code,.step p code,.reference-list code,.geometry-cards code,.limit-small code{color:var(--green);font:12px var(--mono);background:#eaf0e8;padding:2px 4px;border-radius:3px}.hero-actions{display:flex;gap:15px;align-items:center;margin-top:35px}.button{font-size:12px;font-weight:600;padding:16px 19px;display:inline-flex;align-items:center;gap:30px}.primary{background:var(--green);color:white}.primary:hover{background:#36785a}.text-button{gap:12px}.hero-art{background:#f1f4ec;border:1px solid #dce4d8;box-shadow:13px 13px 0 #edf0e8;min-width:0}.art-top,.art-bottom,.explorer-head{display:flex;align-items:center;justify-content:space-between;font:9px var(--mono);letter-spacing:.06em;color:#53695b}.art-top{padding:21px 23px 14px}.muted{color:#9bab9d}.hero-art svg{display:block;width:100%;height:auto}.art-bottom{padding:16px 23px 20px;gap:10px;font-size:8px}.legend-dot{display:inline-block;vertical-align:middle;width:16px;height:2px;margin-right:5px;background:var(--green)}.legend-dot.dashed{height:0;background:none;border-top:1px dashed #9ba99e}.ticker{background:#e8eee4;border-top:1px solid #dde6da;border-bottom:1px solid #dde6da}.ticker-inner{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}.ticker-inner>span{font:9px var(--mono);letter-spacing:.08em;color:#698171;white-space:nowrap}.ticker-inner p{margin:0;font-size:13px;color:#50695a}.ticker-inner p em{font-family:var(--serif);font-size:18px;color:var(--green)}.section{padding-top:115px;padding-bottom:120px}.section-label{display:flex;align-items:center;gap:20px;margin-bottom:60px}.section-label>span:first-child,.section-label>span:last-child{white-space:nowrap}.label-line{height:1px;background:var(--line);flex:1}h2{font-size:clamp(50px,5vw,72px);line-height:.98;margin-bottom:23px}.intro-grid,.reference-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px}.intro-grid .section-lede{max-width:360px}.inline-link{display:inline-flex;gap:22px;margin-top:20px;font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid #9cb9a7;padding-bottom:7px}.code-card{background:#203c30;color:#d9e5d7;box-shadow:10px 10px 0 #e4eae1}.code-head{display:flex;justify-content:space-between;border-bottom:1px solid #456052;padding:18px 23px;font:9px var(--mono);color:#a9c3ad;letter-spacing:.08em}.code-dot{display:inline-block;width:7px;height:7px;background:#a7bf9d;border-radius:50%;margin-right:7px}pre{margin:0;padding:29px 26px 26px;overflow:auto;line-height:1.9;font:12px/1.9 var(--mono)}.code-comment{color:#829d88}.code-key{color:#c5d9a8}.code-string{color:#e8bf90}.code-fn{color:#f4f2d8}.code-number{color:#ecc39e}.code-foot{border-top:1px solid #456052;padding:16px 23px;color:#a6b9a8;font-size:11px}.code-foot span{color:#d3e4c5;margin-right:8px}.geometry-section{background:#eef2e9}.geometry-section .label-line{background:#d7e0d4}.geometry-heading,.algorithm-heading{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:49px}.geometry-heading .section-lede{margin-bottom:0}.side-note{display:flex;gap:15px;max-width:250px;color:#768b7a;font-size:12px;line-height:1.7}.side-note p{margin:0}.note-mark{color:#679578;font-size:24px;line-height:1}.explorer{display:grid;grid-template-columns:2fr 1fr;background:#fafbf7;border:1px solid #dce5d9}.explorer-main{min-width:0}.explorer-head{padding:21px 24px;border-bottom:1px solid #e5ebe2}.live{color:#648473;font-size:9px}.explorer svg{width:100%;display:block}.svg-label{font:11px var(--mono)}.slider-area{border-top:1px solid #e5ebe2;padding:22px 26px 21px}.slider-label,.range-labels{display:flex;justify-content:space-between;align-items:center;font:9px var(--mono);color:#748779;letter-spacing:.05em}.slider-label output{font-size:15px;color:var(--green)}input[type=range]{display:block;width:100%;accent-color:var(--green);cursor:pointer;margin:20px 0 12px}.range-labels{color:#a1afa2;font-size:9px}.explorer-aside{border-left:1px solid #dce5d9;padding:26px 30px;display:flex;flex-direction:column}.aside-index{display:flex;justify-content:space-between;font:9px var(--mono);letter-spacing:.07em;color:#829286}.explorer-aside h3{font:40px/.95 var(--serif);letter-spacing:-.03em;margin:50px 0 18px}.explorer-aside p{font-size:12px;line-height:1.8;color:#78867a}.explorer-aside p strong{color:#385b47}.formula{padding:21px 0;margin-top:12px;border-top:1px solid #e2e9df;border-bottom:1px solid #e2e9df}.formula span,.formula small{display:block;color:#8b9c8f;font:9px var(--mono)}.formula strong{display:block;font:23px var(--serif);color:var(--green);margin:14px 0 8px}.formula small{font-family:var(--sans);font-size:11px}.aside-list{margin:25px 0;display:grid;gap:13px;color:#76877a;font-size:11px}.aside-list div{display:flex;align-items:center;gap:12px}.key{width:20px;height:2px;display:block;background:var(--green)}.key-dash{background:none;border-top:1px dashed #a3b5a6}.key-orange{background:#d18b55}.clamp-status{margin-top:auto;background:#eaf2e8;color:#547d5e;font:9px/1.5 var(--mono);padding:12px}.clamp-status.clamped{background:#f9eee1;color:#a26538}.geometry-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:35px;margin-top:43px}.geometry-cards article>span,.step-tag{font:9px var(--mono);letter-spacing:.08em;color:#789080}.geometry-cards h3,.step h3{font:27px var(--serif);margin:15px 0 10px}.geometry-cards p,.step p{color:#77857a;font-size:12px;line-height:1.8;margin:0}.algorithm-heading .section-lede{max-width:315px;margin:0}.steps{border-top:1px solid var(--line)}.step{display:grid;grid-template-columns:65px minmax(220px,1fr) minmax(300px,1.1fr);gap:30px;padding:37px 0;border-bottom:1px solid var(--line);align-items:start}.step-number{font:30px var(--serif);color:#b0c0b0}.step h3{margin:11px 0}.step p{max-width:400px}.step-code{background:#f0f3ec;padding:20px;color:#4b6957;font:11px/1.8 var(--mono);overflow-x:auto}.limits{background:#254b38;color:#edf2e9}.limits-inner{display:grid;grid-template-columns:1fr 1fr;gap:100px;padding-top:76px;padding-bottom:77px}.limits h2{margin:20px 0 0}.limits h2 em{color:#a7c6a9}.limits .overline{color:#a8c1aa}.limits p{font-size:14px;line-height:1.8;color:#c0d1c1}.limit-formula{font:25px var(--serif);border-top:1px solid #5b7763;border-bottom:1px solid #5b7763;padding:19px 0;margin:24px 0}.limits p.limit-small{font-size:12px;color:#a9c0ac;margin:0}.limit-small code{background:#395d47;color:#d2e4cf}.reference-list>div{display:grid;grid-template-columns:115px 1fr;gap:18px;border-top:1px solid var(--line);padding:21px 0}.reference-list>div:last-child{border-bottom:1px solid var(--line)}.reference-list span{font:9px var(--mono);letter-spacing:.07em;color:#789080;padding-top:4px}.reference-list p{font-size:12px;line-height:1.8;color:#718075;margin:0}footer{border-top:1px solid var(--line)}.footer-inner{min-height:100px;display:flex;align-items:center;justify-content:space-between;gap:20px}.footer-inner>span,.footer-inner>a:last-child{font:9px var(--mono);letter-spacing:.07em;color:#839387}.footer-inner>a:last-child{color:var(--green)}@media(max-width:900px){.wrap{width:min(100% - 48px,1280px)}.topbar{padding:0 24px}.hero{gap:35px;min-height:0}.hero h1{font-size:clamp(56px,8vw,75px)}.intro-grid,.reference-grid{gap:45px}.explorer{grid-template-columns:1fr}.explorer-aside{border-left:0;border-top:1px solid #dce5d9}.explorer-aside h3{margin-top:25px}.geometry-cards{gap:20px}.step{grid-template-columns:45px 1fr;gap:20px}.step-code{grid-column:2}.limits-inner{gap:45px}}@media(max-width:620px){.topbar{height:68px}.topbar nav{display:none}.source-link{font-size:10px}.hero{grid-template-columns:1fr;padding-top:62px;padding-bottom:55px;gap:45px}.hero h1{font-size:68px}.hero-description{font-size:14px}.hero-actions{gap:4px}.button{gap:12px;padding:15px}.ticker-inner{padding:18px 0;display:block}.ticker-inner p{margin-top:10px;line-height:1.6}.ticker-inner>span:last-child{display:none}.section{padding-top:78px;padding-bottom:80px}.section-label{margin-bottom:42px}.intro-grid,.reference-grid,.limits-inner{grid-template-columns:1fr;gap:38px}.geometry-heading,.algorithm-heading{display:block}.side-note{margin-top:26px}.geometry-cards{grid-template-columns:1fr;gap:23px}.geometry-cards article{border-top:1px solid #d7e0d4;padding-top:20px}.geometry-cards h3{margin:8px 0}.step{grid-template-columns:34px 1fr;gap:13px}.step-code{font-size:10px;padding:15px}.limits-inner{padding-top:65px;padding-bottom:65px}.reference-list>div{grid-template-columns:90px 1fr;gap:12px}.footer-inner{flex-wrap:wrap;padding:25px 0}.footer-inner>span{display:none}.art-top,.art-bottom{font-size:8px}.explorer-head{font-size:8px}.hero-art{box-shadow:8px 8px 0 #edf0e8}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.math-section{padding-top:100px}.math-intro{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:end;margin-bottom:48px}.math-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.math-panel{background:#f0f4ec;border:1px solid #dce5d9;padding:35px}.math-kicker{font:9px var(--mono);letter-spacing:.08em;color:#789080}.math-panel h3{font:34px var(--serif);letter-spacing:-.03em;margin:18px 0}.math-panel p{font-size:13px;line-height:1.85;color:#697a6d}.math-panel p strong{color:#355a44}.math-panel code{font:11px var(--mono);color:var(--green)}.math-equation{background:#e5eee2;border-left:2px solid #82a88a;padding:18px 20px;margin:22px 0;display:grid;gap:10px;font:16px/1.5 var(--mono);color:#285b46;overflow-wrap:anywhere}.math-equation small{font:11px/1.6 var(--sans);color:#718477}.math-figure{display:block;width:100%;max-width:420px;margin:15px auto;background:#f9fbf6}.math-panel p.math-note{border-top:1px solid #d8e3d5;padding-top:16px;font-size:11px}.source-section{padding-top:0}.source-section details{border:1px solid var(--line);background:#f0f3ec}.source-section summary{padding:20px 24px;cursor:pointer;color:var(--green);font:12px var(--mono)}.source-section pre{border-top:1px solid var(--line);color:#355a44;max-height:600px;overflow:auto}@media(max-width:750px){.math-intro,.math-grid{grid-template-columns:1fr;gap:20px}.math-panel{padding:25px}.math-section{padding-top:75px}}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="Rounded Line home"><span class="brand-icon">⌁</span><span>cetz<span class="brand-light">/</span>rounded-line</span></a>
+  <nav aria-label="Main navigation"><a href="#geometry">Geometry</a><a href="#algorithm">Implementation</a><a href="#reference">Reference</a></nav>
+  <a class="source-link" href="#source">View source <span>↗</span></a>
+</header>
+<main id="top">
+  <section class="hero wrap">
+    <div class="hero-copy"><div class="eyebrow"><span class="status-dot"></span> AN ILLUSTRATED FIELD GUIDE <span class="divider">/</span> CETZ 0.5.3</div>
+      <h1>A little less<br><em>rough around</em><br>the edges<span class="period">.</span></h1>
+      <p class="hero-description">A closer look at how <code>rounded-line</code> turns a series of straight segments into one beautifully continuous path.</p>
+      <div class="hero-actions"><a class="button primary" href="#geometry">Explore the geometry <span>↗</span></a><a class="button text-button" href="#usage">Jump to usage <span>↓</span></a></div>
+    </div>
+    <div class="hero-art" aria-label="A sharp line transformed into a rounded line">
+      <div class="art-top"><span>FIG 01 <span class="muted">/ THE IDEA</span></span><span>PATH STUDY&nbsp; ↗</span></div>
+      <svg viewBox="0 0 520 430" role="img" aria-label="A dashed polyline with three rounded corners overlaid in green">
+        <defs><pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M 26 0 L 0 0 0 26" fill="none" stroke="#dce1d5" stroke-width="1"/></pattern></defs>
+        <rect x="0" y="0" width="520" height="430" fill="url(#grid)"/>
+        <path d="M54 317 H174 V140 H343 V264 H467" fill="none" stroke="#9ba99e" stroke-width="1.5" stroke-dasharray="5 6"/>
+        <path d="M54 317 H132 Q174 317 174 275 V182 Q174 140 216 140 H301 Q343 140 343 182 V222 Q343 264 385 264 H467" fill="none" stroke="#255b46" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <g fill="#f5f7ef" stroke="#779286" stroke-width="1.5"><circle cx="174" cy="317" r="4"/><circle cx="174" cy="140" r="4"/><circle cx="343" cy="140" r="4"/><circle cx="343" cy="264" r="4"/></g>
+        <g fill="#255b46"><circle cx="54" cy="317" r="5"/><circle cx="467" cy="264" r="5"/></g>
+        <g font-family="DM Mono, monospace" font-size="10" fill="#557067"><text x="52" y="344">START</text><text x="437" y="289">END</text><text x="182" y="127">P₁</text><text x="352" y="127">P₂</text></g>
+        <path d="M209 239 h58" stroke="#a8b8aa" stroke-width="1"/><text x="212" y="257" font-family="DM Mono, monospace" font-size="10" fill="#668075">r = 0.2</text>
+      </svg>
+      <div class="art-bottom"><span><i class="legend-dot solid"></i> ROUNDED PATH</span><span><i class="legend-dot dashed"></i> ORIGINAL LINE</span><span>01 — 04</span></div>
+    </div>
+  </section>
+  <div class="ticker"><div class="wrap ticker-inner"><span>THE SHORT VERSION</span><p>Resolve the points. Find the tangents. Draw the arcs. <em>Merge it all together.</em></p><span>↓&nbsp; SCROLL TO EXPLORE</span></div></div>
+
+  <section class="section wrap introduction" id="usage"><div class="section-label"><span>01 / THE BASICS</span><span class="label-line"></span></div>
+    <div class="intro-grid"><div><h2>One line in.<br><em>A smoother path out.</em></h2><p class="section-lede">Give it the same kind of coordinates you'd give <code>line</code>, plus a radius. The function takes care of the corners.</p><a class="inline-link" href="#reference">See the full reference <span>↗</span></a></div>
+    <div class="code-card"><div class="code-head"><span><span class="code-dot"></span> EXAMPLE.TYP</span><span>TYPST</span></div><pre><code><span class="code-comment">// Import CeTZ and the function</span>
+<span class="code-key">#import</span> <span class="code-string">"@preview/cetz:0.5.3"</span>
+<span class="code-key">#import</span> <span class="code-string">"rounded-line.typ"</span>: rounded-line
+
+<span class="code-key">#cetz</span>.canvas({
+  <span class="code-fn">rounded-line</span>(
+    (0, 0), (2, 0), (2, 1.5),
+    radius: <span class="code-number">0.25</span>,
+    stroke: <span class="code-number">1.5pt</span> + teal,
+  )
+})</code></pre><div class="code-foot"><span>↳</span> Positional coordinates, named options.</div></div></div>
+  </section>
+
+  <section class="geometry-section" id="geometry"><div class="wrap section"><div class="section-label"><span>02 / THE GEOMETRY</span><span class="label-line"></span><span>INTERACTIVE FIGURE ↓</span></div><div class="geometry-heading"><div><h2>It starts with<br><em>a single corner.</em></h2><p class="section-lede">An arc can't just be dropped onto a vertex. It needs to meet both line segments tangentially, so the transition feels seamless.</p></div><div class="side-note"><span class="note-mark">✳</span><p>Move the slider to see how the tangent points and the arc respond to the requested radius.</p></div></div>
+    <div class="explorer"><div class="explorer-main"><div class="explorer-head"><span>FIG 02 <span class="muted">/ CORNER CONSTRUCTION</span></span><span class="live"><span class="status-dot"></span> LIVE DIAGRAM</span></div>
+      <svg id="corner-diagram" viewBox="0 0 700 400" role="img" aria-labelledby="diagram-title diagram-desc"><title id="diagram-title">Interactive rounded corner construction</title><desc id="diagram-desc">A right-angle corner showing the original segments, tangent points, circle center and rounded arc. Adjust the radius with the slider below.</desc>
+        <defs><pattern id="small-grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#e7ebe2" stroke-width="1"/></pattern><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7" fill="none" stroke="#80978a" stroke-width="1"/></marker></defs>
+        <rect width="700" height="400" fill="url(#small-grid)"/>
+        <path d="M85 300 H480 V65" fill="none" stroke="#b6c2b7" stroke-width="2" stroke-dasharray="5 7"/>
+        <path d="M480 300 H455 V275" fill="none" stroke="#bdc9bd" stroke-width="1"/>
+        <path id="construction" fill="none" stroke="#a3b5a6" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <path id="radius-line" fill="none" stroke="#d18b55" stroke-width="1.5"/>
+        <path id="rounded-path" fill="none" stroke="#245b45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <g fill="#fff" stroke="#245b45" stroke-width="2"><circle id="tangent-in" r="5"/><circle id="tangent-out" r="5"/></g>
+        <circle id="center-point" r="4" fill="#d18b55"/><circle cx="480" cy="300" r="4" fill="#8b9b8c"/>
+        <g class="svg-label" fill="#4b6656"><text x="66" y="326">A</text><text x="491" y="322">P</text><text x="491" y="65">B</text><text id="tin-label">T₁</text><text id="tout-label">T₂</text><text id="center-label" fill="#b66f3f">C</text><text id="radius-label" fill="#b66f3f">r</text></g>
+        <text x="100" y="282" class="svg-label" fill="#869b8e">INCOMING</text><text x="494" y="112" class="svg-label" fill="#869b8e">OUTGOING</text>
+      </svg>
+      <div class="slider-area"><div class="slider-label"><label for="radius">REQUESTED RADIUS</label><output id="radius-value" for="radius">0.80</output></div><input id="radius" type="range" min="0" max="2.5" step="0.05" value="0.8"><div class="range-labels"><span>0</span><span>CANVAS UNITS</span><span>2.5</span></div></div>
+    </div><aside class="explorer-aside"><span class="aside-index">THE ANATOMY <span>↗</span></span><h3>Meet the<br><em>tangent points.</em></h3><p>The arc begins at <strong>T₁</strong> and ends at <strong>T₂</strong>. Both sit the same distance from the original vertex <strong>P</strong>.</p><div class="formula"><span>THE TANGENT DISTANCE</span><strong>d = r · tan(|θ| / 2)</strong><small>θ is the signed change in direction.</small></div><div class="aside-list"><div><span class="key key-green"></span><span>Resulting path</span></div><div><span class="key key-dash"></span><span>Original segments</span></div><div><span class="key key-orange"></span><span>Circle radius</span></div></div><div class="clamp-status" id="clamp-status" aria-live="polite">● &nbsp; Radius fits both segments</div></aside></div>
+    <div class="geometry-cards"><article><span>01 / DIRECTION</span><h3>Find the turn</h3><p>Normalize the incoming and outgoing vectors. Their cross and dot products give the signed angle <code>θ</code> via Typst's <code>atan2(dot, cross)</code>.</p></article><article><span>02 / DISTANCE</span><h3>Locate the tangents</h3><p>Measure <code>d</code> back from the vertex along the incoming segment and forward along the outgoing segment. The arc touches both there.</p></article><article><span>03 / ARC</span><h3>Sweep the corner</h3><p>The arc starts perpendicular to the incoming direction. Its signed sweep is the turn angle, giving a tangent exit in the outgoing direction.</p></article></div>
+  </div></section>
+
+  <section class="section wrap math-section" id="math">
+    <div class="section-label"><span>02A / THE MATHEMATICS</span><span class="label-line"></span><span>VECTORS → ANGLE → ARC</span></div>
+    <div class="math-intro"><div><h2>Why does<br><em>the curve fit?</em></h2></div><p class="section-lede">The arc is determined by two pieces of geometry: the signed turn between the segments, and the distance from the vertex to each tangent point.</p></div>
+    <div class="math-grid">
+      <article class="math-panel">
+        <span class="math-kicker">01 / THE SIGNED ANGLE</span>
+        <h3>Two vectors, one turn.</h3>
+        <p>Let <strong>u = (uₓ, uᵧ)</strong> point into the corner and <strong>v = (vₓ, vᵧ)</strong> point out of it. Normalize each vector to unit length. In the usual x-right, y-up coordinate system:</p>
+        <p>Imagine rotating the coordinate system so its horizontal axis points along <strong>u</strong>. Its vertical axis is the perpendicular unit vector <strong>u⊥ = (−uᵧ, uₓ)</strong>, a 90° counterclockwise rotation of u. Projecting v onto those axes gives its coordinates in this rotated frame:</p>
+        <svg class="math-figure" viewBox="0 0 420 235" role="img" aria-label="Unit vector v projected onto axes u and u perpendicular. Its horizontal component is dot equals cosine theta, and its vertical component is cross equals sine theta.">
+          <defs><marker id="vector-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#285b46"/></marker></defs>
+          <path d="M65 180H350 M65 180V25" fill="none" stroke="#a7b7a8" stroke-width="1.5"/>
+          <path d="M65 180H185V90H65" fill="none" stroke="#b9c8b9" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <path d="M65 180H215 M65 180V30 M65 180L185 90" fill="none" stroke="#285b46" stroke-width="3" marker-end="url(#vector-arrow)"/>
+          <path d="M105 180A40 40 0 0 0 100 160" fill="none" stroke="#d18b55" stroke-width="2"/>
+          <g font-family="monospace" font-size="13" fill="#4b6656"><text x="220" y="200">u</text><text x="35" y="25">u⊥</text><text x="192" y="85">v</text><text x="110" y="166" fill="#b66f3f">θ</text><text x="87" y="220">dot = cos θ</text><text x="195" y="140">cross = sin θ</text></g>
+        </svg>
+        <div class="math-equation"><span>along u: &nbsp; u · v = uₓvₓ + uᵧvᵧ = cos θ</span><span>along u⊥: u⊥ · v = uₓvᵧ − uᵧvₓ = sin θ</span></div>
+        <p>The second projection is exactly the 2D cross product: the signed scalar z-component of the 3D cross product. Thus in the u-aligned frame, v has coordinates <strong>(dot, cross) = (cos θ, sin θ)</strong> on the unit circle. The “magic” is simply a change of basis followed by two projections.</p>
+        <p>The dot product measures alignment: positive for turns under 90°, zero at 90°, and negative past 90°. On its own it cannot distinguish +60° from −60°: both have cosine 0.5. The cross product supplies the direction: positive for a counterclockwise (left) turn and negative for a clockwise (right) turn.</p>
+        <div class="math-equation"><span>θ = atan2(dot, cross)</span><small>Typst's <code>calc.atan2(x, y)</code> takes the cosine-like x component first and sine-like y component second.</small></div>
+        <p>Together, dot and cross locate the turn on the unit circle, so <code>atan2</code> recovers both its quadrant and sign, in the range −180° to 180°. For example, u = (1, 0) to v = (0, 1) gives (dot, cross) = (0, 1), or +90°; changing v to (0, −1) gives (0, −1), or −90°.</p>
+        <p class="math-note">Repeated points have no unit direction. When |cross| ≤ 0.000001, the implementation leaves the corner sharp rather than constructing an arc; this includes straight and reversing segments.</p>
+      </article>
+      <article class="math-panel">
+        <span class="math-kicker">02 / THE TANGENT DISTANCE</span>
+        <h3>How far back to begin?</h3>
+        <p>The tangent distance <strong>d</strong> is the distance from the original vertex <strong>P</strong> to either tangent point, measured along its adjoining segment. At those points the circle's radius is perpendicular to the line.</p>
+        <svg class="math-figure" viewBox="0 0 420 235" role="img" aria-label="Right-angle corner with tangent distance d from vertex P to tangent point T, radius r from T to circle center C, and half angle between PC and the incoming ray.">
+          <path d="M35 185H335V20" fill="none" stroke="#a7b7a8" stroke-width="2" stroke-dasharray="5 5"/>
+          <path d="M35 185H235A100 100 0 0 0 335 85V20" fill="none" stroke="#285b46" stroke-width="4"/>
+          <path d="M235 185V85H335M235 85L335 185" fill="none" stroke="#a6b8a8" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <path d="M244 185V176H235" fill="none" stroke="#a6b8a8" stroke-width="1.5"/>
+          <path d="M315 185A20 20 0 0 1 320.86 170.86" fill="none" stroke="#d18b55" stroke-width="2"/>
+          <g fill="#285b46"><circle cx="235" cy="185" r="4"/><circle cx="335" cy="85" r="4"/></g><circle cx="235" cy="85" r="4" fill="#d18b55"/><circle cx="335" cy="185" r="4" fill="#8b9b8c"/>
+          <g font-family="monospace" font-size="13" fill="#4b6656"><text x="222" y="205">T</text><text x="343" y="203">P</text><text x="215" y="78">C</text><text x="280" y="205">d</text><text x="215" y="140" fill="#b66f3f">r</text><text x="265" y="168" fill="#b66f3f">α</text></g>
+        </svg>
+        <p>The center <strong>C</strong> lies on the angle bisector. In right triangle PTC, the angle at P is <strong>α = 90° − |θ| / 2</strong>. Since <strong>tan α = r / d</strong>, the complementary-angle identity gives:</p>
+        <div class="math-equation"><span>d = r · tan(|θ| / 2)</span><small>For a 90° turn, tan 45° = 1, so d = r.</small></div>
+        <p>To prevent adjacent arcs from overlapping, the implementation uses <strong>d = min(r · tan(|θ| / 2), L₁ / 2, L₂ / 2)</strong>, where L₁ and L₂ are segment lengths. If capped, the actual radius becomes <strong>d / tan(|θ| / 2)</strong>.</p>
+      </article>
+    </div>
+  </section>
+  <section class="section wrap" id="algorithm"><div class="section-label"><span>03 / UNDER THE HOOD</span><span class="label-line"></span></div><div class="algorithm-heading"><h2>From points to path,<br><em>step by step.</em></h2><p class="section-lede">The implementation works in two passes: first calculate each corner, then assemble the final drawable.</p></div>
+    <div class="steps"><article class="step"><div class="step-number">01</div><div><span class="step-tag">CONTEXT & COORDINATES</span><h3>Resolve in canvas space</h3><p>The returned CeTZ element waits for a canvas context. It resolves the radius into canvas units, then resolves coordinates in order—including relative coordinates and named anchors.</p></div><div class="step-code"><code>let r = cetz.util.resolve-number(ctx, radius)<br>let (ctx, ..pts) = cetz.coordinate.resolve(ctx, ..points)</code></div></article>
+    <article class="step"><div class="step-number">02</div><div><span class="step-tag">CORNER GEOMETRY</span><h3>Calculate and clamp</h3><p>For each eligible vertex, find the turn and tangent distance. Cap that distance at half of each neighboring segment, then recompute the effective radius. Adjacent corners cannot overlap.</p></div><div class="step-code"><code>let distance = calc.min(r * factor, l1 / 2, l2 / 2)<br>let actual-radius = distance / factor</code></div></article>
+    <article class="step"><div class="step-number">03</div><div><span class="step-tag">BUILD THE PIECES</span><h3>Alternate lines and arcs</h3><p>Walk the vertices, drawing a straight segment to each incoming tangent, then an arc to its outgoing tangent. Sharp vertices get only a line. For closed paths, vertex zero is visited again at the end.</p></div><div class="step-code"><code>parts += cetz.draw.line(previous, next, mark: none)<br>parts += cetz.draw.arc(c.start, start: c.angle,<br>  delta: c.turn, radius: c.radius, mode: "OPEN", mark: none)</code></div></article>
+    <article class="step"><div class="step-number">04</div><div><span class="step-tag">ONE CONTINUOUS PATH</span><h3>Merge, style, return</h3><p>Resolve the <code>line</code> style root and pass it to <code>merge-path</code>. Marks are suppressed on the pieces and applied once to the merged path. The result exposes merge-path's anchors.</p></div><div class="step-code"><code>cetz.draw.merge-path(parts, close: close, name: name,<br>  stroke: line-style.stroke, fill: line-style.fill,<br>  fill-rule: line-style.fill-rule, mark: line-style.mark)</code></div></article></div>
+  </section>
+  <section class="limits"><div class="wrap limits-inner"><div><span class="overline">A NOTE ON RADIUS</span><h2>When space<br><em>gets tight.</em></h2></div><div><p>A requested radius isn't always possible. Each corner may use at most half of either adjacent segment, leaving room for its neighbors.</p><div class="limit-formula">d = min(r · tan(|θ| / 2), L₁ / 2, L₂ / 2)</div><p class="limit-small">The effective radius becomes <code>d / tan(|θ| / 2)</code>. Corners are clamped independently, so their actual radii can differ.</p></div></div></section>
+  <section class="section wrap reference" id="reference"><div class="section-label"><span>04 / REFERENCE</span><span class="label-line"></span></div><div class="reference-grid"><div><h2>The fine<br><em>print.</em></h2><p class="section-lede">A few useful details before you put the function to work.</p><a class="inline-link" href="#source">Read the annotated source <span>↗</span></a></div><div class="reference-list"><div><span>INPUTS</span><p>Two or more CeTZ coordinates; at least three for a closed path. <code>radius</code> defaults to <code>0.2</code> and accepts a non-negative canvas-unit number or absolute length.</p></div><div><span>OPTIONS</span><p><code>close: true</code> rounds the closing vertex too. <code>name</code> and line styles, including <code>stroke</code>, <code>fill</code>, and <code>mark</code>, apply to the merged path.</p></div><div><span>EDGE CASES</span><p>Zero radius, repeated points, and near-collinear or reversing segments remain sharp. Eligible rounded corners require all three points to share a z coordinate.</p></div><div><span>ANCHORS</span><p>The result has <code>merge-path</code> anchors, not <code>line</code>'s point anchors. Bare element names resolve to their default anchors, not automatic border intersections.</p></div></div></div></section>
+  <section class="wrap source-section" id="source"><details><summary>View the annotated rounded-line.typ source</summary><pre><code>#import "@preview/cetz:0.5.3"
+
+/// Draw a line strip with circular, tangent corners.
+///
+/// Positional arguments are CeTZ coordinates. `radius` is a non-negative
+/// canvas-unit number or absolute length. Each corner's radius is reduced as
+/// needed so its tangent points occupy at most half of each adjoining segment.
+/// Straight, repeated, and reversing points remain sharp. Rounded corners
+/// require their three points to lie in the same z plane.
+///
+/// `close`, `name`, and line styles (including marks) are forwarded to the
+/// merged path. Named coordinates resolve to anchors; unlike `cetz.draw.line`,
+/// bare element names do not automatically intersect the element's border.
+/// The result exposes merge-path's anchors rather than line's point anchors.
+#let rounded-line(..points-style, radius: 0.2, close: false, name: none) = {
+  let points = points-style.pos()
+  let style = points-style.named()
+  assert(points.len() &gt;= if close { 3 } else { 2 },
+    message: "rounded-line requires at least two points (three when closed)")
+
+  // A CeTZ element runs with the canvas context, so coordinates and lengths
+  // are resolved here rather than when rounded-line is called. Resolving all
+  // points in order also preserves relative-coordinate semantics.
+  (ctx =&gt; {
+    let r = cetz.util.resolve-number(ctx, radius)
+    assert(r &gt;= 0, message: "rounded-line radius must be non-negative")
+    let (ctx, ..pts) = cetz.coordinate.resolve(ctx, ..points)
+    let n = pts.len()
+    // Record the geometry for each vertex first. `none` means the vertex
+    // remains sharp; open paths also leave their two endpoints untouched.
+    let corners = ()
+    for i in range(n) {
+      let p = pts.at(i)
+      let corner = none
+      if (close or (i &gt; 0 and i &lt; n - 1)) and r &gt; 0 {
+        // Wrap the neighbours for closed paths, including vertex zero.
+        let a = pts.at(calc.rem(i + n - 1, n))
+        let b = pts.at(calc.rem(i + 1, n))
+        assert(a.at(2) == p.at(2) and b.at(2) == p.at(2),
+          message: "rounded-line corners must lie in a constant z plane")
+        let (dx1, dy1) = (p.at(0) - a.at(0), p.at(1) - a.at(1))
+        let (dx2, dy2) = (b.at(0) - p.at(0), b.at(1) - p.at(1))
+        let l1 = calc.sqrt(dx1 * dx1 + dy1 * dy1)
+        let l2 = calc.sqrt(dx2 * dx2 + dy2 * dy2)
+        // A repeated point has no direction and cannot define a tangent.
+        if l1 &gt; 0 and l2 &gt; 0 {
+          let (ux, uy) = (dx1 / l1, dy1 / l1)
+          let (vx, vy) = (dx2 / l2, dy2 / l2)
+          // Unit vectors point along the incoming and outgoing segments.
+          // The cross product gives the turn's sign; the dot product gives
+          // its cosine. Near-collinear and reversing segments stay sharp.
+          let cross = ux * vy - uy * vx
+          let dot = ux * vx + uy * vy
+          if calc.abs(cross) &gt; 0.000001 {
+            // Typst's atan2 takes (x, y). The signed turn is the arc sweep.
+            // A radius r and turn theta place each tangent point at distance
+            // r * tan(|theta| / 2) from the vertex along its segment.
+            let turn = calc.atan2(dot, cross)
+            let factor = calc.abs(calc.tan(turn / 2))
+            // Limit each corner to half of each adjoining segment, so two
+            // neighbouring rounded corners cannot overlap. Recompute the
+            // radius from the shortened tangent distance to retain tangency.
+            let distance = calc.min(r * factor, l1 / 2, l2 / 2)
+            let actual-radius = distance / factor
+            let start = (p.at(0) - ux * distance, p.at(1) - uy * distance, p.at(2))
+            // The radius vector at the arc start is perpendicular to the
+            // incoming direction: right for a left turn, left for a right turn.
+            let angle = calc.atan2(ux, uy) - if cross &gt; 0 { 90deg } else { -90deg }
+            corner = (start: start, angle: angle, turn: turn, radius: actual-radius)
+          }
+        }
+      }
+      corners.push(corner)
+    }
+
+    let parts = ()
+    // merge-path concatenates these pieces into one continuous stroked path.
+    // Each entry consists of a straight segment followed by an optional arc.
+    // Start at vertex zero, or at its outgoing tangent for a closed path.
+    let start = if close and corners.first() != none {
+      // Recover the circle center from the incoming tangent and radius vector,
+      // then rotate that vector through the turn to get the outgoing tangent.
+      // Starting there lets the final iteration draw vertex zero's arc last.
+      let c = corners.first()
+      let center = (c.start.at(0) - c.radius * calc.cos(c.angle),
+                    c.start.at(1) - c.radius * calc.sin(c.angle), c.start.at(2))
+      (center.at(0) + c.radius * calc.cos(c.angle + c.turn),
+       center.at(1) + c.radius * calc.sin(c.angle + c.turn), center.at(2))
+    } else { pts.first() }
+    let previous = start
+    // Visit vertex zero again only when closing, to include its corner arc.
+    let indices = if close { range(1, n + 1) } else { range(1, n) }
+    for index in indices {
+      let i = calc.rem(index, n)
+      let c = corners.at(i)
+      let next = if c == none { pts.at(i) } else { c.start }
+      // Suppress marks on individual pieces; they belong on the merged path.
+      parts += cetz.draw.line(previous, next, mark: none)
+      if c != none {
+        parts += cetz.draw.arc(c.start, start: c.angle, delta: c.turn,
+          radius: c.radius, mode: "OPEN", mark: none)
+        // Advance to the outgoing tangent point, using the same circle-center
+        // calculation as above, so the next straight segment starts at the arc.
+        let center = (c.start.at(0) - c.radius * calc.cos(c.angle),
+                      c.start.at(1) - c.radius * calc.sin(c.angle), c.start.at(2))
+        previous = (center.at(0) + c.radius * calc.cos(c.angle + c.turn),
+                    center.at(1) + c.radius * calc.sin(c.angle + c.turn), center.at(2))
+      } else {
+        previous = next
+      }
+    }
+    // merge-path normally resolves the global style, whereas line uses the
+    // `line` style root. Resolve that root explicitly to preserve line styling,
+    // then apply marks once to the finished path rather than to each piece.
+    let line-style = cetz.styles.resolve(ctx.style, merge: style, root: "line")
+    let merged = cetz.draw.merge-path(parts, close: close, name: name,
+      stroke: line-style.stroke, fill: line-style.fill,
+      fill-rule: line-style.fill-rule, mark: line-style.mark)
+    // Return the merged element's result directly so its name, path anchors,
+    // drawables, and updated context are exposed as the rounded-line result.
+    merged.first()(ctx)
+  },)
+}
+</code></pre></details></section>
+</main>
+<footer><div class="wrap footer-inner"><a class="brand" href="#top"><span class="brand-icon">⌁</span><span>cetz<span class="brand-light">/</span>rounded-line</span></a><span>MADE FOR THE DETAILS.</span><a href="#top">BACK TO TOP ↑</a></div></footer>
+<script>
+// The diagram uses a 90° left turn: one canvas unit is 100 SVG units.
+// Its adjoining segments are 3.95 and 2.35 units long, so it uses the
+// same half-segment clamp as rounded-line.typ.
+const slider = document.querySelector('#radius');
+const value = document.querySelector('#radius-value');
+const status = document.querySelector('#clamp-status');
+const el = id => document.getElementById(id);
+
+function updateDiagram() {
+  const radius = Number(slider.value);
+  const distance = Math.min(radius, 3.95 / 2, 2.35 / 2);
+  const d = distance * 100;
+  const cx = 480 - d;
+  const cy = 300 - d;
+  value.value = radius.toFixed(2);
+  value.textContent = radius.toFixed(2);
+  slider.setAttribute('aria-valuetext', `${radius.toFixed(2)} canvas units`);
+
+  // SVG's y axis points down, so the mathematical left turn has sweep flag 0.
+  el('rounded-path').setAttribute('d', d > 0
+    ? `M85 300 H${cx} A${d} ${d} 0 0 0 480 ${cy} V65`
+    : 'M85 300 H480 V65');
+  el('construction').setAttribute('d', `M${cx} 300 V${cy} H480`);
+  el('radius-line').setAttribute('d', `M${cx} ${cy} V300`);
+  for (const [id, x, y] of [
+    ['tangent-in', cx, 300], ['tangent-out', 480, cy], ['center-point', cx, cy],
+  ]) {
+    el(id).setAttribute('cx', x);
+    el(id).setAttribute('cy', y);
+  }
+  for (const [id, x, y] of [
+    ['tin-label', cx - 10, 324], ['tout-label', 492, cy + 4],
+    ['center-label', cx - 17, cy - 10], ['radius-label', cx + 7, cy + d / 2],
+  ]) {
+    el(id).setAttribute('x', x);
+    el(id).setAttribute('y', y);
+  }
+  const clamped = radius > 2.35 / 2;
+  status.classList.toggle('clamped', clamped);
+  status.textContent = clamped
+    ? `●  Clamped to ${distance.toFixed(3)} units`
+    : '●  Radius fits both segments';
+}
+slider.addEventListener('input', updateDiagram);
+updateDiagram();
+
+</script>
+</body></html>
