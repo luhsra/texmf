@@ -1014,6 +1014,7 @@
       ),
       // let content stay on current slide
       breakable: false,
+      detect-overflow: false,
     ),
     config-colors(
       neutral-light: gray,
