@@ -14,9 +14,8 @@
 #let list-depth = counter("list-depth")
 
 #let fonts = (
-  default: (font: "Rotis Sans Serif Std", stretch: 100%),
+  default: (font: "Rotis Sans Serif Std"),
   oss: (font: "Universalis ADF Std", stretch: 80%),
-  mono: (font: "DejaVu Sans Mono", stretch: 100%),
 )
 
 
@@ -704,11 +703,7 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-// LaTeX's VeraMono Scale=MatchLowercase against Rotis Light:
-// x-height ratio = (476 / 1000) / (1120 / 2048) = 0.8704.
-// DejaVu Sans Mono has the same x-height and ASCII advance as VeraMono.
-#let texttt = text.with(size: .8704em, ..fonts.mono)
-
+#let texttt(body) = [#text(body)<texttt>]
 
 /// Apply basic theming for non-slide content, e.g., figures
 ///
@@ -722,13 +717,18 @@
   list-shrink: true,
   text-size: 12pt,
   title-size: 16pt,
+  // LaTeX's VeraMono Scale=MatchLowercase against Rotis Light:
+  // x-height ratio = (476 / 1000) / (1120 / 2048) = 0.8704.
+  // DejaVu Sans Mono has the same x-height and ASCII advance as VeraMono.
+  mono-font: (font: "DejaVu Sans Mono", size: .8704em),
   body,
 ) = {
   let font = if oss-font { fonts.oss } else { fonts.default }
   set text(size: text-size, weight: "light", ..font)
-  show raw: set text(..fonts.mono)
-  // Inline raw adds its own 0.8 scale: 1.088 × 0.8 = 0.8704.
-  show raw.where(block: false): set text(size: 1.088em)
+
+  show <texttt>: set text(..mono-font)
+  // Inline raw adds its own 0.8 scale
+  show raw: set text(..mono-font, size: mono-font.size / 0.8)
   show raw.where(block: true): set text(size: 8pt)
 
   show heading: set text(fill: luh.blue, weight: "light")
@@ -827,6 +827,7 @@
   footer-size: 7pt,
   quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
   math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
+  mono-font: (font: "DejaVu Sans Mono", size: .8704em),
   list-shrink: true,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
@@ -844,6 +845,7 @@
     list-shrink: list-shrink,
     text-size: text-size,
     title-size: title-size,
+    mono-font: mono-font,
   )
   show math.equation: set text(..math-font)
   show quote.where(block: false, quotes: false): set text(..quotation-font)
@@ -1381,9 +1383,7 @@
   show: sra-theme.with(
     oss-font: false,
     author: author,
-    title: title
-      + if view-mode
-        != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
+    title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     text-size: text-size,
     title-size: title-size,
     subtitle-size: subtitle-size,

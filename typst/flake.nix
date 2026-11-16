@@ -21,7 +21,14 @@
         # TODO: Add Latex and adjust makefile for TikZ?
         env = {
           # Make loose fonts available here
-          TYPST_FONT_PATHS = "fonts";
+          TYPST_FONT_PATHS = pkgs.lib.concatStringsSep ":" [
+            # Supply Rotis. The package can only be installed from the uni network
+            "fonts"
+            "${pkgs.lucide}/share/fonts/truetype"
+            "${pkgs.excalifont}/share/fonts/ttf"
+            "${pkgs.lmmath}/share/fonts/opentype"
+            "${pkgs.lmodern}/share/fonts/opentype"
+          ];
         };
       };
     });
