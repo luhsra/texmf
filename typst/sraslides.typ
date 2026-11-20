@@ -723,6 +723,9 @@
   mono-font: (font: "DejaVu Sans Mono", size: .8704em),
   body,
 ) = {
+  // Narrow space for units: just write `10~GiB` -> ~ becomes narrow
+  show regex("\\d" + sym.space.nobreak): it => it.text.replace(sym.space.nobreak, sym.space.nobreak.narrow)
+
   let font = if oss-font { fonts.oss } else { fonts.default }
   set text(size: text-size, weight: "light", ..font)
 
