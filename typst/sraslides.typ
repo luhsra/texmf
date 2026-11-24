@@ -13,9 +13,16 @@
 // Counter for the list depth
 #let list-depth = counter("list-depth")
 
+/// Default fonts for the theme
 #let fonts = (
   default: (font: "Rotis Sans Serif Std"),
   oss: (font: "Universalis ADF Std", stretch: 80%),
+  quote: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
+  math: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
+  // LaTeX's VeraMono Scale=MatchLowercase against Rotis Light:
+  // x-height ratio = (476 / 1000) / (1120 / 2048) = 0.8704.
+  // DejaVu Sans Mono has the same x-height and ASCII advance as VeraMono.
+  mono: (font: "DejaVu Sans Mono", size: .8704em),
 )
 
 
@@ -212,7 +219,7 @@
     show emph: set text(fill: fill) if colorful-emph
     show <local-emph>: set text(fill: fill)
     show regex("\^(.*?)\^"): it => if local-emph {
-      text(fill: fill, it.text.replace("^", ""))
+      text(fill: fill, it.text.slice(1, -1))
     } else { it }
 
     stack(
@@ -703,30 +710,27 @@
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
-#let texttt(body) = [#text(body)<texttt>]
+#let texttt(body, ..args) = [#text(body, ..args)<texttt>]
 
 /// Apply basic theming for non-slide content, e.g., figures
 ///
-/// - oss-font (boolean): Use Open Source Software fonts
+/// - font (dictionary): text font, defaulting to Rotis, see `fonts`
+/// - mono-font (dictionary): monospace font, defaulting to DejaVu Sans Mono
 /// - list-shrink (boolean): Enable list shrinking
 /// - text-size (length): Body size (12pt).
 /// - title-size (length): Heading size.
 /// - body (content): Document body
 #let basic-theme(
-  oss-font: false,
+  font: fonts.default,
+  mono-font: fonts.mono,
   list-shrink: true,
   text-size: 12pt,
   title-size: 16pt,
-  // LaTeX's VeraMono Scale=MatchLowercase against Rotis Light:
-  // x-height ratio = (476 / 1000) / (1120 / 2048) = 0.8704.
-  // DejaVu Sans Mono has the same x-height and ASCII advance as VeraMono.
-  mono-font: (font: "DejaVu Sans Mono", size: .8704em),
   body,
 ) = {
   // Narrow space for units: just write `10~GiB` -> ~ becomes narrow
-  show regex("\\d" + sym.space.nobreak): it => it.text.replace(sym.space.nobreak, sym.space.nobreak.narrow)
+  show regex("\\d" + sym.space.nobreak): it => it.text.slice(0, -2) + sym.space.nobreak.narrow
 
-  let font = if oss-font { fonts.oss } else { fonts.default }
   set text(size: text-size, weight: "light", ..font)
 
   show <texttt>: set text(..mono-font)
@@ -748,29 +752,17 @@
   set enum(numbering: enum-numbering.with(fill: luh.blue), full: true)
 
   // Shrinking text for inner lists
-  show list: it => {
+  show selector(list).or(enum): it => {
+    list-depth.step()
     if list-shrink {
-      list-depth.step()
       context {
         set text(size: 0.9em) if list-depth.get().at(0) > 1
         it
       }
-      list-depth.update(it => it - 1)
     } else {
       it
     }
-  }
-  show enum: it => {
-    if list-shrink {
-      list-depth.step()
-      context {
-        set text(size: 0.9em) if list-depth.get().at(0) > 1
-        it
-      }
-      list-depth.update(it => it - 1)
-    } else {
-      it
-    }
+    list-depth.update(it => it - 1)
   }
 
   show terms: it => {
@@ -799,38 +791,43 @@
 /// - title (content): Title of the presentation (for the footer)
 /// - author (content): Author of the presentation (for the footer)
 /// - date (datetime): Date of the presentation (for the document meta)
-/// - oss-font (boolean): Use Open Source Software fonts
 /// - text-size (length): Body size (12pt).
 /// - title-size (length): Slide and outline heading size (16pt).
 /// - subtitle-size (length): Header subtitle size (11pt).
 /// - footer-size (length): Footer size (7pt).
-/// - quotation-font (dictionary): Text settings for quote bodies and quotation
-///   marks in `title-block`; stored as `store.quotation-font`. Defaults to
-///   `(font: "Latin Modern Roman", style: "oblique", stretch: 100%)`.
+/// - font (dictionary): Body text settings; defaults to `fonts.default`
+///   (Rotis Sans Serif Std). Use `fonts.oss` for open source.
+/// - quote-font (dictionary): Text settings for inline quotes with `quotes: false`;
+///   defaults to `fonts.quote`.
 /// - math-font (dictionary): Text settings for inline and display equations;
-///   stored as `store.math-font`. Defaults to Latin Modern Math, the OpenType
-///   counterpart of LaTeX's Computer Modern mathematics.
+///   stored as `store.math-font`. Defaults to `fonts.math`.
+/// - mono-font (dictionary): Text settings for raw text and `texttt` content;
+///   defaults to `fonts.mono`.
 /// - list-shrink (boolean): Enable list shrinking
 /// - left-logo (image): Logo for the header
 /// - right-logo (image): Logo for the header
-/// - numbering-by-chapter (boolean): Whether to reset the slide counter for each chapter.
+/// - custom-footer (function or none): Replacement footer function taking `self`.
+/// - numbering-by-chapter (boolean): Reset the slide counter for each chapter
+///   (false by default); requires `slide-level > 2`.
 /// - enable-pdfpc (boolean): Enable pdfpc export
 /// - enable-slidepilot (boolean): Enable SlidePilot export
 /// - enable-btUseExtraItemSep (boolean): Default extra bullet-list spacing;
 ///   overridden per slide by `btUseExtraItemSep()` / `btNoExtraItemSep()`.
+/// - ..args (arguments): Additional Touying configuration, forwarded to
+///   `touying-slides`; `slide-level` defaults to 2.
 /// - body (content): Body of the presentation
 #let sra-theme(
   title: [],
   author: none,
   date: datetime.today(),
-  oss-font: false,
   text-size: 12pt,
   title-size: 16pt,
   subtitle-size: 11pt,
   footer-size: 7pt,
-  quotation-font: (font: "Latin Modern Roman", style: "oblique", stretch: 100%),
-  math-font: (font: "Latin Modern Math", weight: "regular", stretch: 100%),
-  mono-font: (font: "DejaVu Sans Mono", size: .8704em),
+  font: fonts.default,
+  quote-font: fonts.quote,
+  math-font: fonts.math,
+  mono-font: fonts.mono,
   list-shrink: true,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
@@ -844,14 +841,14 @@
 ) = {
   set document(title: title, author: author, date: date)
   show: basic-theme.with(
-    oss-font: oss-font,
+    font: font,
+    mono-font: mono-font,
     list-shrink: list-shrink,
     text-size: text-size,
     title-size: title-size,
-    mono-font: mono-font,
   )
   show math.equation: set text(..math-font)
-  show quote.where(block: false, quotes: false): set text(..quotation-font)
+  show quote.where(block: false, quotes: false): set text(..quote-font)
 
   // Style for outlines
   show outline.entry: it => {
@@ -954,12 +951,6 @@
   // the latex beamer tools.
   // A page-local marker overrides the global default without affecting later slides.
   // Explicit list spacing takes precedence over this default.
-  let list-depth = state("list-depth", 0)
-  show selector(list).or(enum): it => {
-    list-depth.update(depth => depth + 1)
-    it
-    list-depth.update(depth => depth - 1)
-  }
   show list: it => context {
     let marker = query(<sraslides-extra-item-sep>)
       .filter(it => it.location().page() == here().page())
@@ -972,7 +963,7 @@
     }
     let fields = it.fields()
     let _ = fields.remove("children")
-    let depth = list-depth.get()
+    let depth = list-depth.get().at(0)
     // Add LaTeX's extra itemsep to Typst's native list spacing, not in its place.
     // Beamer supports three levels; deeper lists retain the third-level addition.
     let base = if it.tight { par.leading } else { par.spacing }
@@ -1035,7 +1026,7 @@
       subtitle-size: subtitle-size,
       footer-size: footer-size,
       numbering-by-chapter: numbering-by-chapter,
-      quotation-font: quotation-font,
+      quote-font: quote-font,
       math-font: math-font,
     ),
     config-info(
@@ -1384,7 +1375,6 @@
   // make "regular" text gray and all "marked up" text black
 
   show: sra-theme.with(
-    oss-font: false,
     author: author,
     title: title + if view-mode != "normal" [ (#upper(view-mode.at(0))#view-mode.slice(1))],
     text-size: text-size,

@@ -1,6 +1,7 @@
 # Typst Templates
 
-See [slide_example.typ](slide_example.typ) for an example presentation.
+See [example.typ](example.typ) for a presentation and
+[example-lecture.typ](example-lecture.typ) for a lecture using `sra-lecture-theme`.
 
 Just remember to change the first line (the import) to the following:
 
@@ -35,15 +36,15 @@ You can create pdfpc notes and change settings inside your typst slides.
   default-transition: none,
 )
 
-// Create a speaker note inside a frame
-#frame(title: [Test])[
-    - Lorem Ipsum...
+// Create a speaker note inside a slide
+== Test
 
-    ```note
-    - Here is a speaker note
-    - ...
-    ```
-]
+- Lorem Ipsum...
+
+```note
+- Here is a speaker note
+- ...
+```
 ````
 
 The pdfpc config and notes can be exported with:

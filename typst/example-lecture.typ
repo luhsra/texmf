@@ -31,6 +31,7 @@
     mail: "si",
     web: "V_SI2",
   ),
+  enable-btUseExtraItemSep: true,
 )
 
 #title-slide-lecture()[]
@@ -65,20 +66,21 @@ Pass presentation-wide options to the initial show rule:
   title: title,
   author: author,
   date: date,
-  oss-font: true,
+  font: fonts.oss,
   colorful-emph: false,
   math-font: (font: "New Computer Modern Math"),
-  quotation-font: (font: "New Computer Modern", style: "italic"),
+  quote-font: (font: "New Computer Modern", style: "italic"),
   text-size: 10.5pt,    // defaults to smaller sizes
   title-size: 14.5pt,   // than sra-theme
   subtitle-size: 9pt,   // to match latex's
-  footer-size: 6pt.     // text sizes
+  footer-size: 6pt,     // text sizes
+  enable-btUseExtraItemSep: true,
 )
 ```
 
-- `oss-font` selects Universalis ADF Std instead of Rotis
+- `font: fonts.oss` selects Universalis ADF Std instead of Rotis
 - `colorful-emph: false` keeps emphasis in the surrounding text color
-- Custom math and quotation fonts
+- `math-font` and `quote-font` customize equation and inline quote text
 
 === Layout and Styling
 

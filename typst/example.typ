@@ -15,6 +15,7 @@
 #show: sra-theme.with(
   title: title,
   author: author,
+  enable-btUseExtraItemSep: true,
 )
 
 #title-slide(footer: [Abschlussvortrag Bachelorarbeit])[
@@ -54,16 +55,15 @@ Pass presentation-wide options to the initial show rule:
   title: title,
   author: author,
   date: date,
-  oss-font: true,
-  colorful-emph: false,
+  font: fonts.oss,
   math-font: (font: "New Computer Modern Math"),
-  quotation-font: (font: "New Computer Modern", style: "italic"),
+  quote-font: (font: "New Computer Modern", style: "italic"),
+  enable-btUseExtraItemSep: true,
 )
 ```
 
-- `oss-font` selects Universalis ADF Std instead of Rotis
-- `colorful-emph: false` keeps emphasis in the surrounding text color
-- Custom math and quotation fonts
+- `font: fonts.oss` selects Universalis ADF Std instead of Rotis
+- `math-font` and `quote-font` customize equation and inline quote text
 
 = Layout and Styling
 
@@ -145,4 +145,3 @@ typst eval --root . --in texmf/typst/example.typ \
 
 == Some Appendix
 Please pay attention to the current slide number.
-
