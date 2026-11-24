@@ -838,7 +838,7 @@
   numbering-by-chapter: false,
   enable-pdfpc: true,
   enable-slidepilot: false,
-  enable-btUseExtraItemSep: true,
+  enable-btUseExtraItemSep: false,
   ..args,
   body,
 ) = {
