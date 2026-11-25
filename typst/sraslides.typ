@@ -300,7 +300,6 @@
   fit-title: false,
   left-logo: sra-logo(),
   right-logo: luh-logo(),
-  first-subslide: true,
 ) = context {
   let title-content = text(fill: luh.blue, size: title-size, title)
   let margins = page.margin
@@ -322,11 +321,11 @@
   let right-content = if subtitle-marker == none {
     right-logo
   } else {
-    align(horizon)[#text(
+    align(horizon, text(
       size: subtitle-size,
       fill: luh.blue,
       subtitle-marker.value,
-    )]
+    ))
   }
   let right-width = if right-content == none {
     0pt
@@ -699,14 +698,14 @@
 
 
 #let structure = text.with(fill: luh.blue)
-#let Structure = text.with(fill: luh.blue, style: "italic")
-#let STRUCTURE = text.with(fill: luh.blue, weight: "bold")
+#let Structure = it => emph(structure(it))
+#let STRUCTURE = it => strong(structure(it))
 
-#let alert = it => text(fill: sra.red, it)
+#let alert = text.with(fill: sra.red)
 #let Alert = it => emph(alert(it))
 #let ALERT = it => strong(alert(it))
 
-#let sample = it => text(fill: luh.green, it)
+#let sample = text.with(fill: luh.green)
 #let Sample = it => emph(sample(it))
 #let SAMPLE = it => strong(sample(it))
 
@@ -728,20 +727,17 @@
   title-size: 16pt,
   body,
 ) = {
-  // Narrow space for units: just write `10~GiB` -> ~ becomes narrow
-  show regex("\\d" + sym.space.nobreak): it => it.text.slice(0, -2) + sym.space.nobreak.narrow
-
   set text(size: text-size, weight: "light", ..font)
+  // regular (300) + delta = (medium) 400
+  set strong(delta: 100)
 
-  show <texttt>: set text(..mono-font)
   // Inline raw adds its own 0.8 scale
   show raw: set text(..mono-font, size: mono-font.size / 0.8)
   show raw.where(block: true): set text(size: 8pt)
+  show <texttt>: set text(..mono-font)
 
   show heading: set text(fill: luh.blue, weight: "light")
   show heading.where(level: 1): set text(size: title-size)
-
-  show strong: set text(weight: 300)
 
   show link: set text(fill: luh.blue)
   set table.cell(inset: 5pt)
@@ -766,7 +762,7 @@
   }
 
   show terms: it => {
-    show strong: it => text(fill: luh.blue, it.body)
+    show strong: set text(fill: luh.blue)
     text(fill: black, it)
   }
 
@@ -782,6 +778,9 @@
     lang: "md",
     block: true,
   ))
+
+  // Narrow space for units: just write `10~GiB` -> ~ becomes narrow
+  show regex("\\d" + sym.space.nobreak): it => it.text.slice(0, -2) + sym.space.nobreak.narrow
 
   body
 }
@@ -915,7 +914,8 @@
     bookmarked: not numbering-by-chapter,
   )
 
-  show std.title: set text(fill: luh.blue, size: 24pt)
+  // Style the document title, usually used in the title slide
+  show std.title: set text(fill: luh.blue, weight: "bold", size: 1em)
 
   let header = self => slide-header(
     title-size: self.store.title-size,

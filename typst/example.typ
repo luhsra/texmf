@@ -4,34 +4,29 @@
 #import "@preview/tiaoma:0.3.0"
 #import "@preview/cetz:0.5.3"
 
-#let title = [My Definitely Very Cool Topic]
-#let author = "Hugo Houston"
-#let date = datetime(day: 26, month: 10, year: 2026)
-
+// Optional PDFPC configuration...
 #pdfpc.config(
   duration-minutes: 25,
 )
 
 #show: sra-theme.with(
-  title: title,
-  author: author,
+  title: [This is my Definitely Very Cool Topic],
+  date: datetime(day: 26, month: 10, year: 2026),
+  author: "Hugo Houston",
   enable-btUseExtraItemSep: true,
 )
 
-#title-slide(footer: [Abschlussvortrag Bachelorarbeit])[
-  #text(size: 20pt)[
-    *#title*
-  ]
-
+#title-slide(footer: [Oberseminar System- und Rechnerarchitektur])[
+  #title()
   #text(size: 16pt, fill: luh.blue)[
-    #date.display("[year]")
+    Abschlussvortrag Bachelorarbeit
   ]
 
   #v(30pt)
 
-  #text(fill: luh.blue)[*#author* -- #link("mailto:hugo@sra.uni-hannover.de")]
+  #text(fill: luh.blue)[*Hugo Huston* -- #link("mailto:hugo@sra.uni-hannover.de")]
 
-  #date.display("[day]. [month repr:short] [year]")
+  #context document.date.display("[day]. [month repr:short] [year]")
 
   ```note
   Some notes...
@@ -52,18 +47,17 @@ Pass presentation-wide options to the initial show rule:
 
 ```typ
 #show: sra-theme.with(
-  title: title,
-  author: author,
-  date: date,
+  title: [My Title],
+  author: "Huge Houston",
+  date: datetime(day: 26, month: 10, year: 2026),
   font: fonts.oss,
-  math-font: (font: "New Computer Modern Math"),
-  quote-font: (font: "New Computer Modern", style: "italic"),
   enable-btUseExtraItemSep: true,
 )
 ```
 
 - `font: fonts.oss` selects Universalis ADF Std instead of Rotis
-- `math-font` and `quote-font` customize equation and inline quote text
+  - `math-font` and `quote-font` customize equation and inline quote text
+- `btUseExtraItemSep`: Uses extra item separation in bullet points
 
 = Layout and Styling
 
@@ -110,6 +104,9 @@ Pass presentation-wide options to the initial show rule:
 - A subtitle replaces the right-hand logo on this slide
 - Keep it short to leave enough room for the slide title
 - Other slides keep their normal header
+
+= Components
+#outline(title: none, depth: 1)
 
 #include "example-shared-content.typ"
 

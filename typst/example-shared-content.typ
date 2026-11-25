@@ -1,8 +1,5 @@
 #import "sraslides.typ": *
 
-= Components
-#v(1pt) // remove empty slide warning
-
 == Lists
 
 #side-by-side[
@@ -30,6 +27,7 @@
     ```
   ]
 ]
+
 == Slide-local list spacing
 
 #btNoExtraItemSep()
@@ -134,9 +132,6 @@ Explicit per-list spacing is preserved. Numbered lists count toward nesting dept
   ]
 ]
 
-= Titled Blocks, aka btBlock
-#v(1pt) // remove empty slide warning
-
 == Titled Blocks
 #title-block(
   fill: orange,
@@ -221,11 +216,8 @@ Explicit per-list spacing is preserved. Numbered lists count toward nesting dept
 ]
 
 == Quotes and Attribution
-```typ
-#title-block(author: [Tim])[
-  Lass das Licht aus, sonst wird der Bass leiser.
-]
-```
+
+Simple citation @murray:93:sarc
 
 #title-block(author: [Florian])[
   Ich fahre Fahrrad immer nach Geruch, damit ich beim Fahren gleichzeitig Podcast hören und Youtube schauen kann.
@@ -238,35 +230,31 @@ Explicit per-list spacing is preserved. Numbered lists count toward nesting dept
 - The `author` option adds quotation marks and a right-aligned attribution.
 - if author is a ref (`<vitruvius:27bc>`), it get's formated
 
-= Environments
-#v(1pt) // remove empty slide warning
-
-
 == Colors
 Defined in sra-colors.typ
 
-#for (space-name, space) in (sra: sra, luh: luh, safe: safe, rs: rs) [
-
-  // remove a (bugged) warning
-  #import "@preview/uniwarn:0.1.1": disable-warnings, enable-warnings, warning
-  #disable-warnings("touying")
-  == #space-name Colors
-  #show: columns.with(4)
-  #for (k, c) in space [
+#let show-colors(prefix, ..colors) = {
+  for (k, c) in colors.named() [
     #show: par
-    #box(fill: c, width: 3mm, height: 3mm) #raw(space-name + "." + k)
+    #set text(0.9em)
+    #box(fill: c, width: 3mm, height: 3mm)~#raw(if prefix != none { prefix + "." } else { "" } + k)
   ]
-  #enable-warnings("touying")
-]
-== Other colors
-#for (k, c) in (badbee: badbee, beamergreen: beamergreen) [
-  #show: par
-  #box(fill: c, width: 3mm, height: 3mm) #raw(k)
+}
+
+#side-by-side[
+  *SRA*
+  #show-colors("sra", ..sra)
+  *RS von Jürgen*
+  #show-colors("rs", ..rs)
+][
+  *General*
+  #show-colors(none, badbee: badbee, beamergreen: beamergreen)
 ]
 
-
-= Environments
-#v(1pt) // remove empty slide warning
+#for (space-name, space) in (luh: luh, safe: safe) [
+  == #space-name Colors
+  #columns(3, show-colors(space-name, ..space))
+]
 
 == Code and Mathematics
 
@@ -361,33 +349,40 @@ Defined in sra-colors.typ
     "end.north",
     radius: 20pt,
     stroke: 2pt + sra.red,
-    name: "line"
+    name: "line",
   )
-  circle((rel: (20deg, 50pt), to: (rel: (40pt, 0pt), to: "line.start")), radius: 5pt, stroke: 1.5pt + black, name: "edge")
+  circle(
+    (rel: (20deg, 50pt), to: (rel: (40pt, 0pt), to: "line.start")),
+    radius: 5pt,
+    stroke: 1.5pt + black,
+    name: "edge",
+  )
   content("edge", anchor: "north-west", padding: 4pt)[Sharp edge]
 })
 
-= Animations
+== Animation: Reveal Points Step by Step
 
-#outline(title: none, depth: 1)
-
-== Reveal Points Step by Step
+#btNoExtraItemSep()
 
 ```typ
 - Visible immediately
-#pause
+  #pause
+
 - Revealed on the next subslide
-#pause
+  #pause
+
 - Revealed on the final subslide
 ```
 
-- Visible immediately #pause
+- Visible immediately
+  #pause
 
-- Revealed on the next subslide #pause
+- Revealed on the next subslide
+  #pause
 
 - Revealed on the final subslide
 
-== Uncover and Only
+== Animation: Uncover and Only
 
 ```typ
 #uncover("2-")[Reveal from subslide two; reserve space before that.]
@@ -400,7 +395,7 @@ Defined in sra-colors.typ
 #only(1)[Show this text only on subslide one.]
 #only("2-")[Replace it from subslide two onward.]
 
-== Callback-Based Overlays <touying:skip>
+== Advanced: Callback-Based Overlays
 
 #slide(repeat: 3, self => [
   #let (uncover, only) = utils.methods(self)
@@ -421,25 +416,16 @@ Defined in sra-colors.typ
   #only(3)[The final result.]
 ])
 
-= Bibliography
-#show heading: set heading(outlined: false, bookmarked: true)
-#let bib-files = (
-  // "bib/sra/sra-ext.bib",
-  // "bib/sra/sra-own.bib",
-  "example.bib",
-  // "bib/wosch.bib",
-)
-#v(1pt) // remove empty slide warning
+== Quellenverzeichnis
 
-#slide(config: utils.merge-dicts(
-  (:),
-  config-page(
-    header: slide-header(title: [Quellenverzeichnis]),
-    footer: none,
-  ),
-  config-common(breakable: true),
-))[
-  #set text(size: 7.4pt)
+#slide(config: config-common(breakable: true))[
+  #let bib-files = (
+    // "bib/sra/sra-ext.bib",
+    // "bib/sra/sra-own.bib",
+    "example.bib",
+    // "bib/wosch.bib",
+  )
+
   #set par(leading: 0.4em, spacing: 0.5em)
   #bibliography(bytes(bib-files.map(read).join("\n")), title: none)
 ]
